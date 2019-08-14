@@ -31,19 +31,17 @@
 =============
 ckanext-versions
 =============
+This CKAN extension adds an ability to create and manage named dataset
+versions in CKAN.
 
-.. Put a description of your extension here:
-   What does it do? What features does it have?
-   Consider including some screenshots or embedding a video!
-
+Currently it aims to implement an API only, as frontend functionality is
+expected to be developed separately.
 
 ------------
 Requirements
 ------------
-
-For example, you might want to mention here which versions of CKAN this
-extension works with.
-
+ckanext-versions has been tested to work with CKAN 2.8. It may work with
+other versions as well.
 
 ------------
 Installation
@@ -67,21 +65,18 @@ To install ckanext-versions:
    config file (by default the config file is located at
    ``/etc/ckan/default/production.ini``).
 
+4. Initialize the database tables required for this extension by running::
+
+     paster --plugin=ckanext-versions versions init-db
+
 4. Restart CKAN. For example if you've deployed CKAN with Apache on Ubuntu::
 
      sudo service apache2 reload
 
-
 ---------------
 Config Settings
 ---------------
-
-Document any optional config settings here. For example::
-
-    # The minimum number of hours to wait before re-checking a resource
-    # (optional, default: 24).
-    ckanext.versions.some_setting = some_default_value
-
+This extension does not provide any additional configuration settings.
 
 ------------------------
 Development Installation
@@ -102,65 +97,21 @@ Running the Tests
 
 To run the tests, do::
 
-    nosetests --nologcapture --with-pylons=test.ini
+    make test
 
 To run the tests and produce a coverage report, first make sure you have
 coverage installed in your virtualenv (``pip install coverage``) then run::
 
-    nosetests --nologcapture --with-pylons=test.ini --with-coverage --cover-package=ckanext.versions --cover-inclusive --cover-erase --cover-tests
+    make test coverage
+
+Note that for tests to run properly, you need to have this extension installed
+in an environment that has CKAN installed in it, and configured to access a
+local PostgreSQL instance.
+
+You may need to edit ``test.ini`` and change the following line to point to the
+path (relative to the location of ``test.ini``) of CKAN's configured INI file::
+
+    [app:main]
+    use = config:../../src/ckan/test-core.ini
 
 
----------------------------------
-Registering ckanext-versions on PyPI
----------------------------------
-
-ckanext-versions should be availabe on PyPI as
-https://pypi.python.org/pypi/ckanext-versions. If that link doesn't work, then
-you can register the project on PyPI for the first time by following these
-steps:
-
-1. Create a source distribution of the project::
-
-     python setup.py sdist
-
-2. Register the project::
-
-     python setup.py register
-
-3. Upload the source distribution to PyPI::
-
-     python setup.py sdist upload
-
-4. Tag the first release of the project on GitHub with the version number from
-   the ``setup.py`` file. For example if the version number in ``setup.py`` is
-   0.0.1 then do::
-
-       git tag 0.0.1
-       git push --tags
-
-
-----------------------------------------
-Releasing a New Version of ckanext-versions
-----------------------------------------
-
-ckanext-versions is availabe on PyPI as https://pypi.python.org/pypi/ckanext-versions.
-To publish a new version to PyPI follow these steps:
-
-1. Update the version number in the ``setup.py`` file.
-   See `PEP 440 <http://legacy.python.org/dev/peps/pep-0440/#public-version-identifiers>`_
-   for how to choose version numbers.
-
-2. Create a source distribution of the new version::
-
-     python setup.py sdist
-
-3. Upload the source distribution to PyPI::
-
-     python setup.py sdist upload
-
-4. Tag the new release of the project on GitHub with the version number from
-   the ``setup.py`` file. For example if the version number in ``setup.py`` is
-   0.0.2 then do::
-
-       git tag 0.0.2
-       git push --tags
