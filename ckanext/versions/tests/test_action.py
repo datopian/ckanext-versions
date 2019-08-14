@@ -33,3 +33,18 @@ class TestVersionsActions(FunctionalTestBase):
         versions = helpers.call_action('dataset_version_list',
                                        package_id=self.dataset['id'])
         assert_equals(len(versions), 1)
+
+    def test_create(self):
+        """Test basic dataset version creation
+        """
+        version = helpers.call_action(
+            'dataset_version_create',
+            dataset=self.dataset['id'],
+            name="Version 0.1.2",
+            description="The best dataset ever, it **rules!**")
+
+        assert_equals(version['package_id'], self.dataset['id'])
+        assert_equals(version['package_revision_id'],
+                      self.dataset['revision_id'])
+        assert_equals(version['description'],
+                      "The best dataset ever, it **rules!**")
