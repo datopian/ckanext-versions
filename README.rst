@@ -106,12 +106,16 @@ coverage installed in your virtualenv (``pip install coverage``) then run::
 
 Note that for tests to run properly, you need to have this extension installed
 in an environment that has CKAN installed in it, and configured to access a
-local PostgreSQL instance.
+local PostgreSQL and Solr instances.
 
-You may need to edit ``test.ini`` and change the following line to point to the
-path (relative to the location of ``test.ini``) of CKAN's configured INI file::
+You can specify the path to your local CKAN installation by adding::
 
-    [app:main]
-    use = config:../../src/ckan/test-core.ini
+    make test CKAN_PATH=../../src/ckan/
 
+For example.
+
+In addition, the following environment variables are useful when testing::
+
+    CKAN_SQLALCHEMY_URL=postgres://ckan:ckan@my-postgres-db/ckan_test
+    CKAN_SOLR_URL=http://my-solr-instance:8983/solr/ckan
 
