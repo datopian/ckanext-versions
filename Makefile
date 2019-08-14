@@ -8,6 +8,7 @@ ISORT := isort
 FLAKE8 := flake8
 NOSETESTS := nosetests
 SED := sed
+PASTER := paster
 
 TEST_INI_PATH := ./test.ini
 CKAN_PATH := ../../src/ckan
@@ -19,6 +20,7 @@ test: prepare-config
 	$(PIP) install -r dev-requirements.txt
 	$(ISORT) -rc -df -c $(PACKAGE_DIR)
 	$(FLAKE8) $(PACKAGE_DIR)
+	$(PASTER) --plugin=ckan db init -c $(CKAN_PATH)/test-core.ini
 	$(NOSETESTS) --ckan \
 	      --with-pylons=$(TEST_INI_PATH) \
           --nologcapture \
