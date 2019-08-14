@@ -4,7 +4,7 @@ import sys
 
 from ckan.plugins.toolkit import CkanCommand
 
-from ckanext.versions.model import tables_exist, create_tables
+from ckanext.versions.model import create_tables, tables_exist
 
 
 class VersionsCommand(CkanCommand):

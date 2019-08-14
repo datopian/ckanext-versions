@@ -4,11 +4,10 @@ import datetime
 import logging
 from collections import OrderedDict
 
-from sqlalchemy import orm, Column, Unicode, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-
 from ckan.model.meta import metadata
 from ckan.model.types import UuidType
+from sqlalchemy import Column, DateTime, Unicode, orm
+from sqlalchemy.ext.declarative import declarative_base
 
 log = logging.getLogger(__name__)
 
