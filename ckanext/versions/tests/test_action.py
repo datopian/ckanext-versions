@@ -28,16 +28,13 @@ class TestVersionsActions(FunctionalTestBase):
 
         self.dataset = factories.Dataset()
 
-    def test_list(self):
-        versions = helpers.call_action('dataset_version_list',
-                                       package_id=self.dataset['id'])
-        assert_equals(len(versions), 1)
-
     def test_create(self):
         """Test basic dataset version creation
         """
+        context = {'user': self.org_admin['id']}
         version = helpers.call_action(
             'dataset_version_create',
+            context,
             dataset=self.dataset['id'],
             name="Version 0.1.2",
             description="The best dataset ever, it **rules!**")
@@ -47,6 +44,7 @@ class TestVersionsActions(FunctionalTestBase):
                       self.dataset['revision_id'])
         assert_equals(version['description'],
                       "The best dataset ever, it **rules!**")
+        assert_equals(version['creator_user_id'], self.org_admin['id'])
 
     def test_create_dataset_not_found(self):
         payload = {'dataset': 'abc123',
@@ -61,3 +59,34 @@ class TestVersionsActions(FunctionalTestBase):
 
         assert_raises(toolkit.ValidationError, helpers.call_action,
                       'dataset_version_create', **payload)
+
+    def test_list(self):
+        context = {'user': self.org_admin['id']}
+        helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name="Version 0.1.2",
+            description="The best dataset ever, it **rules!**")
+
+        versions = helpers.call_action('dataset_version_list',
+                                       context,
+                                       dataset=self.dataset['id'])
+        assert_equals(len(versions), 1)
+
+    def test_list_no_versions(self):
+        context = {'user': self.org_admin['id']}
+        versions = helpers.call_action('dataset_version_list',
+                                       context,
+                                       dataset=self.dataset['id'])
+        assert_equals(len(versions), 0)
+
+    def test_list_missing_dataset_id(self):
+        payload = {}
+        assert_raises(toolkit.ValidationError, helpers.call_action,
+                      'dataset_version_list', **payload)
+
+    def test_list_not_found(self):
+        payload = {'dataset': 'abc123'}
+        assert_raises(toolkit.ObjectNotFound, helpers.call_action,
+                      'dataset_version_list', **payload)

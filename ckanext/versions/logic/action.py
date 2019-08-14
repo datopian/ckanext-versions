@@ -27,7 +27,6 @@ def dataset_version_create(context, data_dict):
     """
     model = context.get('model', core_model)
     dataset_id, name = toolkit.get_or_bust(data_dict, ['dataset', 'name'])
-
     dataset = model.Package.get(dataset_id)
     if not dataset:
         raise toolkit.ObjectNotFound('Dataset not found')
@@ -51,19 +50,25 @@ def dataset_version_create(context, data_dict):
 
 
 def dataset_version_list(context, data_dict):
-    """List all versions for a given dataset
+    """List versions of a given dataset
+
+    :param dataset: the id or name of the dataset
+    :type dataset: string
+    :returns: list of matched versions
+    :rtype: list
     """
-    return [
-        {
-            "id": "some-fake-id",
-            "package_id": "some-fake-package-id",
-            "package_revision_id": "more-fake-id",
-            "name": "2019-10-01.1",
-            "description": "Final data for the October 19' release",
-            "craetor_user_id": "some-fake-user-id",
-            "craeted": '2019-10-01 10:10:10:10'
-         }
-    ]
+    model = context.get('model', core_model)
+    dataset_id = toolkit.get_or_bust(data_dict, ['dataset'])
+    dataset = model.Package.get(dataset_id)
+    if not dataset:
+        raise toolkit.ObjectNotFound('Dataset not found')
+
+    toolkit.check_access('dataset_version_list', context, data_dict)
+
+    versions = model.Session.query(DatasetVersion).\
+        filter(DatasetVersion.package_id == dataset_id)
+
+    return [v.as_dict() for v in versions]
 
 
 def dataset_version_delete(context, data_dict):

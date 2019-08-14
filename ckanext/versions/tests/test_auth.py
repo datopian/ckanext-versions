@@ -23,7 +23,7 @@ class TestVersionsAuth(FunctionalTestBase):
         self.org_editor = factories.User()
         self.org_member = factories.User()
         self.other_org_admin = factories.User()
-        self.admin_user = factories.User(sysadmin=True)
+        self.admin_user = factories.Sysadmin()
 
         self.org = factories.Organization(
             users=[
