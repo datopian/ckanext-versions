@@ -90,3 +90,51 @@ class TestVersionsActions(FunctionalTestBase):
         payload = {'dataset': 'abc123'}
         assert_raises(toolkit.ObjectNotFound, helpers.call_action,
                       'dataset_version_list', **payload)
+
+    def test_create_two_versions_for_same_revision(self):
+        context = {'user': self.org_admin['id']}
+        helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name="Version 0.1.2",
+            description="The best dataset ever, it **rules!**")
+
+        helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name="latest",
+            description="This points to the latest version")
+
+        versions = helpers.call_action('dataset_version_list',
+                                       context,
+                                       dataset=self.dataset['id'])
+        assert_equals(len(versions), 2)
+
+    def test_delete(self):
+        context = {'user': self.org_admin['id']}
+        version = helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name="Version 0.1.2",
+            description="The best dataset ever, it **rules!**")
+
+        helpers.call_action('dataset_version_delete', context,
+                            id=version['id'])
+
+        versions = helpers.call_action('dataset_version_list',
+                                       context,
+                                       dataset=self.dataset['id'])
+        assert_equals(len(versions), 0)
+
+    def test_delete_not_found(self):
+        payload = {'id': 'abc123'}
+        assert_raises(toolkit.ObjectNotFound, helpers.call_action,
+                      'dataset_version_delete', **payload)
+
+    def test_delete_missing_param(self):
+        payload = {}
+        assert_raises(toolkit.ValidationError, helpers.call_action,
+                      'dataset_version_delete', **payload)
