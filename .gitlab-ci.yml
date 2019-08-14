@@ -1,0 +1,10 @@
+default:
+  services:
+    - postgres:9.3
+
+test:ckan-2.8:
+  image: openknowledge/ckan-dev:2.8
+  script:
+    - pip install -r requirements.txt
+    - pip install .
+    - make test
