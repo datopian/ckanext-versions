@@ -1,3 +1,9 @@
+variables:
+  POSTGRES_DB: ckan_test
+  POSTGRES_USER: ckan
+  POSTGRES_PASSWORD: ckan
+  TEST_CKAN_SQLALCHEMY_URL: postgres://ckan:ckan@postgres/ckan_test
+
 default:
   services:
     - postgres:9.3
