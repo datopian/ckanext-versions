@@ -11,6 +11,14 @@ def dataset_version_create(context, data_dict):
     return package_update(context, {"id": data_dict['dataset']})
 
 
+def dataset_version_delete(context, data_dict):
+    """Check if a user is allowed to delete a version
+
+    This is permitted only to users who are allowed to modify the dataset
+    """
+    return package_update(context, {"id": data_dict['dataset']})
+
+
 def dataset_version_list(context, data_dict):
     """Check if a user is allowed to list dataset versions
 
@@ -19,9 +27,9 @@ def dataset_version_list(context, data_dict):
     return package_show(context, {"id": data_dict['dataset']})
 
 
-def dataset_version_delete(context, data_dict):
-    """Check if a user is allowed to delete a version
+def dataset_version_show(context, data_dict):
+    """Check if a user is allowed to view dataset versions
 
-    This is permitted only to users who are allowed to modify the dataset
+    This is permitted only to users who can view the dataset
     """
-    return package_update(context, {"id": data_dict['dataset']})
+    return package_show(context, {"id": data_dict['dataset']})

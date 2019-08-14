@@ -71,6 +71,26 @@ def dataset_version_list(context, data_dict):
     return [v.as_dict() for v in versions]
 
 
+def dataset_version_show(context, data_dict):
+    """Get a specific version by ID
+
+    :param id: the id of the version
+    :type id: string
+    :returns: The matched version
+    :rtype: dict
+    """
+    model = context.get('model', core_model)
+    version_id = toolkit.get_or_bust(data_dict, ['id'])
+    version = model.Session.query(DatasetVersion).get(version_id)
+    if not version:
+        raise toolkit.ObjectNotFound('Dataset version not found')
+
+    toolkit.check_access('dataset_version_show', context,
+                         {"dataset": version.package_id, "id": version_id})
+
+    return version.as_dict()
+
+
 def dataset_version_delete(context, data_dict):
     """Delete a specific version by ID
 

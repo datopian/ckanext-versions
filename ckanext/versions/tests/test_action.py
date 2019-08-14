@@ -138,3 +138,27 @@ class TestVersionsActions(FunctionalTestBase):
         payload = {}
         assert_raises(toolkit.ValidationError, helpers.call_action,
                       'dataset_version_delete', **payload)
+
+    def test_show(self):
+        context = {'user': self.org_admin['id']}
+        version1 = helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name="Version 0.1.2",
+            description="The best dataset ever, it **rules!**")
+
+        version2 = helpers.call_action('dataset_version_show', context,
+                                       id=version1['id'])
+
+        assert_equals(version2, version1)
+
+    def test_show_not_found(self):
+        payload = {'id': 'abc123'}
+        assert_raises(toolkit.ObjectNotFound, helpers.call_action,
+                      'dataset_version_show', **payload)
+
+    def test_show_missing_param(self):
+        payload = {}
+        assert_raises(toolkit.ValidationError, helpers.call_action,
+                      'dataset_version_show', **payload)
