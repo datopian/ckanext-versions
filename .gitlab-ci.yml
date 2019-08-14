@@ -7,4 +7,4 @@ test:ckan-2.8:
   script:
     - pip install -r requirements.txt
     - pip install .
-    - make test
+    - make test CKAN_PATH=/srv/app/src/ckan

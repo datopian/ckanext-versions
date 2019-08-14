@@ -5,7 +5,7 @@ import logging
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
-from ckanext.versions import action
+from ckanext.versions.logic import action
 from ckanext.versions.model import tables_exist
 
 log = logging.getLogger(__name__)

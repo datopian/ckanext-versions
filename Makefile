@@ -7,10 +7,15 @@ PIP := pip
 ISORT := isort
 FLAKE8 := flake8
 NOSETESTS := nosetests
+SED := sed
 
 TEST_INI_PATH := ./test.ini
+CKAN_PATH := ../../src/ckan
 
-test:
+prepare-config:
+	$(SED) "s@use = config:.*@use = config:$(CKAN_PATH)/test-core.ini@" -i $(TEST_INI_PATH)
+
+test: prepare-config
 	$(PIP) install -r dev-requirements.txt
 	$(ISORT) -rc -df -c $(PACKAGE_DIR)
 	$(FLAKE8) $(PACKAGE_DIR)
@@ -19,7 +24,7 @@ test:
           --nologcapture \
           --with-doctest
 
-coverage: test
+coverage: prepare-config test
 	$(NOSETESTS) --ckan \
 	      --with-pylons=$(TEST_INI_PATH) \
           --nologcapture \
