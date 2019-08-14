@@ -1,14 +1,13 @@
+from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
-from nose.tools import assert_equals
+from nose.tools import assert_equals, assert_raises
 
-from . import FunctionalTestBase
+from ckanext.versions.tests import FunctionalTestBase
 
 
 class TestVersionsActions(FunctionalTestBase):
     """Test cases for logic actions
     """
-
-    _load_plugins = ['versions']
 
     def setup(self):
 
@@ -48,3 +47,17 @@ class TestVersionsActions(FunctionalTestBase):
                       self.dataset['revision_id'])
         assert_equals(version['description'],
                       "The best dataset ever, it **rules!**")
+
+    def test_create_dataset_not_found(self):
+        payload = {'dataset': 'abc123',
+                   'name': "Version 0.1.2"}
+
+        assert_raises(toolkit.ObjectNotFound, helpers.call_action,
+                      'dataset_version_create', **payload)
+
+    def test_create_missing_name(self):
+        payload = {'dataset': self.dataset['id'],
+                   'description': "The best dataset ever, it **rules!**"}
+
+        assert_raises(toolkit.ValidationError, helpers.call_action,
+                      'dataset_version_create', **payload)

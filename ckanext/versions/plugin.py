@@ -5,7 +5,7 @@ import logging
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
-from ckanext.versions.logic import action
+from ckanext.versions.logic import action, auth
 from ckanext.versions.model import tables_exist
 
 log = logging.getLogger(__name__)
@@ -44,6 +44,8 @@ class VersionsPlugin(plugins.SingletonPlugin):
     # IAuthFunctions
 
     def get_auth_functions(self):
-        # Probably going to define functions that simply wrap dataset auth
-        # functions
-        return {}
+        return {
+            'dataset_version_create': auth.dataset_version_create,
+            'dataset_version_delete': auth.dataset_version_delete,
+            'dataset_version_list': auth.dataset_version_list,
+        }

@@ -5,6 +5,8 @@ from ckanext.versions.model import create_tables, tables_exist
 
 class FunctionalTestBase(helpers.FunctionalTestBase):
 
+    _load_plugins = ['versions']
+
     @classmethod
     def setup_class(cls):
 
