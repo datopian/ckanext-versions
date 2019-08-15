@@ -49,6 +49,7 @@ def dataset_version_create(context, data_dict):
     return version.as_dict()
 
 
+@toolkit.side_effect_free
 def dataset_version_list(context, data_dict):
     """List versions of a given dataset
 
@@ -71,6 +72,7 @@ def dataset_version_list(context, data_dict):
     return [v.as_dict() for v in versions]
 
 
+@toolkit.side_effect_free
 def dataset_version_show(context, data_dict):
     """Get a specific version by ID
 
