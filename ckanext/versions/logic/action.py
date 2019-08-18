@@ -119,6 +119,18 @@ def dataset_version_delete(context, data_dict):
 
 @toolkit.side_effect_free
 def package_show_revision(context, data_dict):
-    revision_id = toolkit.get_or_bust(data_dict, ['dataset_revision_id'])
+    """Show a package from a specified revision
+
+    Takes the same arguments as 'package_show' but with an additional
+    revision ID parameter
+
+    :param id: the id of the package
+    :type id: string
+    :param revision_id: the ID of the revision
+    :type revision_id: string
+    :returns: A package dict
+    :rtype: dict
+    """
+    revision_id = toolkit.get_or_bust(data_dict, ['revision_id'])
     context['revision_id'] = revision_id
     return toolkit.get_action('package_show')(context, data_dict)
