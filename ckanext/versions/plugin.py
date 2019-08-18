@@ -39,7 +39,8 @@ class VersionsPlugin(plugins.SingletonPlugin):
             'dataset_version_create': action.dataset_version_create,
             'dataset_version_delete': action.dataset_version_delete,
             'dataset_version_list': action.dataset_version_list,
-            'dataset_version_show': action.dataset_version_show
+            'dataset_version_show': action.dataset_version_show,
+            'package_show_revision': action.package_show_revision,
         }
 
     # IAuthFunctions
@@ -49,5 +50,5 @@ class VersionsPlugin(plugins.SingletonPlugin):
             'dataset_version_create': auth.dataset_version_create,
             'dataset_version_delete': auth.dataset_version_delete,
             'dataset_version_list': auth.dataset_version_list,
-            'dataset_version_show': auth.dataset_version_show
+            'dataset_version_show': auth.dataset_version_show,
         }

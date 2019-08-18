@@ -115,3 +115,10 @@ def dataset_version_delete(context, data_dict):
 
     log.info('Version %s of dataset %s was deleted',
              version_id, version.package_id)
+
+
+@toolkit.side_effect_free
+def package_show_revision(context, data_dict):
+    revision_id = toolkit.get_or_bust(data_dict, ['dataset_revision_id'])
+    context['revision_id'] = revision_id
+    return toolkit.get_action('package_show')(context, data_dict)
