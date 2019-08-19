@@ -3,9 +3,7 @@
 API_KEY="9f6f04ef-2dca-4028-8d6a-7a0019a2484b"
 
 echo "Create a version for the current revision of my-version-dataset"
-curl -H "Authorization:$API_KEY" -X POST http://ckan-dev:5000/api/3/action/dataset_version_create?dataset=my-version-dataset&name=Release01&description='initial release'
-
-
+curl --data "dataset=my-version-dataset&name=Release01&description='initial release'" -H "Authorization:$API_KEY" -X POST "http://ckan-dev:5000/api/3/action/dataset_version_create"
 
 echo "List versions for the dataset"
 curl -H "Authorization:$API_KEY" -X GET http://ckan-dev:5000/api/3/action/dataset_version_list?dataset=my-version-dataset
