@@ -114,6 +114,11 @@ tokens - you should consult the `CKAN API Guide
 <https://docs.ckan.org/en/2.8/api/>`_ for details.
 
 ---------------
+Demo
+---------------
+See `api-demo.sh <./api-demo.sh>`_
+
+---------------
 Config Settings
 ---------------
 This extension does not provide any additional configuration settings.
