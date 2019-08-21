@@ -80,7 +80,7 @@ This extension exposes a number of new API actions to manage and use
 dataset versions:
 
 * ``dataset_version_list?dataset=<dataset_id>`` - List of versions for a
-  given dataset. You can use the dataset's ID or name here.
+  given dataset.
 
 * ``dataset_version_create?dataset=<dataset_id>&name=<version_name>&description=<description>`` -
   create a new version for the specified dataset current revision. You are
