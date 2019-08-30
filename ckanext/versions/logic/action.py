@@ -67,7 +67,8 @@ def dataset_version_list(context, data_dict):
     toolkit.check_access('dataset_version_list', context, data_dict)
 
     versions = model.Session.query(DatasetVersion).\
-        filter(DatasetVersion.package_id == dataset_id)
+        filter(DatasetVersion.package_id == dataset_id).\
+        order_by(DatasetVersion.created.desc())
 
     return [v.as_dict() for v in versions]
 
