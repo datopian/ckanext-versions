@@ -4,6 +4,7 @@ from datetime import datetime
 
 from ckan import model as core_model
 from ckan.plugins import toolkit
+from sqlalchemy.exc import IntegrityError
 
 from ckanext.versions.model import DatasetVersion
 
@@ -42,7 +43,15 @@ def dataset_version_create(context, data_dict):
                              creator_user_id=context['user'])
 
     model.Session.add(version)
-    model.repo.commit()
+
+    try:
+        model.repo.commit()
+    except IntegrityError:
+        #  Name not unique, or foreign key constraint violated
+        model.Session.rollback()
+        raise toolkit.ValidationError(
+            'Version names must be unique per dataset'
+        )
 
     log.info('Version "%s" created for package %s', name, dataset.id)
 
