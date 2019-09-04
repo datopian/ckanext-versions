@@ -1,5 +1,6 @@
 # encoding: utf-8
 import logging
+from copy import deepcopy
 from datetime import datetime
 
 from ckan import model as core_model
@@ -39,16 +40,17 @@ def dataset_version_create(context, data_dict):
                              name=name,
                              description=data_dict.get('description', None),
                              created=datetime.utcnow(),
-                             # TODO: is this right?
                              creator_user_id=context['user'])
 
-    model.Session.add(version)
+    # I'll create my own session! With Blackjack! And H**kers!
+    session = model.meta.create_local_session()
+    session.add(version)
 
     try:
-        model.repo.commit()
+        session.commit()
     except IntegrityError:
         #  Name not unique, or foreign key constraint violated
-        model.Session.rollback()
+        session.rollback()
         raise toolkit.ValidationError(
             'Version names must be unique per dataset'
         )
@@ -141,6 +143,7 @@ def package_show_revision(context, data_dict):
     :returns: A package dict
     :rtype: dict
     """
+    context = deepcopy(context)  # Work on a modified copy of context
     revision_id = toolkit.get_or_bust(data_dict, ['revision_id'])
     context['revision_id'] = revision_id
     return toolkit.get_action('package_show')(context, data_dict)
