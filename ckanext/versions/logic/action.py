@@ -4,6 +4,7 @@ from datetime import datetime
 
 from ckan import model as core_model
 from ckan.plugins import toolkit
+from sqlalchemy.exc import IntegrityError
 
 from ckanext.versions.model import DatasetVersion
 
@@ -33,16 +34,26 @@ def dataset_version_create(context, data_dict):
 
     toolkit.check_access('dataset_version_create', context, data_dict)
 
+    latest_revision_id = dataset.latest_related_revision.id
     version = DatasetVersion(package_id=dataset.id,
-                             package_revision_id=dataset.revision_id,
+                             package_revision_id=latest_revision_id,
                              name=name,
                              description=data_dict.get('description', None),
                              created=datetime.utcnow(),
-                             # TODO: is this right?
                              creator_user_id=context['user'])
 
-    model.Session.add(version)
-    model.repo.commit()
+    # I'll create my own session! With Blackjack! And H**kers!
+    session = model.meta.create_local_session()
+    session.add(version)
+
+    try:
+        session.commit()
+    except IntegrityError:
+        #  Name not unique, or foreign key constraint violated
+        session.rollback()
+        raise toolkit.ValidationError(
+            'Version names must be unique per dataset'
+        )
 
     log.info('Version "%s" created for package %s', name, dataset.id)
 
@@ -67,7 +78,8 @@ def dataset_version_list(context, data_dict):
     toolkit.check_access('dataset_version_list', context, data_dict)
 
     versions = model.Session.query(DatasetVersion).\
-        filter(DatasetVersion.package_id == dataset_id)
+        filter(DatasetVersion.package_id == dataset_id).\
+        order_by(DatasetVersion.created.desc())
 
     return [v.as_dict() for v in versions]
 
@@ -132,5 +144,13 @@ def package_show_revision(context, data_dict):
     :rtype: dict
     """
     revision_id = toolkit.get_or_bust(data_dict, ['revision_id'])
+    current_revision_id = context.get('revision_id', None)
     context['revision_id'] = revision_id
-    return toolkit.get_action('package_show')(context, data_dict)
+    result = toolkit.get_action('package_show')(context, data_dict)
+
+    if current_revision_id:
+        context['revision_id'] = current_revision_id
+    else:
+        del context['revision_id']
+
+    return result

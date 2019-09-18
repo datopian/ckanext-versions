@@ -46,6 +46,24 @@ class TestVersionsActions(FunctionalTestBase):
                       "The best dataset ever, it **rules!**")
         assert_equals(version['creator_user_id'], self.org_admin['id'])
 
+    def test_create_name_already_exists(self):
+        """Test that creating a version with an existing name for the same
+        dataset raises an error
+        """
+        context = {'user': self.org_admin['id']}
+        helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name="HEAD",
+            description="The best dataset ever, it **rules!**")
+
+        assert_raises(toolkit.ValidationError, helpers.call_action,
+                      'dataset_version_create', context,
+                      dataset=self.dataset['id'],
+                      name="HEAD",
+                      description="This is also a good version")
+
     def test_create_dataset_not_found(self):
         payload = {'dataset': 'abc123',
                    'name': "Version 0.1.2"}
