@@ -34,8 +34,9 @@ def dataset_version_create(context, data_dict):
 
     toolkit.check_access('dataset_version_create', context, data_dict)
 
+    latest_revision_id = dataset.latest_related_revision.id
     version = DatasetVersion(package_id=dataset.id,
-                             package_revision_id=dataset.revision_id,
+                             package_revision_id=latest_revision_id,
                              name=name,
                              description=data_dict.get('description', None),
                              created=datetime.utcnow(),
