@@ -1,6 +1,5 @@
 # encoding: utf-8
 import logging
-from copy import deepcopy
 from datetime import datetime
 
 from ckan import model as core_model
@@ -143,7 +142,14 @@ def package_show_revision(context, data_dict):
     :returns: A package dict
     :rtype: dict
     """
-    context = deepcopy(context)  # Work on a modified copy of context
     revision_id = toolkit.get_or_bust(data_dict, ['revision_id'])
+    current_revision_id = context.get('revision_id', None)
     context['revision_id'] = revision_id
-    return toolkit.get_action('package_show')(context, data_dict)
+    result = toolkit.get_action('package_show')(context, data_dict)
+
+    if current_revision_id:
+        context['revision_id'] = current_revision_id
+    else:
+        del context['revision_id']
+
+    return result
