@@ -13,8 +13,8 @@ class TestVersionsActions(FunctionalTestBase):
     def _get_context(self, user):
         return {
             'model': model,
-            'auth_user_obj': user,
-            'user': user.name,
+            'user': user['name'],
+            'ignore_auth': False
         }
 
     def setup(self):
