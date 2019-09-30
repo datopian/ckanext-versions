@@ -1,3 +1,4 @@
+from ckan import model
 from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
 from nose.tools import assert_equals, assert_raises
@@ -8,6 +9,12 @@ from ckanext.versions.tests import FunctionalTestBase
 class TestVersionsActions(FunctionalTestBase):
     """Test cases for logic actions
     """
+
+    def _get_context(self, user):
+        return {
+            'model': model,
+            'user': user if isinstance(user, basestring) else user['name']
+        }
 
     def setup(self):
 
@@ -31,7 +38,7 @@ class TestVersionsActions(FunctionalTestBase):
     def test_create(self):
         """Test basic dataset version creation
         """
-        context = {'user': self.org_admin['id']}
+        context = self._get_context(self.org_admin)
         version = helpers.call_action(
             'dataset_version_create',
             context,
@@ -50,7 +57,7 @@ class TestVersionsActions(FunctionalTestBase):
         """Test that creating a version with an existing name for the same
         dataset raises an error
         """
-        context = {'user': self.org_admin['id']}
+        context = self._get_context(self.org_admin)
         helpers.call_action(
             'dataset_version_create',
             context,
@@ -79,7 +86,7 @@ class TestVersionsActions(FunctionalTestBase):
                       'dataset_version_create', **payload)
 
     def test_list(self):
-        context = {'user': self.org_admin['id']}
+        context = self._get_context(self.org_admin)
         helpers.call_action(
             'dataset_version_create',
             context,
@@ -93,7 +100,7 @@ class TestVersionsActions(FunctionalTestBase):
         assert_equals(len(versions), 1)
 
     def test_list_no_versions(self):
-        context = {'user': self.org_admin['id']}
+        context = self._get_context(self.org_admin)
         versions = helpers.call_action('dataset_version_list',
                                        context,
                                        dataset=self.dataset['id'])
@@ -110,7 +117,7 @@ class TestVersionsActions(FunctionalTestBase):
                       'dataset_version_list', **payload)
 
     def test_create_two_versions_for_same_revision(self):
-        context = {'user': self.org_admin['id']}
+        context = self._get_context(self.org_admin)
         helpers.call_action(
             'dataset_version_create',
             context,
@@ -131,7 +138,7 @@ class TestVersionsActions(FunctionalTestBase):
         assert_equals(len(versions), 2)
 
     def test_delete(self):
-        context = {'user': self.org_admin['id']}
+        context = self._get_context(self.org_admin)
         version = helpers.call_action(
             'dataset_version_create',
             context,
@@ -158,7 +165,7 @@ class TestVersionsActions(FunctionalTestBase):
                       'dataset_version_delete', **payload)
 
     def test_show(self):
-        context = {'user': self.org_admin['id']}
+        context = self._get_context(self.org_admin)
         version1 = helpers.call_action(
             'dataset_version_create',
             context,
