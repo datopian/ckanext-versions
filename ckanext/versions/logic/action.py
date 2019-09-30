@@ -33,6 +33,7 @@ def dataset_version_create(context, data_dict):
         raise toolkit.ObjectNotFound('Dataset not found')
 
     toolkit.check_access('dataset_version_create', context, data_dict)
+    assert 'auth_user_obj' in context  # Should be here after calls to toolkit.check_access
 
     latest_revision_id = dataset.latest_related_revision.id
     version = DatasetVersion(package_id=dataset.id,
@@ -40,7 +41,7 @@ def dataset_version_create(context, data_dict):
                              name=name,
                              description=data_dict.get('description', None),
                              created=datetime.utcnow(),
-                             creator_user_id=context['user'])
+                             creator_user_id=context['auth_user_obj'].id)
 
     # I'll create my own session! With Blackjack! And H**kers!
     session = model.meta.create_local_session()
@@ -48,9 +49,10 @@ def dataset_version_create(context, data_dict):
 
     try:
         session.commit()
-    except IntegrityError:
+    except IntegrityError as e:
         #  Name not unique, or foreign key constraint violated
         session.rollback()
+        log.debug("DB integrity error (probably a non-unique version name): %s", e)
         raise toolkit.ValidationError(
             'Version names must be unique per dataset'
         )
