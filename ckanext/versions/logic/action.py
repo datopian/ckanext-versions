@@ -33,7 +33,7 @@ def dataset_version_create(context, data_dict):
         raise toolkit.ObjectNotFound('Dataset not found')
 
     toolkit.check_access('dataset_version_create', context, data_dict)
-    assert 'auth_user_obj' in context  # Should be here after calls to toolkit.check_access
+    assert 'auth_user_obj' in context  # Should be here after `check_access`
 
     latest_revision_id = dataset.latest_related_revision.id
     version = DatasetVersion(package_id=dataset.id,
@@ -52,7 +52,7 @@ def dataset_version_create(context, data_dict):
     except IntegrityError as e:
         #  Name not unique, or foreign key constraint violated
         session.rollback()
-        log.debug("DB integrity error (probably a non-unique version name): %s", e)
+        log.debug("DB integrity error (version name not unique?): %s", e)
         raise toolkit.ValidationError(
             'Version names must be unique per dataset'
         )
