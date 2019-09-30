@@ -1,0 +1,82 @@
+{% block versions_list %}
+
+{% if not c.current_version %}
+  {% set pkg = c.pkg_dict %}
+  {% resource 'versions/dataset_versions.js' %}
+  <h3>Versions</h3>
+    <div id="versions-container"
+         data-module="dataset_version_controls"
+         data-module-api-url="{{ h.url_for('api.action', ver=3, logic_function='') }}"
+         data-module-package-id="{{ pkg.id }}">
+
+      {% for version in pkg.get('versions', []) %}
+        <div style="margin: 1em">
+          <div>
+            <strong>
+              <a href="{{ h.dataset_version_get_show_url(pkg.name, version) }}">{{ version.name }}</a>
+              – {{ h.render_datetime(version.created, with_hours=True) }}
+            </strong>
+          </div>
+          <div>{{ version.description }}</div>
+          <div style="margin-top: 1em">
+            <a href="{{ h.dataset_version_get_show_url(pkg.name, version) }}" class="btn btn-primary btn-sm" style="padding: 3px 5px;">
+              {{ _('View Version') }}
+            </a>
+
+            {% if h.check_access('dataset_version_delete', {'dataset': pkg.id}) %}
+              <button data-version-id="{{ version.id }}"
+                      data-version-name="{{ version.name }}"
+                      class="delete-version-btn btn btn-primary btn-sm"
+                      style="padding: 3px 5px;">
+                {{ _('Delete Version') }}
+              </button>
+            {% endif %}
+          </div>
+        </div>
+        {% else %}
+        <div style="margin: 1em">
+          <div>
+              {{ _('There are no versions for this dataset yet') }}
+          </div>
+        </div>
+      {% endfor %}
+
+      {% if h.check_access('dataset_version_create', {'dataset': pkg.id}) %}
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal" style="margin-top: 1em">
+          {{ _('Create Version') }}
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <form class="create-version-form">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Create a new version pointing to the current state of this dataset</h4>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="version_name">Version name</label>
+                  <input type="text" class="form-control" id="version_name" name="version_name" placeholder="version 1.2" required>
+                </div>
+                <div class="form-group">
+                  <label for="version-details">Description</label>
+                  <textarea id="version-details" name="details" class="form-control" rows="3"></textarea>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary">Create Version</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        </div>
+
+      {% endif %}
+    </div>
+{% endif %}
+
+{% endblock %}

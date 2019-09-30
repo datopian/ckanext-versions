@@ -1,0 +1,13 @@
+{% ckan_extends %}
+
+{% block page_heading %}
+  {{ super() }}
+  {% if c.current_version %}
+  <span class="label label-default">version {{ c.current_version.name }}</span>
+  {% endif %}
+{% endblock %}
+
+{% block primary_content_inner %}
+  {{ super() }}
+  {% snippet "package/snippets/versions_list.html", pkg=pkg %}
+{% endblock %}}
