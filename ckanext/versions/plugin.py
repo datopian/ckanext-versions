@@ -59,7 +59,7 @@ class VersionsPlugin(plugins.SingletonPlugin):
 
     def get_helpers(self):
         return {
-            'dataset_version_get_show_url': helpers.dataset_version_get_show_url
+            'dataset_version_get_show_url': helpers.get_show_url
         }
 
     # IPackageController
