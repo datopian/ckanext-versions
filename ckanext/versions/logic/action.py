@@ -33,7 +33,7 @@ def dataset_version_create(context, data_dict):
         raise toolkit.ObjectNotFound('Dataset not found')
 
     toolkit.check_access('dataset_version_create', context, data_dict)
-    assert 'auth_user_obj' in context  # Should be here after `check_access`
+    assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     latest_revision_id = dataset.latest_related_revision.id
     version = DatasetVersion(package_id=dataset.id,
