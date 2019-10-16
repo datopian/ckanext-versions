@@ -7,6 +7,13 @@
   {% endif %}
 {% endblock %}
 
+{% block package_description %}
+  {{ super() }}
+  {% if c.current_version %}
+  <p>{{ c.current_version.description }}</p>
+  {% endif %}
+{% endblock %}
+
 {% block primary_content_inner %}
   {{ super() }}
   {% snippet "package/snippets/versions_list.html", pkg=pkg %}

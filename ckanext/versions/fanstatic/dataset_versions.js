@@ -8,12 +8,14 @@ ckan.module('dataset_version_controls', function ($) {
 
         _apiBaseUrl: null,
         _packageId: null,
+        _packageUrl: null,
 
         initialize: function ()
         {
             $.proxyAll(this, /_on/);
             this._apiBaseUrl = this.options.apiUrl;
             this._packageId = this.options.packageId;
+            this._packageUrl = this.options.packageUrl;
 
             this.$('.delete-version-btn').on('click', this._onDelete);
             this.$('.create-version-form').on('submit', this._onCreate);
@@ -63,9 +65,9 @@ ckan.module('dataset_version_controls', function ($) {
                             console.error({params, jsonResponse});
                         });
                     } else {
-                        location.reload();
+                        location.href = this._packageUrl;
                     }
-                });
+                }.bind(this));
         },
 
         _create: function (datasetId, versionName, description) {
