@@ -14,6 +14,20 @@
   {% endif %}
 {% endblock %}
 
+{% block package_additional_info %}
+  {% if c.current_version %}
+    {% do pkg.update({
+      "metadata_created": None,
+      "metadata_modified": None,
+      "extras": pkg["extras"] + [{
+        "key": "Version created",
+        "value": h.render_datetime(c.current_version.created, with_hours=True)
+      }]
+    }) %}
+  {% endif %}
+  {{ super() }}
+{% endblock %}
+
 {% block primary_content_inner %}
   {{ super() }}
   {% snippet "package/snippets/versions_list.html", pkg=pkg %}
