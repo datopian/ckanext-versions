@@ -47,7 +47,7 @@
     {% if h.check_access('dataset_version_delete', {'dataset': pkg.id}) %}
       <button data-version-id="{{ c.current_version.id }}"
               data-version-name="{{ c.current_version.name }}"
-              class="delete-version-btn btn btn-primary">
+              class="delete-version-btn btn btn-danger">
         {{ _('Delete Version') }}
       </button>
     {% endif %}
