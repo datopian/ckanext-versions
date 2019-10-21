@@ -1,0 +1,36 @@
+{% ckan_extends %}
+
+{% block page_heading %}
+  {{ super() }}
+  {% if c.current_version %}
+  <span class="label label-default">version {{ c.current_version.name }}</span>
+  {% endif %}
+{% endblock %}
+
+{% block package_description %}
+  {{ super() }}
+  {% if c.current_version %}
+  <p>{{ c.current_version.description }}</p>
+  {% endif %}
+{% endblock %}
+
+{% block package_additional_info %}
+  {% if c.current_version %}
+    {% do pkg.update({
+      "metadata_created": None,
+      "metadata_modified": None,
+      "extras": pkg["extras"] + [{
+        "key": _("Version created at"),
+        "value": h.render_datetime(c.current_version.created, with_hours=True)
+      }]
+    }) %}
+  {% endif %}
+  {{ super() }}
+{% endblock %}
+
+{% block primary_content_inner %}
+  {{ super() }}
+  {% block versions_list %}
+    {% snippet "package/snippets/versions_list.html", pkg=pkg %}
+  {% endblock %}
+{% endblock %}

@@ -5,7 +5,7 @@ import logging
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
-from ckanext.versions.logic import action, auth
+from ckanext.versions.logic import action, auth, helpers
 from ckanext.versions.model import tables_exist
 
 log = logging.getLogger(__name__)
@@ -15,6 +15,8 @@ class VersionsPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IAuthFunctions)
+    plugins.implements(plugins.IPackageController, inherit=True)
+    plugins.implements(plugins.ITemplateHelpers)
 
     # IConfigurer
 
@@ -52,3 +54,26 @@ class VersionsPlugin(plugins.SingletonPlugin):
             'dataset_version_list': auth.dataset_version_list,
             'dataset_version_show': auth.dataset_version_show,
         }
+
+    # ITemplateHelpers
+
+    def get_helpers(self):
+        return {
+            'dataset_version_get_show_url': helpers.get_show_url
+        }
+
+    # IPackageController
+
+    def before_view(self, pkg_dict):
+        version = None
+        versions = action.dataset_version_list({"ignore_auth": True},
+                                               {"dataset": pkg_dict['id']})
+        pkg_dict.update({'versions': versions})
+
+        version_id = toolkit.request.params.get('version', None)
+        if version_id:
+            version = action.dataset_version_show({"ignore_auth": True},
+                                                  {"id": version_id})
+            toolkit.c.current_version = version
+
+        return pkg_dict
