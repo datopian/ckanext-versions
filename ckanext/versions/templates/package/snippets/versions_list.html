@@ -9,7 +9,7 @@
     data-module-package-id="{{ pkg.id }}"
     data-module-package-url="{{ h.url_for(controller='package', action='read', id=pkg.name) }}">
 
-  {% if not c.current_version %}
+  {% if not c.revision_date %}
     <h3>Versions</h3>
     {% if pkg.get('versions', []) | length > 0 %}
       <table class="table table-striped table-bordered table-condensed">
@@ -51,7 +51,7 @@
         {{ _('Delete Version') }}
       </button>
     {% endif %}
-  {% else %}
+  {% elif not c.revision_date %}
     {% if h.check_access('dataset_version_create', {'dataset': pkg.id}) %}
       <!-- Button trigger modal -->
       <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createVersionModal">
