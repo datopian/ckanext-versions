@@ -175,7 +175,8 @@ def package_show_version(context, data_dict):
 
     else:
         package_dict = toolkit.get_action('package_show')(context, data_dict)
-        versions = dataset_version_list(context, {'dataset': package_dict['id']})
+        versions = dataset_version_list(context,
+                                        {'dataset': package_dict['id']})
         package_dict['versions'] = versions
 
     return package_dict
