@@ -95,12 +95,16 @@ dataset versions:
   version. This does not delete the dataset / revision itself, just the named
   version pointing to it.
 
-* ``package_show_revision?id=<dataset_id>&revision_id=<revision_id>`` - show
-  a dataset (AKA package) from a given revision. This is exactly similar to the
+* ``package_show_version?id=<dataset_id>&version_id=<version_id>`` - show
+  a dataset (AKA package) in a given version. This is exactly similar to the
   built-in ``package_show`` action, but shows dataset metadata for a given
-  revision. This is useful if you've used ``dataset_version_list`` to get all
+  version. This is useful if you've used ``dataset_version_list`` to get all
   named versions for a dataset, and now want to show that dataset for the given
-  version.
+  version. In addition to showing the right dataset metadata, this will also
+  include additional version metadata. If ``version_id`` is omitted, will
+  behave just liek ``pacakge_show`` but will include a list of versions for
+  the package.
+
 
 To access any of the actions above, use the CKAN API action URL, for example::
 

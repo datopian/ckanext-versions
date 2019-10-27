@@ -4,6 +4,7 @@ from datetime import datetime
 
 from ckan import model as core_model
 from ckan.plugins import toolkit
+from ckan.lib.maintain import deprecated
 from sqlalchemy.exc import IntegrityError
 
 from ckanext.versions.model import DatasetVersion
@@ -133,8 +134,11 @@ def dataset_version_delete(context, data_dict):
 
 
 @toolkit.side_effect_free
+@deprecated('This API is deprecated; Use package_show_version instead')
 def package_show_revision(context, data_dict):
     """Show a package from a specified revision
+
+    DEPRECATED: use package_show_version instead
 
     Takes the same arguments as 'package_show' but with an additional
     revision ID parameter
@@ -145,6 +149,40 @@ def package_show_revision(context, data_dict):
     :type revision_id: string
     :returns: A package dict
     :rtype: dict
+    """
+    return _get_package_in_revision(context, data_dict)
+
+
+@toolkit.side_effect_free
+def package_show_version(context, data_dict):
+    """Wrapper for package_show with some additional version related info
+
+    This works just like package_show but also optionally accepts `version_id`
+    as a parameter; Providing it means that the returned data will show the
+    package metadata from the specified version, and also include the
+    version_metadata key with some version metadata.
+
+    If version_id is not provided, package data will include a `versions` key
+    with a list of versions for this package.
+    """
+    version_id = data_dict.get('version_id', None)
+    if version_id:
+        version_dict = dataset_version_show(context, {'id': version_id})
+        dd = data_dict.copy()
+        dd.update({'revision_id': version_dict['package_revision_id']})
+        package_dict = _get_package_in_revision(context, dd)
+        package_dict['version_metadata'] = version_dict
+
+    else:
+        package_dict = toolkit.get_action('package_show')(context, data_dict)
+        versions = dataset_version_list(context, {'dataset': package_dict['id']})
+        package_dict['versions'] = versions
+
+    return package_dict
+
+
+def _get_package_in_revision(context, data_dict):
+    """Internal implementation of package_show_revision
     """
     revision_id = toolkit.get_or_bust(data_dict, ['revision_id'])
     current_revision_id = context.get('revision_id', None)
