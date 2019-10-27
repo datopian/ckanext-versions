@@ -14,25 +14,6 @@
   {% endif %}
 {% endblock %}
 
-{% block package_additional_info %}
-  {% if c.current_version %}
-    {% do pkg.update({
-      "metadata_created": None,
-      "metadata_modified": None,
-      "extras": pkg["extras"] + [
-      {
-        "key": _("Version Created"),
-        "value": h.render_datetime(c.current_version.created, with_hours=True)
-        },
-      {
-        "key" : _("Version Last Updated"),
-        "value" : h.render_datetime(c.current_version.created, with_hours=True)
-        }
-    ] }) %}
-  {% endif %}
-  {{ super() }}
-{% endblock %}
-
 {% block primary_content_inner %}
   {{ super() }}
   {% block versions_list %}

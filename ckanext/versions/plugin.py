@@ -65,7 +65,6 @@ class VersionsPlugin(plugins.SingletonPlugin):
     # IPackageController
 
     def before_view(self, pkg_dict):
-        version = None
         versions = action.dataset_version_list({"ignore_auth": True},
                                                {"dataset": pkg_dict['id']})
         pkg_dict.update({'versions': versions})
@@ -75,5 +74,9 @@ class VersionsPlugin(plugins.SingletonPlugin):
             version = action.dataset_version_show({"ignore_auth": True},
                                                   {"id": version_id})
             toolkit.c.current_version = version
+
+            # Hide package creation / update date if viewing a specific version
+            pkg_dict['metadata_created'] = None
+            pkg_dict['metadata_updated'] = None
 
         return pkg_dict
