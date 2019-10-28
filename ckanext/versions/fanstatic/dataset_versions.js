@@ -16,6 +16,18 @@ ckan.module('dataset_version_controls', function ($) {
             this._apiBaseUrl = this.options.apiUrl;
             this._packageId = this.options.packageId;
             this._packageUrl = this.options.packageUrl;
+            this._linkResources = (this.options.linkResources == 'True');
+
+            if(this._linkResources){
+                this.$(".modal-body").append(
+                    ['<div class="form-group">',
+                    '<span>',
+                    '<i class="fa fa-info-circle"></i>',
+                    'External resources are not guaranteed to be unmutable.',
+                    '</span>',
+                    '</div>'].join('\n')
+                );
+            };
 
             this.$('.delete-version-btn').on('click', this._onDelete);
             this.$('.create-version-form').on('submit', this._onCreate);

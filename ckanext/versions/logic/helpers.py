@@ -8,3 +8,10 @@ def get_show_url(package_name, version):
     return toolkit.url_for('dataset_read',
                            id=dataset_id,
                            version=version['id'])
+
+def has_link_resources(package):
+    """Return True if any resource in the dataset is a link to an external resource.
+    """
+    link_resource = [resource['url_type'] == None for resource in package['resources']]
+
+    return any(link_resource)
