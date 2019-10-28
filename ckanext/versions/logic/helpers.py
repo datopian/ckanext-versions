@@ -9,9 +9,12 @@ def get_show_url(package_name, version):
                            id=dataset_id,
                            version=version['id'])
 
+
 def has_link_resources(package):
-    """Return True if any resource in the dataset is a link to an external resource.
+    """Return True if any resource in the dataset is a link to an external
+    resource.
     """
-    link_resource = [resource['url_type'] == None for resource in package['resources']]
+    link_resource = [
+        resource['url_type'] is None for resource in package['resources']]
 
     return any(link_resource)
