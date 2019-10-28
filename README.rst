@@ -1,32 +1,5 @@
-.. You should enable this project on travis-ci.org and coveralls.io to make
-   these badges work. The necessary Travis and Coverage config files have been
-   generated for you.
-
-.. image:: https://travis-ci.org/datopian/ckanext-versions.svg?branch=master
-    :target: https://travis-ci.org/datopian/ckanext-versions
-
-.. image:: https://coveralls.io/repos/datopian/ckanext-versions/badge.svg
-  :target: https://coveralls.io/r/datopian/ckanext-versions
-
-.. image:: https://pypip.in/download/ckanext-versions/badge.svg
-    :target: https://pypi.python.org/pypi//ckanext-versions/
-    :alt: Downloads
-
-.. image:: https://pypip.in/version/ckanext-versions/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-versions/
-    :alt: Latest Version
-
-.. image:: https://pypip.in/py_versions/ckanext-versions/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-versions/
-    :alt: Supported Python versions
-
-.. image:: https://pypip.in/status/ckanext-versions/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-versions/
-    :alt: Development Status
-
-.. image:: https://pypip.in/license/ckanext-versions/badge.svg
-    :target: https://pypi.python.org/pypi/ckanext-versions/
-    :alt: License
+.. image:: https://gitlab.com/datopian/ckanext-versions/badges/develop/pipeline.svg
+    :target: https://gitlab.com/datopian/ckanext-versions/commits/develop
 
 =============
 ckanext-versions
@@ -34,8 +7,12 @@ ckanext-versions
 This CKAN extension adds an ability to create and manage named dataset
 versions in CKAN.
 
-Currently it aims to implement an API only, as frontend functionality is
-expected to be developed separately.
+Internally, this extension will use CKAN's VDM revisions to preserve
+old revisions of metadata, and ensure uploaded data resources are unique
+and do not replace or override each other as dataset resources are modified.
+
+As interface, this extension exposes a minimal UI to access and manage
+dataset versions, and a few new API actions described below.
 
 ------------
 Requirements
@@ -73,54 +50,316 @@ To install ckanext-versions:
 
      sudo service apache2 reload
 
----------------
+-----------
 API Actions
----------------
+-----------
 This extension exposes a number of new API actions to manage and use
-dataset versions:
+dataset versions.
 
-* ``dataset_version_list?dataset=<dataset_id>`` - List of versions for a
-  given dataset.
+The HTTP method is GET for list / show actions and POST for create / delete
+actions.
 
-* ``dataset_version_create?dataset=<dataset_id>&name=<version_name>&description=<description>`` -
-  create a new version for the specified dataset current revision. You are
-  required to specify a name for the version, and can optionally specify a
-  description.
-
-* ``dataset_version_show?id=<dataset_version_id>`` - show a specific dataset
-  version. Note that this will show the version information - not the dataset
-  metadata.
-
-* ``dataset_version_delete?id=<dataset_version_id>`` - delete a dataset
-  version. This does not delete the dataset / revision itself, just the named
-  version pointing to it.
-
-* ``package_show_version?id=<dataset_id>&version_id=<version_id>`` - show
-  a dataset (AKA package) in a given version. This is exactly similar to the
-  built-in ``package_show`` action, but shows dataset metadata for a given
-  version. This is useful if you've used ``dataset_version_list`` to get all
-  named versions for a dataset, and now want to show that dataset for the given
-  version. In addition to showing the right dataset metadata, this will also
-  include additional version metadata. If ``version_id`` is omitted, will
-  behave just liek ``pacakge_show`` but will include a list of versions for
-  the package.
-
-
-To access any of the actions above, use the CKAN API action URL, for example::
-
-    https://your-ckan-site.com/api/3/action/package_show_revision?id=warandpeace&dataset_revision_id=1e04e5d6-50d9-4c72-a20b-378b7d34050c
-
-The HTTP method should be GET for list / show actions and POST for create /
-delete actions.
-
-You may need to also pass in authentication information such as cookies or
+You will need to also pass in authentication information such as cookies or
 tokens - you should consult the `CKAN API Guide
 <https://docs.ckan.org/en/2.8/api/>`_ for details.
 
----------------
-Demo
----------------
-See `api-demo.sh <./api-demo.sh>`_
+The following ``curl`` examples all assume the ``$API_KEY`` environment
+variable is set and contains a valid CKAN API key, belonging to a user with
+sufficient privileges; Output is indented and cleaned up for readability.
+
+``dataset_version_list``
+^^^^^^^^^^^^^^^^^^^^^^^^
+List versions for a dataset.
+
+**HTTP Method**: ``GET``
+
+**Query Parameters**:
+
+* ``dataset=<dataset_id>`` - The UUID or unique name of the dataset (required)
+
+**Example**::
+
+  $ curl -H "Authorization: $API_KEY" \
+    https://ckan.example.com/api/3/action/dataset_version_list?dataset=my-awesome-dataset
+
+  {
+    "help": "http://ckan.example.com/api/3/action/help_show?name=dataset_version_list",
+    "success": true,
+    "result": [
+      {
+        "id": "5942ab7a-67cb-426c-ad99-dd4519530bc7",
+        "package_id": "3b5a4f83-8770-4e8c-9630-c8abf6aa20f4",
+        "package_revision_id": "7316fb6c-07e7-43b7-ade8-ac26c5693e6d",
+        "name": "Version 1.2",
+        "description": "Updated to include latest study results",
+        "creator_user_id": "70587302-6a93-4c0a-bb3e-4d64c0b7c213",
+        "created": "2019-10-27 15:29:53.452833"
+      },
+      {
+        "id": "87d6f58a-a899-4f2d-88a4-c22e9e1e5dfb",
+        "package_id": "3b5a4f83-8770-4e8c-9630-c8abf6aa20f4",
+        "package_revision_id": "1b9fc99e-8e32-449e-85c2-24c893d9761e",
+        "name": "Corrected for inflation",
+        "description": "With Avi Bitter",
+        "creator_user_id": "70587302-6a93-4c0a-bb3e-4d64c0b7c213",
+        "created": "2019-10-27 15:29:16.070904"
+      },
+      {
+        "id": "3e5601e2-1b39-43b6-b197-8040cc10036e",
+        "package_id": "3b5a4f83-8770-4e8c-9630-c8abf6aa20f4",
+        "package_revision_id": "e30ba6a8-d453-4395-8ee5-3aa2f1ca9e1f",
+        "name": "Version 1.0",
+        "description": "Added another resource with index of countries",
+        "creator_user_id": "70587302-6a93-4c0a-bb3e-4d64c0b7c213",
+        "created": "2019-10-27 15:24:25.248153"
+      }
+    ]
+  }
+
+``dataset_version_show``
+^^^^^^^^^^^^^^^^^^^^^^^^
+Show info about a specific dataset version.
+
+Note that this will show the version information - not the dataset metadata or
+data (see `package_show_version`_)
+
+**HTTP Method**: ``GET``
+
+**Query Parameters**:
+
+ * ``id=<dataset_version_id>`` - The UUID of the version to show (required)
+
+**Example**::
+
+  $ curl -H "Authorization: $API_KEY" \
+    https://ckan.example.com/api/3/action/dataset_version_show?id=5942ab7a-67cb-426c-ad99-dd4519530bc7
+
+  {
+    "help": "http://ckan.example.com/api/3/action/help_show?name=dataset_version_show",
+    "success": true,
+    "result": {
+      "id": "5942ab7a-67cb-426c-ad99-dd4519530bc7",
+      "package_id": "3b5a4f83-8770-4e8c-9630-c8abf6aa20f4",
+      "package_revision_id": "7316fb6c-07e7-43b7-ade8-ac26c5693e6d",
+      "name": "Version 1.2",
+      "description": "Updated to include latest study results",
+      "creator_user_id": "70587302-6a93-4c0a-bb3e-4d64c0b7c213",
+      "created": "2019-10-27 15:29:53.452833"
+    }
+  }
+
+``dataset_version_create``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Create a new version for the specified dataset *current* revision. You are
+required to specify a name for the version, and can optionally specify a
+description.
+
+**HTTP Method**: ``POST``
+
+**JSON Parameters**:
+
+ * ``dataset=<dataset_id>`` - UUID or name of the dataset (required, string)
+ * ``name``=<version_name>`` - Name for the version. Version names must be
+   unique per dataset (required, string)
+ * ``description=<description>`` - Long description for the version; Can be
+   markdown formatted (optional, string)
+
+**Example**::
+
+  $ curl -H "Authorization: $API_KEY" \
+         -H "Content-type: application/json" \
+         -X POST \
+         https://ckan.example.com/api/3/action/dataset_version_create \
+         -d '{"dataset":"3b5a4f83-8770-4e8c-9630-c8abf6aa20f4", "name": "Version 1.3", "description": "With extra Awesome Sauce"}'
+
+  {
+    "help": "https://ckan.example.com/api/3/action/help_show?name=dataset_version_create",
+    "success": true,
+    "result": {
+      "id": "e1a77b78-dfaf-4c05-a261-ff01af10d601",
+      "package_id": "3b5a4f83-8770-4e8c-9630-c8abf6aa20f4",
+      "package_revision_id": "96ad6e02-99cf-4598-ab10-ea80e864e505",
+      "name": "Version 1.3",
+      "description": "With extra Awesome Sauce",
+      "creator_user_id": "70587302-6a93-4c0a-bb3e-4d64c0b7c213",
+      "created": "2019-10-28 08:14:01.953796"
+    }
+  }
+
+``dataset_version_delete``
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Delete a dataset version. This does not delete the metadata revision, just the
+named version pointing to it, and any data not pointed to by any other version.
+
+**HTTP Method**: ``POST``
+
+**JSON Parameters**:
+
+ * ``id=<dataset_version_id>`` - The UUID of the version to delete (required,
+   string)
+
+**Example**::
+
+  $ curl -H "Authorization: $API_KEY" \
+         -H "Content-type: application/json" \
+         -X POST \
+         https://ckan.example.com/api/3/action/dataset_version_delete \
+         -d '{"id":"e1a77b78-dfaf-4c05-a261-ff01af10d601"}'
+
+  {
+    "help": "https://ckan.example.com/api/3/action/help_show?name=dataset_version_delete",
+    "success": true,
+    "result": null
+  }
+
+``package_show_version``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Show a dataset (AKA package) in a given version. This is identical to the
+built-in ``package_show`` action, but shows dataset metadata for a given
+version, and adds some versioning related metadata.
+
+This is useful if you've used ``dataset_version_list`` to get all
+named versions for a dataset, and now want to show that dataset in a specific
+version.
+
+If ``version_id`` is not specified, the latet version of the dataset will be
+returned, but will include a list of versions for the dataset.
+
+**HTTP Method**: ``GET``
+
+**Query Parameters**:
+
+ * ``id=<dataset_id>`` - The name or UUID of the dataset (required)
+ * ``version_id=<version_id>`` - A version UUID to show (optional)
+
+**Examples**:
+
+Fetching dataset metadata in a specified version::
+
+  $ curl -H "Authorization: $API_KEY" \
+         'https://ckan.example.com/api/3/action/package_show_version?id=3b5a4f83-8770-4e8c-9630-c8abf6aa20f4&version_id=5942ab7a-67cb-426c-ad99-dd4519530bc7'
+
+  {
+    "help": "https://ckan.example.com/api/3/action/help_show?name=package_show_version",
+    "success": true,
+    "result": {
+      "maintainer": "Bob Paulson",
+      "relationships_as_object": [],
+      "private": true,
+      "maintainer_email": "",
+      "num_tags": 2,
+
+      "version_metadata": {
+        "id": "5942ab7a-67cb-426c-ad99-dd4519530bc7",
+        "package_id": "3b5a4f83-8770-4e8c-9630-c8abf6aa20f4",
+        "package_revision_id": "7316fb6c-07e7-43b7-ade8-ac26c5693e6d",
+        "name": "Version 1.2",
+        "description": "Without Avi Bitter",
+        "creator_user_id": "70587302-6a93-4c0a-bb3e-4d64c0b7c213",
+        "created": "2019-10-27 15:29:53.452833"
+      },
+
+      "id": "3b5a4f83-8770-4e8c-9630-c8abf6aa20f4",
+      "metadata_created": "2019-10-27T15:23:50.612130",
+      "owner_org": "68f832f7-5952-4cac-8803-4af55c021ccd",
+      "metadata_modified": "2019-10-27T20:14:42.564886",
+      "author": "Joe Bloggs",
+      "author_email": "",
+      "state": "active",
+      "version": "1.0",
+      "type": "dataset",
+      "resources": [
+        {
+          "cache_last_updated": null,
+          "cache_url": null,
+          "mimetype_inner": null,
+          /// ... standard resource attributes ...
+        }
+      ],
+      "num_resources": 1,
+
+      /// ... more standard dataset attributes ...
+    }
+  }
+
+Note the ``version_metadata``, which is only included with dataset metadata if
+the ``version_id`` parameter was provided.
+
+Fetching the current version of dataset metadata in a specified version::
+
+  {
+    "help": "https://ckan.example.com/api/3/action/help_show?name=package_show_version",
+    "success": true,
+    "result": {
+      "license_title": "Green",
+      "relationships_as_object": [],
+      "private": true,
+      "id": "3b5a4f83-8770-4e8c-9630-c8abf6aa20f4",
+      "metadata_created": "2019-10-27T15:23:50.612130",
+      "metadata_modified": "2019-10-27T20:14:42.564886",
+      "author": "Joe Bloggs",
+      "author_email": "",
+      "state": "active",
+      "version": "1.0",
+      "creator_user_id": "70587302-6a93-4c0a-bb3e-4d64c0b7c213",
+      "type": "dataset",
+      "resources": [
+        {
+          "mimetype": "text/csv",
+          "cache_url": null,
+          "hash": "",
+          "description": "",
+          "name": "https://data.example.com/dataset/287f7e34-7675-49a9-90bd-7c6a8b55698e/resource.csv",
+          "format": "CSV",
+          /// ... standard resource attributes ...
+        }
+      ],
+      "num_resources": 1,
+      "tags": [
+        {
+          "vocabulary_id": null,
+          "state": "active",
+          "display_name": "bar",
+          "id": "686198e2-7b9c-4986-bb19-3cf74cfe2552",
+          "name": "bar"
+        },
+        {
+          "vocabulary_id": null,
+          "state": "active",
+          "display_name": "foo",
+          "id": "82259424-aec6-428c-a682-0b3f6b8ee67d",
+          "name": "foo"
+        }
+      ],
+
+      "versions": [
+        {
+          "id": "5942ab7a-67cb-426c-ad99-dd4519530bc7",
+          "package_id": "3b5a4f83-8770-4e8c-9630-c8abf6aa20f4",
+          "package_revision_id": "7316fb6c-07e7-43b7-ade8-ac26c5693e6d",
+          "name": "Version 1.2",
+          "description": "Fixed some inaccuracies in data",
+          "creator_user_id": "70587302-6a93-4c0a-bb3e-4d64c0b7c213",
+          "created": "2019-10-27 15:29:53.452833"
+        },
+        {
+          "id": "87d6f58a-a899-4f2d-88a4-c22e9e1e5dfb",
+          "package_id": "3b5a4f83-8770-4e8c-9630-c8abf6aa20f4",
+          "package_revision_id": "1b9fc99e-8e32-449e-85c2-24c893d9761e",
+          "name": "version 1.1",
+          "description": "Adjusted for country-specific inflation",
+          "creator_user_id": "70587302-6a93-4c0a-bb3e-4d64c0b7c213",
+          "created": "2019-10-27 15:29:16.070904"
+        }
+      ],
+
+      /// ... more standard dataset attributes ...
+    }
+  }
+
+
+Note the ``version`` list, only included when showing the latest
+dataset version via ``package_show_version``.
 
 ---------------
 Config Settings
