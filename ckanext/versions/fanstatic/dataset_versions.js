@@ -23,7 +23,7 @@ ckan.module('dataset_version_controls', function ($) {
                     ['<div class="form-group">',
                     '<span>',
                     '<i class="fa fa-info-circle"></i>',
-                    'External resources are not guaranteed to be unmutable.',
+                    'This dataset contains resources that are links to external systems. The URL to the file will be versioned but we cannot guaranteed that the data itself will remain the same over time. If the content of the external URL changes (while the URL doesn\'t), you will no longer have the ability to get the old version of the data.',
                     '</span>',
                     '</div>'].join('\n')
                 );
