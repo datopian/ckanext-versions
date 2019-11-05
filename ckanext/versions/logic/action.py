@@ -3,8 +3,8 @@ import logging
 from datetime import datetime
 
 from ckan import model as core_model
-from ckan.plugins import toolkit
 from ckan.logic.action.get import package_show as core_package_show
+from ckan.plugins import toolkit
 from sqlalchemy.exc import IntegrityError
 
 from ckanext.versions.model import DatasetVersion
