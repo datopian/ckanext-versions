@@ -15,7 +15,8 @@ def get_resource_show_url(package_name, resource_id, version):
     """
     extra_params = {}
     if version:
-        dataset_id = "{}@{}".format(package_name, version['package_revision_id'])
+        dataset_id = "{}@{}".format(package_name,
+                                    version['package_revision_id'])
         extra_params['version'] = version['id']
     else:
         dataset_id = package_name
