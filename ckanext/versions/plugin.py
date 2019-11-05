@@ -43,7 +43,10 @@ class VersionsPlugin(plugins.SingletonPlugin):
             'dataset_version_list': action.dataset_version_list,
             'dataset_version_show': action.dataset_version_show,
             'package_show_version': action.package_show_version,
-            'package_show_revision': action.package_show_revision,
+            'resource_show_version': action.resource_show_version,
+
+            # Overridden
+            'package_show': action.package_show_revision
         }
 
     # IAuthFunctions
@@ -60,7 +63,8 @@ class VersionsPlugin(plugins.SingletonPlugin):
 
     def get_helpers(self):
         return {
-            'dataset_version_get_show_url': helpers.get_show_url
+            'dataset_version_show_url': helpers.get_show_url,
+            'dataset_version_resource_show_url': helpers.get_resource_show_url
         }
 
     # IPackageController
