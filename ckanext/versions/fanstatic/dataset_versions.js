@@ -16,6 +16,18 @@ ckan.module('dataset_version_controls', function ($) {
             this._apiBaseUrl = this.options.apiUrl;
             this._packageId = this.options.packageId;
             this._packageUrl = this.options.packageUrl;
+            this._linkResources = (this.options.linkResources == 'True');
+
+            if(this._linkResources){
+                this.$(".modal-body").append(
+                    ['<div class="form-group">',
+                    '<span>',
+                    '<i class="fa fa-info-circle"></i>',
+                    'This dataset contains resources that are links to external systems. The URL to the file will be versioned but we cannot guarantee that the data itself will remain the same over time. If the content of the external URL changes (while the URL doesn\'t), you will no longer have the ability to get the old version of the data.',
+                    '</span>',
+                    '</div>'].join('\n')
+                );
+            };
 
             this.$('.delete-version-btn').on('click', this._onDelete);
             this.$('.create-version-form').on('submit', this._onCreate);

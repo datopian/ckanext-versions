@@ -5,7 +5,8 @@
     data-module="dataset_version_controls"
     data-module-api-url="{{ h.url_for('api.action', ver=3, logic_function='') }}"
     data-module-package-id="{{ pkg.id }}"
-    data-module-package-url="{{ h.url_for(controller='package', action='read', id=pkg.name) }}">
+    data-module-package-url="{{ h.url_for(controller='package', action='read', id=pkg.name) }}"
+    data-module-link-resources="{{h.dataset_version_has_link_resources(pkg)}}">
 
   {% if not c.revision_date %}
     <h3>Versions</h3>
