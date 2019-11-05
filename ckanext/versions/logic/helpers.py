@@ -14,7 +14,7 @@ def has_link_resources(package):
     """Return True if any resource in the dataset is a link to an external
     resource.
     """
-    link_resource = [
-        resource['url_type'] is None for resource in package['resources']]
+    link_resource = any(resource['url_type'] is None
+                        for resource in package.get('resources', []))
 
-    return any(link_resource)
+    return link_resource
