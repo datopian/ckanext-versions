@@ -197,8 +197,8 @@ def resource_show_version(context, data_dict):
     version_id = data_dict.get('version_id', None)
     if version_id:
         version_dict = dataset_version_show(context, {'id': version_id})
-        resource_dict = _get_resource_in_revision(context,
-            data_dict, version_dict['package_revision_id'])
+        resource_dict = _get_resource_in_revision(
+            context, data_dict, version_dict['package_revision_id'])
         resource_dict['version_metadata'] = version_dict
         return resource_dict
 
