@@ -28,8 +28,8 @@ def dataset_version_create(context, data_dict):
     :rtype: dictionary
     """
     model = context.get('model', core_model)
-    dataset_id_or_name, name = toolkit.get_or_bust(
-        data_dict, ['dataset', 'name'])
+    dataset_id_or_name, name, version_id = toolkit.get_or_bust(
+        data_dict, ['dataset', 'name', 'version'])
     dataset = model.Package.get(dataset_id_or_name)
     if not dataset:
         raise toolkit.ObjectNotFound('Dataset not found')
@@ -38,15 +38,25 @@ def dataset_version_create(context, data_dict):
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     latest_revision_id = dataset.latest_related_revision.id
-    version = DatasetVersion(package_id=dataset.id,
-                             package_revision_id=latest_revision_id,
-                             name=name,
-                             description=data_dict.get('description', None),
-                             created=datetime.utcnow(),
-                             creator_user_id=context['auth_user_obj'].id)
 
     # I'll create my own session! With Blackjack! And H**kers!
     session = model.meta.create_local_session()
+
+    # Check if Version already exist
+    version = session.query(DatasetVersion).\
+                filter(DatasetVersion.id == version_id).\
+                one_or_none()
+    if version:
+        version.name = name
+        version.description = data_dict.get('description', None)
+    else:
+        version = DatasetVersion(package_id=dataset.id,
+                                    package_revision_id=latest_revision_id,
+                                    name=name,
+                                    description=data_dict.get('description', None),
+                                    created=datetime.utcnow(),
+                                    creator_user_id=context['auth_user_obj'].id)
+
     session.add(version)
 
     try:
