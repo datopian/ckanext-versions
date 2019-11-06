@@ -17,6 +17,7 @@ ckan.module('dataset_version_controls', function ($) {
             this._packageId = this.options.packageId;
             this._packageUrl = this.options.packageUrl;
             this._linkResources = (this.options.linkResources == 'True');
+            this._versionId = this.options.versionId || null
 
             if(this._linkResources){
                 this.$(".modal-body").append(
@@ -31,6 +32,7 @@ ckan.module('dataset_version_controls', function ($) {
 
             this.$('.delete-version-btn').on('click', this._onDelete);
             this.$('.create-version-form').on('submit', this._onCreate);
+            this.$('.edit-version-form').on('submit', this._onCreate);
         },
 
         _onDelete: function (evt)
@@ -46,9 +48,10 @@ ckan.module('dataset_version_controls', function ($) {
         {
             let versionName = evt.target.querySelector("input[name=version_name]").value.trim();
             let description = evt.target.querySelector("textarea[name=details]").value.trim();
+            let versionId = this._versionId
 
             evt.preventDefault();
-            return this._create(this._packageId, versionName, description);
+            return this._create(this._packageId, versionName, description, versionId);
         },
 
         _apiPost: function (action, params)
@@ -82,12 +85,13 @@ ckan.module('dataset_version_controls', function ($) {
                 }.bind(this));
         },
 
-        _create: function (datasetId, versionName, description) {
+        _create: function (datasetId, versionName, description, versionId) {
             const action = 'dataset_version_create';
             let params = {
                 dataset: datasetId,
                 name: versionName,
-                description: description
+                description: description,
+                version: versionId
             };
 
             this._apiPost(action, params)
