@@ -44,18 +44,20 @@ def dataset_version_create(context, data_dict):
 
     # Check if Version already exist
     version = session.query(DatasetVersion).\
-                filter(DatasetVersion.id == version_id).\
-                one_or_none()
+        filter(DatasetVersion.id == version_id).\
+        one_or_none()
     if version:
         version.name = name
         version.description = data_dict.get('description', None)
     else:
-        version = DatasetVersion(package_id=dataset.id,
-                                    package_revision_id=latest_revision_id,
-                                    name=name,
-                                    description=data_dict.get('description', None),
-                                    created=datetime.utcnow(),
-                                    creator_user_id=context['auth_user_obj'].id)
+        version = DatasetVersion(
+            package_id=dataset.id,
+            package_revision_id=latest_revision_id,
+            name=name,
+            description=data_dict.get('description', None),
+            created=datetime.utcnow(),
+            creator_user_id=context['auth_user_obj'].id
+            )
 
     session.add(version)
 
