@@ -58,7 +58,11 @@
     <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#createVersionModal">
       {{ _('Edit Version') }}
     </button>
-    {% snippet 'package/snippets/create_version.html' %}
+    {%
+        snippet 'package/snippets/create_version.html',
+        name = c.current_version.name,
+        description = c.current_version.description,
+        title = "Edit the current Version"%}
     {% endif %}
 
   {% elif not c.revision_date %}
