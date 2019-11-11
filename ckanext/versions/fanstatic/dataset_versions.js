@@ -32,7 +32,6 @@ ckan.module('dataset_version_controls', function ($) {
 
             this.$('.delete-version-btn').on('click', this._onDelete);
             this.$('.create-version-form').on('submit', this._onCreate);
-            this.$('.edit-version-form').on('submit', this._onCreate);
         },
 
         _onDelete: function (evt)
