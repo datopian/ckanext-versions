@@ -1,4 +1,5 @@
-{% set title = title or "Create a new version pointing to the current state of this dataset"%}
+{% set title = title or "Create a new version pointing to the current state of this dataset" %}
+{% set button_label = button_label or "Create Version" %}
 
 <!-- Modal -->
 <div class="modal fade" id="createVersionModal" tabindex="-1" role="dialog" aria-labelledby="createVersionModalLabel">
@@ -23,7 +24,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create Version</button>
+                    <button type="submit" class="btn btn-primary">{{ button_label }}</button>
                 </div>
             </form>
         </div>
