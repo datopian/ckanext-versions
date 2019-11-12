@@ -24,12 +24,14 @@ def dataset_version_create(context, data_dict):
     :type name: string
     :param description: A description for the version
     :type description: string
+    :param version: The id of a existing version to update (optional)
+    :type version: string
     :returns: the newly created version
     :rtype: dictionary
     """
     model = context.get('model', core_model)
-    dataset_id_or_name, name, version_id = toolkit.get_or_bust(
-        data_dict, ['dataset', 'name', 'version'])
+    dataset_id_or_name, name = toolkit.get_or_bust(
+        data_dict, ['dataset', 'name'])
     dataset = model.Package.get(dataset_id_or_name)
     if not dataset:
         raise toolkit.ObjectNotFound('Dataset not found')
@@ -43,10 +45,16 @@ def dataset_version_create(context, data_dict):
     session = model.meta.create_local_session()
 
     # Check if Version already exist
-    version = session.query(DatasetVersion).\
-        filter(DatasetVersion.id == version_id).\
-        one_or_none()
-    if version:
+    version_id = data_dict.get('version', None)
+
+    if version_id:
+        version = session.query(DatasetVersion).\
+            filter(DatasetVersion.id == version_id).\
+            one_or_none()
+
+        if not version:
+            raise toolkit.ObjectNotFound('Version not found')
+
         version.name = name
         version.description = data_dict.get('description', None)
     else:
