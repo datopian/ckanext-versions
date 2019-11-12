@@ -55,16 +55,10 @@
     {% endif %}
 
     {% if h.check_access('dataset_version_create', {'dataset': pkg.id}) %}
-    <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#createVersionModal">
+    <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#updateVersionModal">
       {{ _('Edit Version') }}
     </button>
-    {%
-        snippet 'package/snippets/create_version.html',
-        name = c.current_version.name,
-        description = c.current_version.description,
-        title = "Edit the current Version",
-        button_label = "Edit Version"
-    %}
+    {% snippet 'package/snippets/update_version.html' %}
     {% endif %}
 
   {% elif not c.revision_date %}
