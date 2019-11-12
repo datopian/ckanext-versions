@@ -32,6 +32,7 @@ ckan.module('dataset_version_controls', function ($) {
 
             this.$('.delete-version-btn').on('click', this._onDelete);
             this.$('.create-version-form').on('submit', this._onCreate);
+            this.$('.update-version-form').on('submit', this._onUpdate)
         },
 
         _onDelete: function (evt)
@@ -47,10 +48,19 @@ ckan.module('dataset_version_controls', function ($) {
         {
             let versionName = evt.target.querySelector("input[name=version_name]").value.trim();
             let description = evt.target.querySelector("textarea[name=details]").value.trim();
+
+            evt.preventDefault();
+            return this._create(this._packageId, versionName, description);
+        },
+
+        _onUpdate: function(evt)
+        {
+            let versionName = evt.target.querySelector("input[name=version_name]").value.trim();
+            let description = evt.target.querySelector("textarea[name=details]").value.trim();
             let versionId = this._versionId
 
             evt.preventDefault();
-            return this._create(this._packageId, versionName, description, versionId);
+            return this._update(versionId, versionName, description);
         },
 
         _apiPost: function (action, params)
@@ -84,13 +94,12 @@ ckan.module('dataset_version_controls', function ($) {
                 }.bind(this));
         },
 
-        _create: function (datasetId, versionName, description, versionId) {
+        _create: function (datasetId, versionName, description) {
             const action = 'dataset_version_create';
             let params = {
                 dataset: datasetId,
                 name: versionName,
-                description: description,
-                version: versionId
+                description: description
             };
 
             this._apiPost(action, params)
@@ -98,6 +107,27 @@ ckan.module('dataset_version_controls', function ($) {
                     if (response.status !== 200) {
                         response.json().then(function (jsonResponse) {
                             alert("There was an error creating the dataset version.");
+                            console.error({params, jsonResponse});
+                        });
+                    } else {
+                        location.reload();
+                    }
+                });
+        },
+
+        _update: function (versionId, versionName, description) {
+            const action = 'dataset_version_update';
+            let params = {
+                version: versionId,
+                name: versionName,
+                description: description
+            };
+
+            this._apiPost(action, params)
+                .then(function (response) {
+                    if (response.status !== 200) {
+                        response.json().then(function (jsonResponse) {
+                            alert("There was an error updating the dataset version.");
                             console.error({params, jsonResponse});
                         });
                     } else {
