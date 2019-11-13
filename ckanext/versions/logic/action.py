@@ -11,9 +11,18 @@ from ckanext.versions.model import DatasetVersion
 
 log = logging.getLogger(__name__)
 
+
 def dataset_version_update(context, data_dict):
     """Update a version from the current dataset.
 
+    :param version: the id of the version
+    :type version: string
+    :param name: A short name for the version
+    :type name: string
+    :param description: A description for the version
+    :type description: string
+    :returns: the edited version
+    :rtype: dictionary
     """
     model = context.get('model', core_model)
     version_id, name = toolkit.get_or_bust(data_dict, ['version', 'name'])
@@ -22,8 +31,8 @@ def dataset_version_update(context, data_dict):
     session = model.meta.create_local_session()
 
     version = session.query(DatasetVersion).\
-            filter(DatasetVersion.id == version_id).\
-            one_or_none()
+        filter(DatasetVersion.id == version_id).\
+        one_or_none()
 
     if not version:
         raise toolkit.ObjectNotFound('Version not found')
@@ -32,7 +41,7 @@ def dataset_version_update(context, data_dict):
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     version.name = name
-    version.description=data_dict.get('description', None)
+    version.description = data_dict.get('description', None)
 
     session.add(version)
 
@@ -101,7 +110,6 @@ def dataset_version_create(context, data_dict):
     log.info('Version "%s" created for package %s', name, dataset.id)
 
     return version.as_dict()
-
 
 
 @toolkit.side_effect_free
