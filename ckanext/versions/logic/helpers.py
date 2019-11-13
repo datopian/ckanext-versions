@@ -26,3 +26,12 @@ def get_resource_show_url(package_name, resource_id, version):
                            id=dataset_id,
                            resource_id=resource_id,
                            **extra_params)
+
+def has_link_resources(package):
+    """Return True if any resource in the dataset is a link to an external
+    resource.
+    """
+    link_resource = any(resource['url_type'] is None
+                        for resource in package.get('resources', []))
+
+    return link_resource
