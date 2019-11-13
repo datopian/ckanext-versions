@@ -23,7 +23,7 @@
         {% for version in pkg.get('versions', []) %}
           <tr>
             <th scope="row" class="dataset-label">
-              <a href="{{ h.dataset_version_get_show_url(pkg.name, version) }}">
+              <a href="{{ h.dataset_version_show_url(pkg.name, version) }}">
                 {{ version.name }}
               </a>
             </th>

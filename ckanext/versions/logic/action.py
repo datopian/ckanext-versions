@@ -3,7 +3,7 @@ import logging
 from datetime import datetime
 
 from ckan import model as core_model
-from ckan.lib.maintain import deprecated
+from ckan.logic.action.get import package_show as core_package_show
 from ckan.plugins import toolkit
 from sqlalchemy.exc import IntegrityError
 
@@ -134,14 +134,14 @@ def dataset_version_delete(context, data_dict):
 
 
 @toolkit.side_effect_free
-@deprecated('This API is deprecated; Use package_show_version instead')
 def package_show_revision(context, data_dict):
     """Show a package from a specified revision
 
-    DEPRECATED: use package_show_version instead
-
     Takes the same arguments as 'package_show' but with an additional
     revision ID parameter
+
+    Revision ID can also be specified as part of the package ID, as
+    <package_id>@<revision_id>.
 
     :param id: the id of the package
     :type id: string
@@ -150,7 +150,14 @@ def package_show_revision(context, data_dict):
     :returns: A package dict
     :rtype: dict
     """
-    return _get_package_in_revision(context, data_dict)
+    dd = data_dict.copy()
+    if data_dict.get('revision_id') is None and '@' in data_dict['id']:
+        package_id, revision_id = data_dict['id'].split('@', 1)
+        dd.update({'id': package_id,
+                   'revision_id': revision_id})
+        return _get_package_in_revision(context, dd)
+    else:
+        return core_package_show(context, data_dict)
 
 
 @toolkit.side_effect_free
@@ -174,12 +181,29 @@ def package_show_version(context, data_dict):
         package_dict['version_metadata'] = version_dict
 
     else:
-        package_dict = toolkit.get_action('package_show')(context, data_dict)
+        package_dict = core_package_show(context, data_dict)
         versions = dataset_version_list(context,
                                         {'dataset': package_dict['id']})
         package_dict['versions'] = versions
 
     return package_dict
+
+
+@toolkit.side_effect_free
+def resource_show_version(context, data_dict):
+    """Wrapper for resource_show allowing to get a resource from a specific
+    dataset version
+    """
+    version_id = data_dict.get('version_id', None)
+    if version_id:
+        version_dict = dataset_version_show(context, {'id': version_id})
+        resource_dict = _get_resource_in_revision(
+            context, data_dict, version_dict['package_revision_id'])
+        resource_dict['version_metadata'] = version_dict
+        return resource_dict
+
+    else:
+        return toolkit.get_action('resource_show')(context, data_dict)
 
 
 def _get_package_in_revision(context, data_dict):
@@ -188,7 +212,22 @@ def _get_package_in_revision(context, data_dict):
     revision_id = toolkit.get_or_bust(data_dict, ['revision_id'])
     current_revision_id = context.get('revision_id', None)
     context['revision_id'] = revision_id
-    result = toolkit.get_action('package_show')(context, data_dict)
+    result = core_package_show(context, data_dict)
+
+    if current_revision_id:
+        context['revision_id'] = current_revision_id
+    else:
+        del context['revision_id']
+
+    return result
+
+
+def _get_resource_in_revision(context, data_dict, revision_id):
+    """Get resource from a given revision
+    """
+    current_revision_id = context.get('revision_id', None)
+    context['revision_id'] = revision_id
+    result = toolkit.get_action('resource_show')(context, data_dict)
 
     if current_revision_id:
         context['revision_id'] = current_revision_id
