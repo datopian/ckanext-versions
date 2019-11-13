@@ -199,12 +199,12 @@ class TestVersionsActions(FunctionalTestBase):
             description="The best dataset ever, it **rules!**")
 
         updated_version = helpers.call_action(
-            'dataset_version_create',
+            'dataset_version_update',
             context,
             dataset=self.dataset['id'],
+            version=version['id'],
             name="Edited Version 0.1.2",
-            description="Edited Description",
-            version=version['id']
+            description="Edited Description"
         )
 
         assert_equals(version['id'],
@@ -233,12 +233,13 @@ class TestVersionsActions(FunctionalTestBase):
             description="This is a recent version!")
 
         updated_version = helpers.call_action(
-            'dataset_version_create',
+            'dataset_version_update',
             context,
             dataset=self.dataset['id'],
+            version=old_version['id'],
             name="Version 1.1",
-            description="This is an edited old version!",
-            version=old_version['id'])
+            description="This is an edited old version!"
+            )
 
         assert_equals(old_version['id'],
                       updated_version['id'])
@@ -254,9 +255,9 @@ class TestVersionsActions(FunctionalTestBase):
 
         assert_raises(
             toolkit.ObjectNotFound, helpers.call_action,
-            'dataset_version_create', context,
+            'dataset_version_update', context,
             dataset=self.dataset['id'],
+            version='abc-123',
             name="Edited Version 0.1.2",
-            description='Edited Description',
-            version='abc-123'
+            description='Edited Description'
         )

@@ -57,10 +57,9 @@ ckan.module('dataset_version_controls', function ($) {
         {
             let versionName = evt.target.querySelector("input[name=version_name]").value.trim();
             let description = evt.target.querySelector("textarea[name=details]").value.trim();
-            let versionId = this._versionId
 
             evt.preventDefault();
-            return this._update(versionId, versionName, description);
+            return this._update(this._packageId, this._versionId, versionName, description);
         },
 
         _apiPost: function (action, params)
@@ -115,9 +114,10 @@ ckan.module('dataset_version_controls', function ($) {
                 });
         },
 
-        _update: function (versionId, versionName, description) {
+        _update: function (datasetId, versionId, versionName, description) {
             const action = 'dataset_version_update';
             let params = {
+                dataset: datasetId,
                 version: versionId,
                 name: versionName,
                 description: description

@@ -15,6 +15,8 @@ log = logging.getLogger(__name__)
 def dataset_version_update(context, data_dict):
     """Update a version from the current dataset.
 
+    :param dataset: the id or name of the dataset
+    :type dataset: string
     :param version: the id of the version
     :type version: string
     :param name: A short name for the version
