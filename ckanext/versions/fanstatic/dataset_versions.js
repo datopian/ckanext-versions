@@ -17,6 +17,7 @@ ckan.module('dataset_version_controls', function ($) {
             this._packageId = this.options.packageId;
             this._packageUrl = this.options.packageUrl;
             this._linkResources = (this.options.linkResources == 'True');
+            this._versionId = this.options.versionId || null
 
             if(this._linkResources){
                 this.$(".modal-body").append(
@@ -31,6 +32,7 @@ ckan.module('dataset_version_controls', function ($) {
 
             this.$('.delete-version-btn').on('click', this._onDelete);
             this.$('.create-version-form').on('submit', this._onCreate);
+            this.$('.update-version-form').on('submit', this._onUpdate)
         },
 
         _onDelete: function (evt)
@@ -49,6 +51,15 @@ ckan.module('dataset_version_controls', function ($) {
 
             evt.preventDefault();
             return this._create(this._packageId, versionName, description);
+        },
+
+        _onUpdate: function(evt)
+        {
+            let versionName = evt.target.querySelector("input[name=version_name]").value.trim();
+            let description = evt.target.querySelector("textarea[name=details]").value.trim();
+
+            evt.preventDefault();
+            return this._update(this._packageId, this._versionId, versionName, description);
         },
 
         _apiPost: function (action, params)
@@ -95,6 +106,28 @@ ckan.module('dataset_version_controls', function ($) {
                     if (response.status !== 200) {
                         response.json().then(function (jsonResponse) {
                             alert("There was an error creating the dataset version.");
+                            console.error({params, jsonResponse});
+                        });
+                    } else {
+                        location.reload();
+                    }
+                });
+        },
+
+        _update: function (datasetId, versionId, versionName, description) {
+            const action = 'dataset_version_update';
+            let params = {
+                dataset: datasetId,
+                version: versionId,
+                name: versionName,
+                description: description
+            };
+
+            this._apiPost(action, params)
+                .then(function (response) {
+                    if (response.status !== 200) {
+                        response.json().then(function (jsonResponse) {
+                            alert("There was an error updating the dataset version.");
                             console.error({params, jsonResponse});
                         });
                     } else {

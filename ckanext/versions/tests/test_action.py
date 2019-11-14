@@ -188,3 +188,76 @@ class TestVersionsActions(FunctionalTestBase):
         payload = {}
         assert_raises(toolkit.ValidationError, helpers.call_action,
                       'dataset_version_show', **payload)
+
+    def test_update_last_version(self):
+        context = self._get_context(self.org_admin)
+        version = helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name="Version 0.1.2",
+            description="The best dataset ever, it **rules!**")
+
+        updated_version = helpers.call_action(
+            'dataset_version_update',
+            context,
+            dataset=self.dataset['id'],
+            version=version['id'],
+            name="Edited Version 0.1.2",
+            description="Edited Description"
+        )
+
+        assert_equals(version['id'],
+                      updated_version['id'])
+        assert_equals(version['package_revision_id'],
+                      updated_version['package_revision_id'])
+        assert_equals(updated_version['description'],
+                      "Edited Description")
+        assert_equals(updated_version['name'],
+                      "Edited Version 0.1.2")
+
+    def test_update_old_version(self):
+        context = self._get_context(self.org_admin)
+        old_version = helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name="Version 1",
+            description="This is an old version!")
+
+        helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name="Version 2",
+            description="This is a recent version!")
+
+        updated_version = helpers.call_action(
+            'dataset_version_update',
+            context,
+            dataset=self.dataset['id'],
+            version=old_version['id'],
+            name="Version 1.1",
+            description="This is an edited old version!"
+            )
+
+        assert_equals(old_version['id'],
+                      updated_version['id'])
+        assert_equals(old_version['package_revision_id'],
+                      updated_version['package_revision_id'])
+        assert_equals(updated_version['description'],
+                      "This is an edited old version!")
+        assert_equals(updated_version['name'],
+                      "Version 1.1")
+
+    def test_update_not_existing_version_raises_error(self):
+        context = self._get_context(self.org_admin)
+
+        assert_raises(
+            toolkit.ObjectNotFound, helpers.call_action,
+            'dataset_version_update', context,
+            dataset=self.dataset['id'],
+            version='abc-123',
+            name="Edited Version 0.1.2",
+            description='Edited Description'
+        )

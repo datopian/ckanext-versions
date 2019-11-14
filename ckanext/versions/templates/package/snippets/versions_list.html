@@ -6,7 +6,10 @@
     data-module-api-url="{{ h.url_for('api.action', ver=3, logic_function='') }}"
     data-module-package-id="{{ pkg.id }}"
     data-module-package-url="{{ h.url_for(controller='package', action='read', id=pkg.name) }}"
-    data-module-link-resources="{{h.dataset_version_has_link_resources(pkg)}}">
+    data-module-link-resources="{{ h.dataset_version_has_link_resources(pkg) }}"
+    {% if c.current_version %}
+        data-module-version-id="{{ c.current_version.id }}"
+    {% endif %}>
 
   {% if not c.revision_date %}
     <h3>Versions</h3>
@@ -50,6 +53,14 @@
         {{ _('Delete Version') }}
       </button>
     {% endif %}
+
+    {% if h.check_access('dataset_version_create', {'dataset': pkg.id}) %}
+    <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#updateVersionModal">
+      {{ _('Edit Version') }}
+    </button>
+    {% snippet 'package/snippets/update_version.html' %}
+    {% endif %}
+
   {% elif not c.revision_date %}
     {% if h.check_access('dataset_version_create', {'dataset': pkg.id}) %}
       <!-- Button trigger modal -->
@@ -57,33 +68,7 @@
         {{ _('Create Version') }}
       </button>
 
-      <!-- Modal -->
-      <div class="modal fade" id="createVersionModal" tabindex="-1" role="dialog" aria-labelledby="createVersionModalLabel">
-        <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <form class="create-version-form">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="createVersionModalLabel">Create a new version pointing to the current state of this dataset</h4>
-              </div>
-              <div class="modal-body">
-                <div class="form-group">
-                  <label for="version_name">Version name</label>
-                  <input type="text" class="form-control" id="version_name" name="version_name" placeholder="version 1.2" required>
-                </div>
-                <div class="form-group">
-                  <label for="version-details">Description</label>
-                  <textarea id="version-details" name="details" class="form-control" rows="3"></textarea>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary">Create Version</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+    {% snippet 'package/snippets/create_version.html' %}
     {% endif %}
   {% endif %}
 

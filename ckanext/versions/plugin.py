@@ -41,6 +41,7 @@ class VersionsPlugin(plugins.SingletonPlugin):
             'dataset_version_create': action.dataset_version_create,
             'dataset_version_delete': action.dataset_version_delete,
             'dataset_version_list': action.dataset_version_list,
+            'dataset_version_update': action.dataset_version_update,
             'dataset_version_show': action.dataset_version_show,
             'package_show_version': action.package_show_version,
             'resource_show_version': action.resource_show_version,
