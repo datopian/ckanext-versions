@@ -55,6 +55,11 @@
     {% endif %}
 
     {% if h.check_access('dataset_version_create', {'dataset': pkg.id}) %}
+    <button data-version-id="{{ c.current_version.id }}"
+            data-version-name="{{ c.current_version.name }}"
+            class="promote-version-btn btn btn-primary pull-right">
+        {{ _('Promote Version') }}
+    </button>
     <button type="button" class="btn btn-primary pull-right" data-toggle="modal" data-target="#updateVersionModal">
       {{ _('Edit Version') }}
     </button>

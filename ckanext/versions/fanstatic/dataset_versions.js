@@ -32,7 +32,8 @@ ckan.module('dataset_version_controls', function ($) {
 
             this.$('.delete-version-btn').on('click', this._onDelete);
             this.$('.create-version-form').on('submit', this._onCreate);
-            this.$('.update-version-form').on('submit', this._onUpdate)
+            this.$('.update-version-form').on('submit', this._onUpdate);
+            this.$('.promote-version-btn').on('click', this._onPromote);
         },
 
         _onDelete: function (evt)
@@ -60,6 +61,15 @@ ckan.module('dataset_version_controls', function ($) {
 
             evt.preventDefault();
             return this._update(this._packageId, this._versionId, versionName, description);
+        },
+
+        _onPromote: function(evt)
+        {
+            let versionName = $(evt.target).data('version-name');
+            let versionId = $(evt.target).data('version-id');
+            if (confirm("Are you sure you want to promote this version \"" + versionName + "\" to be the current state of the Dataset? \n\nThe current state will be lost, if you want to maintain it go back and create a Version first.")) {
+                return this._promote(versionId);
+            }
         },
 
         _apiPost: function (action, params)
@@ -134,9 +144,27 @@ ckan.module('dataset_version_controls', function ($) {
                         location.reload();
                     }
                 });
+        },
+
+        _promote: function (versionId) {
+            const action = 'dataset_version_promote';
+            let params = {
+                version: versionId
+            };
+
+            this._apiPost(action, params)
+                .then(function (response) {
+                    if (response.status !== 200) {
+                        response.json().then(function (jsonResponse) {
+                            alert("There was an error promoting the dataset version.");
+                            console.error({params, jsonResponse});
+                        });
+                    } else {
+                        location.reload();
+                    }
+                });
         }
 
     };
 
 });
-

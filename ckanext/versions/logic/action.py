@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 
 from ckan import model as core_model
+from ckan.lib.dictization.model_dictize import package_dictize
 from ckan.logic.action.get import package_show as core_package_show
 from ckan.plugins import toolkit
 from sqlalchemy.exc import IntegrityError
@@ -112,6 +113,47 @@ def dataset_version_create(context, data_dict):
     log.info('Version "%s" created for package %s', name, dataset.id)
 
     return version.as_dict()
+
+
+def dataset_version_promote(context, data_dict):
+    """ Promotes a dataset version to the current state of the dataset.
+
+    """
+    model = context.get('model', core_model)
+    version_id = toolkit.get_or_bust(data_dict, ['version'])
+
+    # I'll create my own session! With Blackjack! And H**kers!
+    session = model.meta.create_local_session()
+
+    version = session.query(DatasetVersion).\
+        filter(DatasetVersion.id == version_id).\
+        one_or_none()
+
+    if not version:
+        raise toolkit.ObjectNotFound('Version not found')
+
+    toolkit.check_access('dataset_version_create', context, data_dict)
+    assert context.get('auth_user_obj')  # Should be here after `check_access`
+
+    package = model.Package.get(version.package_id)
+
+    context['revision_id'] = version.package_revision_id
+    revision_dict = package_dictize(package, context)
+
+    package_dict = {}
+    for key in package.get_fields():
+        if key in revision_dict.keys():
+            package_dict[key] = revision_dict[key]
+
+    promoted_dataset = toolkit.get_action('package_update')(
+        context, package_dict)
+
+    log.info(
+        'Version "%s" promoted as latest for package %s',
+        version.name,
+        promoted_dataset['title'])
+
+    return promoted_dataset
 
 
 @toolkit.side_effect_free
