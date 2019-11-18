@@ -132,6 +132,7 @@ def dataset_version_promote(context, data_dict):
     if not version:
         raise toolkit.ObjectNotFound('Version not found')
 
+    data_dict['dataset'] = version.package_id
     toolkit.check_access('dataset_version_create', context, data_dict)
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
