@@ -361,8 +361,10 @@ class TestVersionsPromote(FunctionalTestBase):
         helpers.call_action(
             'package_update',
             id=initial_dataset['id'],
-            extras=[{'key': u'new extra',
-                     'value': u'"new value"'}],
+            extras=[
+                {'key': u'new extra', 'value': u'"new value"'},
+                {'key': u'new extra 2', 'value': u'"new value 2"'}
+                ],
         )
 
         helpers.call_action(
@@ -383,6 +385,7 @@ class TestVersionsPromote(FunctionalTestBase):
         assert_equals(
             promoted_dataset['extras'][0]['value'],
             '"original value"')
+        assert_equals(len(promoted_dataset['extras']), 1)
 
     def test_promote_version_updates_resources(self):
         context = self._get_context(self.org_admin)
