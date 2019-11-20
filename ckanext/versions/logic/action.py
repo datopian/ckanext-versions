@@ -3,7 +3,6 @@ import logging
 from datetime import datetime
 
 from ckan import model as core_model
-from ckan.lib.dictization.model_dictize import package_dictize
 from ckan.logic.action.get import package_show as core_package_show
 from ckan.plugins import toolkit
 from sqlalchemy.exc import IntegrityError
@@ -136,9 +135,18 @@ def dataset_version_promote(context, data_dict):
     toolkit.check_access('dataset_version_create', context, data_dict)
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
-    package = model.Package.get(version.package_id)
-    revision_dict = package_dictize(
-        package, {'model': model, 'revision_id': version.package_revision_id})
+    # use_cache will force to call package_dictize with the revision_id
+    revision_dict = toolkit.get_action('package_show')(
+        {
+            'model': model,
+            'use_cache': False,
+            'revision_id': version.package_revision_id,
+            'user': context.get('auth_user_obj').id
+        },
+        {
+            'id': version.package_id
+        }
+    )
 
     promoted_dataset = toolkit.get_action('package_update')(
         context, revision_dict)
