@@ -140,13 +140,8 @@ def dataset_version_promote(context, data_dict):
     revision_dict = package_dictize(
         package, {'model': model, 'revision_id': version.package_revision_id})
 
-    package_dict = {}
-    for key in package.get_fields():
-        if key in revision_dict.keys():
-            package_dict[key] = revision_dict[key]
-
     promoted_dataset = toolkit.get_action('package_update')(
-        context, package_dict)
+        context, revision_dict)
 
     log.info(
         'Version "%s" promoted as latest for package %s',
