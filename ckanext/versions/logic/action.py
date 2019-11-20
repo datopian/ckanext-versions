@@ -121,9 +121,7 @@ def dataset_version_promote(context, data_dict):
     model = context.get('model', core_model)
     version_id = toolkit.get_or_bust(data_dict, ['version'])
 
-    # I'll create my own session! With Blackjack! And H**kers!
-    session = model.meta.create_local_session()
-
+    session = model.Session()
     version = session.query(DatasetVersion).\
         filter(DatasetVersion.id == version_id).\
         one_or_none()
