@@ -67,7 +67,7 @@ ckan.module('dataset_version_controls', function ($) {
         {
             let versionName = $(evt.target).data('version-name');
             let versionId = $(evt.target).data('version-id');
-            if (confirm("Are you sure you want to promote this version \"" + versionName + "\" to be the current state of the Dataset? \n\nThe current state will be lost, if you want to maintain it go back and create a Version first.")) {
+            if (confirm("Are you sure you want to promote version \"" + versionName + "\" to be the current version of the dataset? \n\nNote that when doing this the current state will be lost. If you want to preserve it please cancel and create a Version for it first.")) {
                 return this._promote(versionId);
             }
         },
