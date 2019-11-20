@@ -137,9 +137,8 @@ def dataset_version_promote(context, data_dict):
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     package = model.Package.get(version.package_id)
-
-    context['revision_id'] = version.package_revision_id
-    revision_dict = package_dictize(package, context)
+    revision_dict = package_dictize(
+        package, {'model': model, 'revision_id': version.package_revision_id})
 
     package_dict = {}
     for key in package.get_fields():
