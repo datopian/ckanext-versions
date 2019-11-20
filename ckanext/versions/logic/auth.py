@@ -37,3 +37,7 @@ def dataset_version_show(context, data_dict):
     This is permitted only to users who can view the dataset
     """
     return is_authorized('package_show', context, {"id": data_dict['dataset']})
+
+
+def dataset_versions_diff(context, data_dict):
+    return dataset_version_create(context, data_dict)

@@ -1,7 +1,7 @@
 from ckan import model
 from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
-from nose.tools import assert_equals, assert_raises
+from nose.tools import assert_equals, assert_raises, assert_in
 
 from ckanext.versions.tests import FunctionalTestBase
 
@@ -260,4 +260,40 @@ class TestVersionsActions(FunctionalTestBase):
             version='abc-123',
             name="Edited Version 0.1.2",
             description='Edited Description'
+        )
+
+    def test_versions_diff(self):
+        context = self._get_context(self.org_admin)
+        version_1 = helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name='Version 1',
+            description='Version 1')
+
+        helpers.call_action(
+            'package_patch',
+            context,
+            id=self.dataset['id'],
+            notes='Some changed notes',
+        )
+
+        version_2 = helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name='Version 2',
+            description='Version 2'
+        )
+
+        diff = helpers.call_action(
+            'dataset_versions_diff',
+            context,
+            version_id_1=version_1['id'],
+            version_id_2=version_2['id'],
+        )
+
+        assert_in(
+            '-  "notes": "Just another test dataset.", \n+  "notes": "Some changed notes",',
+            diff['diff']
         )

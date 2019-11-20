@@ -1,6 +1,10 @@
 # encoding: utf-8
 import logging
 from datetime import datetime
+import difflib
+import re
+import json
+
 
 from ckan import model as core_model
 from ckan.logic.action.get import package_show as core_package_show
@@ -285,3 +289,74 @@ def _get_resource_in_revision(context, data_dict, revision_id):
         del context['revision_id']
 
     return result
+
+
+@toolkit.side_effect_free
+def dataset_versions_diff(context, data_dict):
+    '''Returns a diff between two dataset versions
+
+    :param version_id_1: the id of the first version to compare
+    :type id: string
+    :param version_id_2: the id of the second version to compare
+    :type id: string
+    :param diff_type: 'unified', 'context', 'html'
+    :type diff_type: string
+
+    '''
+
+    version_id_1, version_id_2 = toolkit.get_or_bust(
+        data_dict, ['version_id_1', 'version_id_2'])
+    diff_type = data_dict.get('diff_type', 'unified')
+
+    version_1 = toolkit.get_action('dataset_version_show')(
+        context, {'id': version_id_1})
+    version_2 = toolkit.get_action('dataset_version_show')(
+        context, {'id': version_id_2})
+
+    if not version_1['package_id'] == version_2['package_id']:
+        raise toolkit.ValidationError(
+            'You can only compare versions of the same dataset')
+
+    toolkit.check_access(
+        u'dataset_versions_diff', context, {'dataset': version_1['package_id']})
+
+    dataset_version_1 = toolkit.get_action('package_show_version')(
+        context, {'id': version_1['package_id'], 'version_id': version_1['id']})
+    dataset_version_1.pop('version_metadata', None)
+
+    dataset_version_2 = toolkit.get_action('package_show_version')(
+        context, {'id': version_1['package_id'], 'version_id': version_2['id']})
+    dataset_version_2.pop('version_metadata', None)
+
+    diff = _generate_diff(dataset_version_1, dataset_version_2, diff_type)
+
+    return {
+        'diff': diff,
+    }
+
+
+def _generate_diff(obj1, obj2, diff_type):
+
+    def _dump_obj(obj):
+        return json.dumps(obj, indent=2, sort_keys=True).split('\n')
+
+    obj_lines = [_dump_obj(obj) for obj in [obj1, obj2]]
+
+    if diff_type == 'unified':
+        diff_generator = difflib.unified_diff(*obj_lines)
+        diff = '\n'.join(line for line in diff_generator)
+    elif diff_type == 'context':
+        diff_generator = difflib.context_diff(*obj_lines)
+        diff = '\n'.join(line for line in diff_generator)
+    elif diff_type == 'html':
+        # word-wrap lines. Otherwise you get scroll bars for most datasets.
+        for obj_index in (0, 1):
+            wrapped_obj_lines = []
+            for line in obj_lines[obj_index]:
+                wrapped_obj_lines.extend(re.findall(r'.{1,70}(?:\s+|$)', line))
+            obj_lines[obj_index] = wrapped_obj_lines
+        diff = difflib.HtmlDiff().make_table(*obj_lines)
+    else:
+        raise toolkit.ValidationError('diff_type not recognized')
+
+    return diff
