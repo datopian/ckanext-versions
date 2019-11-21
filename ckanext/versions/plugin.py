@@ -96,9 +96,6 @@ class VersionsPlugin(plugins.SingletonPlugin):
 
     # IResourceController
 
-    # def before_show(self, resource_dict):
-    #     if resource_dict['url_type'] == 'upload' and resource_dict.get('url')
-
     def before_delete(self, context, resource, resources):
         pass
 
