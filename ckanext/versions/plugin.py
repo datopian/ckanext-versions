@@ -1,8 +1,6 @@
 # encoding: utf-8
 
-import datetime
 import logging
-import os.path
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
