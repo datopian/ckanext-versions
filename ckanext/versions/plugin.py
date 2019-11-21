@@ -1,11 +1,13 @@
 # encoding: utf-8
 
+import datetime
 import logging
+import os.path
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
-from ckanext.versions.logic import action, auth, helpers
+from ckanext.versions.logic import action, auth, helpers, uploader
 from ckanext.versions.model import tables_exist
 
 log = logging.getLogger(__name__)
@@ -16,6 +18,8 @@ class VersionsPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(plugins.IPackageController, inherit=True)
+    plugins.implements(plugins.IResourceController, inherit=True)
+    plugins.implements(plugins.IUploader, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
 
     # IConfigurer
@@ -47,7 +51,8 @@ class VersionsPlugin(plugins.SingletonPlugin):
             'resource_show_version': action.resource_show_version,
 
             # Overridden
-            'package_show': action.package_show_revision
+            'package_show': action.package_show_revision,
+            'resource_show': action.resource_show_revision
         }
 
     # IAuthFunctions
@@ -88,3 +93,16 @@ class VersionsPlugin(plugins.SingletonPlugin):
             pkg_dict['metadata_updated'] = None
 
         return pkg_dict
+
+    # IResourceController
+
+    # def before_show(self, resource_dict):
+    #     if resource_dict['url_type'] == 'upload' and resource_dict.get('url')
+
+    def before_delete(self, context, resource, resources):
+        pass
+
+    # IUploader
+
+    def get_resource_uploader(self, data_dict):
+        return uploader.get_uploader(self, data_dict)
