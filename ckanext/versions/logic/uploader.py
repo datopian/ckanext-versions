@@ -1,0 +1,49 @@
+"""Patched uploader supporting file revisioning
+"""
+import logging
+
+import ckan.plugins as plugins
+from ckan.lib.uploader import ResourceUpload
+
+log = logging.getLogger(__name__)
+
+
+def get_uploader(this_plugin, data_dict):
+    """This is somewhat copied from ckan.lib.uploader logic
+
+    Generate an uploader object and return it; We wrap uploader instantiation
+    with this factory function,
+    """
+    upload = None
+    for plugin in plugins.PluginImplementations(plugins.IUploader):
+        if plugin is this_plugin:
+            continue
+        upload = plugin.get_resource_uploader(data_dict)
+
+    # default uploader
+    if upload is None:
+        upload = LocalResourceUpload(data_dict)
+
+    log.debug("Wrapping Uploader from %s", upload.__class__.__name__)
+    return upload
+
+
+class LocalResourceUpload(ResourceUpload):
+    """A local resource uploader that takes revisions into account
+    """
+    def __init__(self, data_dict):
+        super(LocalResourceUpload, self).__init__(data_dict)
+        self.resource_metadata = data_dict
+
+    def get_path(self, id):
+        filepath = super(LocalResourceUpload, self).get_path(id)
+        if self.resource_metadata and \
+                self.resource_metadata.get('last_modified', None):
+            modified_ts = self.resource_metadata['last_modified']
+            if hasattr(modified_ts, 'isoformat'):
+                modified_ts = modified_ts.isoformat()
+            filepath = '{}-{}'.format(filepath, modified_ts)
+        return filepath
+
+    def upload(self, *args, **kwargs):
+        return super(LocalResourceUpload, self).upload(*args, **kwargs)
