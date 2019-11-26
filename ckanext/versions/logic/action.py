@@ -204,11 +204,11 @@ def package_show_revision(context, data_dict):
     dd = data_dict.copy()
     if data_dict.get('revision_id') is None and '@' in data_dict['id']:
         package_id, revision_id = data_dict['id'].split('@', 1)
-        dd.update({'id': package_id,
-                   'revision_id': revision_id})
-        return _get_package_in_revision(context, dd)
+        dd['id'] = package_id
     else:
-        return core_package_show(context, data_dict)
+        revision_id = context.get('revision_id')
+
+    return _get_package_in_revision(context, dd, revision_id)
 
 
 @toolkit.side_effect_free
@@ -226,9 +226,8 @@ def package_show_version(context, data_dict):
     version_id = data_dict.get('version_id', None)
     if version_id:
         version_dict = dataset_version_show(context, {'id': version_id})
-        dd = data_dict.copy()
-        dd.update({'revision_id': version_dict['package_revision_id']})
-        package_dict = _get_package_in_revision(context, dd)
+        package_dict = _get_package_in_revision(
+            context, data_dict, version_dict['package_revision_id'])
         package_dict['version_metadata'] = version_dict
     else:
         package_dict = core_package_show(context, data_dict)
@@ -260,9 +259,13 @@ def resource_show_revision(context, data_dict):
     if data_dict.get('revision_id') is None and '@' in data_dict['id']:
         resource_id, revision_id = data_dict['id'].split('@', 1)
         dd.update({'id': resource_id})
-        return _get_resource_in_revision(context, dd, revision_id)
+        rsc = _get_resource_in_revision(context, dd, revision_id)
     else:
-        return core_resource_show(context, data_dict)
+        rsc = core_resource_show(context, data_dict)
+        if 'revision_id' in context:
+            rsc = _fix_resource_data(rsc, context['revision_id'])
+
+    return rsc
 
 
 @toolkit.side_effect_free
@@ -282,22 +285,23 @@ def resource_show_version(context, data_dict):
         return toolkit.get_action('resource_show')(context, data_dict)
 
 
-def _get_package_in_revision(context, data_dict):
+def _get_package_in_revision(context, data_dict, revision_id):
     """Internal implementation of package_show_revision
     """
-    revision_id = toolkit.get_or_bust(data_dict, ['revision_id'])
     current_revision_id = context.get('revision_id', None)
-    context['revision_id'] = revision_id
+    if revision_id:
+        context['revision_id'] = revision_id
+
     result = core_package_show(context, data_dict)
+    if revision_id:
+        for resource in result.get('resources', []):
+            resource['datastore_active'] = False
+            _fix_resource_data(resource, revision_id)
 
     if current_revision_id:
         context['revision_id'] = current_revision_id
-    else:
+    elif revision_id:
         del context['revision_id']
-
-    for resource in result.get('resources', []):
-        resource['datastore_active'] = False
-        _fix_resource_data(resource, revision_id)
 
     return result
 
