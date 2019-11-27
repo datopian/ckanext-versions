@@ -679,7 +679,6 @@ def _extension_fields(change_list, old, new):
     # have been updated, print a generic message stating that
     old_set = set(old.keys())
     new_set = set(new.keys())
-
     # set of additional fields in the new dictionary
     addl_fields_new = new_set - fields_set
     # set of additional fields in the old dictionary
@@ -687,9 +686,13 @@ def _extension_fields(change_list, old, new):
     # set of additional fields in both
     addl_fields = addl_fields_new.intersection(addl_fields_old)
 
-    # do NOT display a change if any additional fields have been
-    # added or deleted, since that is not a change made by the user
-    # from the web interface
+    # Show added fields
+    for field in (addl_fields_new - addl_fields_old):
+        change_list.append({u'type': u'extension_fields',
+                            u'pkg_id': new['id'],
+                            u'title': new['title'],
+                            u'key': field,
+                            u'value': new[field]})
 
     # if additional fields have been changed
     addl_fields_list = list(addl_fields)
