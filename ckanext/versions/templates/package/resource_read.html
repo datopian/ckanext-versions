@@ -12,8 +12,8 @@
             It may differ significantly from the <a href="{{ url }}">current revision of the dataset</a>.
           {% endtrans %}
         </p>
-        </div>
-      {% endif %}
+      </div>
+    {% endif %}
   {% endblock %}
 
   {{ super() }}
@@ -25,4 +25,14 @@
     <span class="label label-default">version {{ c.current_version.name }}</span>
   {% endif %}
   </h1>
+{% endblock %}
+
+{% block data_preview %}
+  {% if c.current_version %}
+    <div class="module warning alert alert-warning">
+      {{ _('Data preview is not available for this revision of the data; You can still download the resource and view it locally.') }}
+    </div>
+  {% else %}
+    {{ super() }}
+  {% endif %}
 {% endblock %}
