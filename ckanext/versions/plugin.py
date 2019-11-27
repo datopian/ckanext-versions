@@ -75,8 +75,13 @@ class VersionsPlugin(plugins.SingletonPlugin):
     # IPackageController
 
     def before_view(self, pkg_dict):
-        versions = action.dataset_version_list({"ignore_auth": True},
-                                               {"dataset": pkg_dict['id']})
+        try:
+            versions = action.dataset_version_list({"ignore_auth": True},
+                                                   {"dataset": pkg_dict['id']})
+        except toolkit.ObjectNotFound:
+            # Do not blow up if package is gone
+            return pkg_dict
+
         pkg_dict.update({'versions': versions})
 
         version_id = toolkit.request.params.get('version', None)
