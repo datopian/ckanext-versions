@@ -67,9 +67,9 @@ class VersionsPlugin(plugins.SingletonPlugin):
 
     def get_helpers(self):
         return {
-            'dataset_version_show_url': helpers.get_show_url,
-            'dataset_version_resource_show_url': helpers.get_resource_show_url,
-            'dataset_version_get_show_url': helpers.get_show_url,
+            'url_for_version': helpers.url_for_version,
+            # 'dataset_version_show_url': helpers.get_show_url,
+            # 'dataset_version_resource_show_url': helpers.get_resource_show_url,
             'dataset_version_has_link_resources': helpers.has_link_resources,
         }
 
