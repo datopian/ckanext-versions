@@ -7,6 +7,7 @@ import ckan.plugins.toolkit as toolkit
 
 from ckanext.versions.logic import action, auth, helpers
 from ckanext.versions.model import tables_exist
+from ckanext.versions import blueprints
 
 log = logging.getLogger(__name__)
 
@@ -17,6 +18,7 @@ class VersionsPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(plugins.IPackageController, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.IBlueprint)
 
     # IConfigurer
 
@@ -70,6 +72,7 @@ class VersionsPlugin(plugins.SingletonPlugin):
             'dataset_version_resource_show_url': helpers.get_resource_show_url,
             'dataset_version_get_show_url': helpers.get_show_url,
             'dataset_version_has_link_resources': helpers.has_link_resources,
+            'dataset_version_compare_pkg_dicts': helpers.compare_pkg_dicts,
         }
 
     # IPackageController
@@ -90,3 +93,7 @@ class VersionsPlugin(plugins.SingletonPlugin):
             pkg_dict['metadata_updated'] = None
 
         return pkg_dict
+
+    # IBlueprint
+    def get_blueprint(self):
+        return [blueprints.versions]

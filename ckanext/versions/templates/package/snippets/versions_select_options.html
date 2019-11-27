@@ -1,0 +1,5 @@
+{% for version in versions %}
+<option value="{{ version.id }}" {% if version.id == selected_id %}selected="selected"{% endif %}>
+{{ version.name }} - {{ h.render_datetime(version.created, with_hours=True)}}
+</option>
+{% endfor %}

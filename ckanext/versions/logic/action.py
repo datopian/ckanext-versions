@@ -332,6 +332,10 @@ def dataset_versions_diff(context, data_dict):
 
     return {
         'diff': diff,
+        'version_1': version_1,
+        'version_2': version_2,
+        'dataset_dict_1': dataset_version_1,
+        'dataset_dict_2': dataset_version_2,
     }
 
 
