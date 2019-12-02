@@ -68,7 +68,13 @@
         {{ _('Create Version') }}
       </button>
 
-    {% snippet 'package/snippets/create_version.html' %}
+      {% snippet 'package/snippets/create_version.html' %}
+
+      <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#compareVersionsModal" />
+        {{ _('Compare Versions') }}
+      </button>
+
+      {% snippet 'package/snippets/compare_versions.html', pkg=pkg %}
     {% endif %}
   {% endif %}
 
