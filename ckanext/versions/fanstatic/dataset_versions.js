@@ -160,9 +160,9 @@ ckan.module('dataset_version_controls', function ($) {
                             console.error({params, jsonResponse});
                         });
                     } else {
-                        location.reload();
+                        location.href = this._packageUrl;
                     }
-                });
+                }.bind(this));
         }
 
     };
