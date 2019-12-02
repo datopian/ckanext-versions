@@ -8,6 +8,7 @@ import json
 
 from ckan import model as core_model
 from ckan.logic.action.get import package_show as core_package_show
+from ckan.logic.action.get import resource_show as core_resource_show
 from ckan.plugins import toolkit
 from sqlalchemy.exc import IntegrityError
 
@@ -233,7 +234,6 @@ def package_show_version(context, data_dict):
         dd.update({'revision_id': version_dict['package_revision_id']})
         package_dict = _get_package_in_revision(context, dd)
         package_dict['version_metadata'] = version_dict
-
     else:
         package_dict = core_package_show(context, data_dict)
         versions = dataset_version_list(context,
@@ -241,6 +241,32 @@ def package_show_version(context, data_dict):
         package_dict['versions'] = versions
 
     return package_dict
+
+
+@toolkit.side_effect_free
+def resource_show_revision(context, data_dict):
+    """Show a resource from a specified revision
+
+    Takes the same arguments as 'resource_show' but with an additional
+    revision ID parameter
+
+    Revision ID can also be specified as part of the package ID, as
+    <resource_id>@<revision_id>.
+
+    :param id: the id of the resource
+    :type id: string
+    :param revision_id: the ID of the revision
+    :type revision_id: string
+    :returns: A resource dict
+    :rtype: dict
+    """
+    dd = data_dict.copy()
+    if data_dict.get('revision_id') is None and '@' in data_dict['id']:
+        resource_id, revision_id = data_dict['id'].split('@', 1)
+        dd.update({'id': resource_id})
+        return _get_resource_in_revision(context, dd, revision_id)
+    else:
+        return core_resource_show(context, data_dict)
 
 
 @toolkit.side_effect_free
@@ -273,6 +299,10 @@ def _get_package_in_revision(context, data_dict):
     else:
         del context['revision_id']
 
+    for resource in result.get('resources', []):
+        resource['datastore_active'] = False
+        _fix_resource_data(resource, revision_id)
+
     return result
 
 
@@ -281,7 +311,9 @@ def _get_resource_in_revision(context, data_dict, revision_id):
     """
     current_revision_id = context.get('revision_id', None)
     context['revision_id'] = revision_id
-    result = toolkit.get_action('resource_show')(context, data_dict)
+    result = core_resource_show(context, data_dict)
+    result['datastore_active'] = False
+    _fix_resource_data(result, revision_id)
 
     if current_revision_id:
         context['revision_id'] = current_revision_id
@@ -289,6 +321,27 @@ def _get_resource_in_revision(context, data_dict, revision_id):
         del context['revision_id']
 
     return result
+
+
+def _fix_resource_data(resource_dict, revision_id):
+    """Make some adjustments to the resource dict if we are showing a revision
+    of a package
+    """
+    url = resource_dict.get('url')
+    if url and resource_dict.get('url_type') == 'upload' and '://' in url:
+        # Resource is pointing at a local uploaded file, which has already been
+        # converted to an absolute URL by `model_dictize.resource_dictized`
+        if resource_dict['id'] in url:
+            rsc_id = '{}@{}'.format(resource_dict['id'], revision_id)
+            url = url.replace(resource_dict['id'], rsc_id)
+
+        if resource_dict['package_id'] in url:
+            pkg_id = '{}@{}'.format(resource_dict['package_id'], revision_id)
+            url = url.replace(resource_dict['package_id'], pkg_id)
+
+        resource_dict['url'] = url
+
+    return resource_dict
 
 
 @toolkit.side_effect_free
