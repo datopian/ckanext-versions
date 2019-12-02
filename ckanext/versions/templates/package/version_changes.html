@@ -16,15 +16,13 @@
         <h1 class="page-heading">{{ _('Changes') }}</h1>
       {% endblock %}
 
-      <form id="range_form" action="" data-module="select-switch" data-module-target="" class="form-horizontal">
-        <input type="hidden" name="version_id_1" value="{{ version_id_1 }}">
-
-        <input type="hidden" name="version_id_2" value="{{ version_id_2 }}">
+      <form id="range_form" action="" data-module="select-switch" data-module-target="" class="form-inline">
       View changes from
-        <select class="form-control select-time" form="range_form" name="old_id">
-          {% snippet 'package/snippets/versions_select_options.html', versions=versions, selected_id=version_id_1 %}
+        <select class="form-control select-time" form="range_form" name="version_id_1">
+          {# Skip the most recent one in the from field #}
+          {% snippet 'package/snippets/versions_select_options.html', versions=versions[1:], selected_id=version_id_1 %}
         </select> to
-        <select class="form-control select-time" form="range_form" name="new_id">
+        <select class="form-control select-time" form="range_form" name="version_id_2">
 
           {% snippet 'package/snippets/versions_select_options.html', versions=versions, selected_id=version_id_2 %}
         </select>
