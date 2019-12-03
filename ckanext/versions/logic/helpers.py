@@ -1,31 +1,46 @@
 from ckan.plugins import toolkit
 
 
-def get_show_url(package_name, version):
-    """Get the URL for 'package_show' for a version
-    """
-    dataset_id = "{}@{}".format(package_name, version['package_revision_id'])
-    return toolkit.url_for('dataset_read',
-                           id=dataset_id,
-                           version=version['id'])
+def url_for_version(package_name, version=None, **kwargs):
+    """Get the URL for a package / resource related action, with potential
+    revision ID taken from a version info object
 
+    If `version` is set, the version ID is appended to the package ID,
+    and a ?version=... query parameter is added to URLs.
 
-def get_resource_show_url(package_name, resource_id, version):
-    """Get the URL for 'package_show' for a version
+    If the `resource_id` parameter is provided and `version` is set, a
+    revision ID will be appended to the resource_id.
+
+    If the `route_name` parameter is provided, it will be used as the route
+    name; Otherwise, `controller` and `action` are expected as arguments.
     """
-    extra_params = {}
     if version:
-        dataset_id = "{}@{}".format(package_name,
-                                    version['package_revision_id'])
-        extra_params['version'] = version['id']
-    else:
-        dataset_id = package_name
+        package_name = "{}@{}".format(package_name,
+                                      version['package_revision_id'])
+        if 'version' not in kwargs:
+            kwargs['version'] = version['id']
 
-    return toolkit.url_for(controller='package',
-                           action='resource_read',
-                           id=dataset_id,
-                           resource_id=resource_id,
-                           **extra_params)
+    if 'route_name' in kwargs:
+        route = kwargs.pop('route_name')
+        return toolkit.url_for(route, id=package_name, **kwargs)
+    else:
+        return toolkit.url_for(id=package_name, **kwargs)
+
+
+def url_for_resource_version(package_name, version, **kwargs):
+    """Similar to `url_for_version`, but also adds an "@revision" to the
+    resource_id if it and a version is provided
+
+    :param package_name:
+    :param version:
+    :param kwargs:
+    :return:
+    """
+    if version and 'resource_id' in kwargs:
+        kwargs['resource_id'] = "{}@{}".format(kwargs['resource_id'],
+                                               version['package_revision_id'])
+
+    return url_for_version(package_name, version, **kwargs)
 
 
 def has_link_resources(package):
