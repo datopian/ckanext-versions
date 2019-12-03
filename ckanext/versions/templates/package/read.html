@@ -1,5 +1,11 @@
 {% ckan_extends %}
 
+{% block content_action %}
+  {% if not c.current_version %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
+
 {% block page_heading %}
   {{ super() }}
   {% if c.current_version %}
@@ -19,4 +25,19 @@
   {% block versions_list %}
     {% snippet "package/snippets/versions_list.html", pkg=pkg %}
   {% endblock %}
+{% endblock %}
+
+{% block package_revision_info %}
+  {% if c.current_version %}
+    <div class="module info alert alert-info">
+      <p class="module-content">
+        {% set timestamp = h.render_datetime(c.revision_date, with_hours=True) %}
+        {% set url = h.url_for(controller='package', action='read', id=pkg.id) %}
+
+        {% trans timestamp=timestamp, url=url %}This is an old revision of this dataset, as edited at {{ timestamp }}. It may differ significantly from the <a href="{{ url }}">current revision</a>.{% endtrans %}
+      </p>
+    </div>
+  {% else %}
+    {{ super() }}
+  {% endif %}
 {% endblock %}

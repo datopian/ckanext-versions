@@ -5,6 +5,8 @@ import logging
 import ckan.plugins as plugins
 from ckan.lib.uploader import ResourceUpload
 
+UPLOAD_TS_FIELD = 'versions_upload_timestamp'
+
 log = logging.getLogger(__name__)
 
 
@@ -38,11 +40,12 @@ class LocalResourceUpload(ResourceUpload):
     def get_path(self, id):
         filepath = super(LocalResourceUpload, self).get_path(id)
         if self.resource_metadata and \
-                self.resource_metadata.get('last_modified', None):
-            modified_ts = self.resource_metadata['last_modified']
+                self.resource_metadata.get(UPLOAD_TS_FIELD, None):
+            modified_ts = self.resource_metadata[UPLOAD_TS_FIELD]
             if hasattr(modified_ts, 'isoformat'):
                 modified_ts = modified_ts.isoformat()
-            filepath = '{}-{}'.format(filepath, modified_ts)
+            filepath = '-'.join([filepath, modified_ts])
+        log.debug("Computed resource path is %s", filepath)
         return filepath
 
     def upload(self, *args, **kwargs):
