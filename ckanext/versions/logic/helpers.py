@@ -28,8 +28,8 @@ def url_for_version(package_name, version=None, **kwargs):
 
 
 def url_for_resource_version(package_name, version, **kwargs):
-    """Similar to `url_for_version`, but also adds an "@revision" to the resource_id
-    if it and a version is provided
+    """Similar to `url_for_version`, but also adds an "@revision" to the
+    resource_id if it and a version is provided
 
     :param package_name:
     :param version:
