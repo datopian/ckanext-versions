@@ -297,3 +297,168 @@ class TestVersionsActions(FunctionalTestBase):
             '-  "notes": "Just another test dataset.", \n+  "notes": "Some changed notes",',
             diff['diff']
         )
+
+
+class TestVersionsPromote(FunctionalTestBase):
+    """Test cases for promoting a dataset version to latest
+    """
+
+    def _get_context(self, user):
+        return {
+            'model': model,
+            'user': user['name'],
+            'ignore_auth': False
+        }
+
+    def setup(self):
+
+        super(TestVersionsPromote, self).setup()
+
+        self.org_admin = factories.User()
+        self.org_admin_name = self.org_admin['name'].encode('ascii')
+
+        self.org_member = factories.User()
+        self.org_member_name = self.org_member['name'].encode('ascii')
+
+        self.org = factories.Organization(
+            users=[
+                {'name': self.org_member['name'], 'capacity': 'member'},
+                {'name': self.org_admin['name'], 'capacity': 'admin'},
+            ]
+        )
+
+        self.dataset = factories.Dataset()
+
+    def test_promote_version_updates_basic_metadata_fields(self):
+        context = self._get_context(self.org_admin)
+
+        initial_dataset = factories.Dataset(
+            title='Testing Promote',
+            notes='Initial Description',
+            maintainer='test_maintainer',
+            maintainer_email='test_email@example.com',
+            owner_org=self.org['id']
+        )
+
+        version = helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=initial_dataset['id'],
+            name="Version 1")
+
+        new_org = factories.Organization(
+            users=[
+                {'name': self.org_admin['name'], 'capacity': 'admin'},
+            ]
+        )
+        helpers.call_action(
+            'package_update',
+            context,
+            id=initial_dataset['id'],
+            title='New Title',
+            notes='New Notes',
+            maintainer='new_test_maintainer',
+            maintainer_email='new_test_email@example.com',
+            owner_org=new_org['id']
+        )
+
+        helpers.call_action(
+            'dataset_version_promote',
+            context,
+            version=version['id']
+            )
+
+        promoted_dataset = helpers.call_action(
+            'package_show',
+            context,
+            id=initial_dataset['id']
+            )
+
+        assert_equals(promoted_dataset['title'], 'Testing Promote')
+        assert_equals(promoted_dataset['notes'], 'Initial Description')
+        assert_equals(promoted_dataset['maintainer'], 'test_maintainer')
+        assert_equals(
+            promoted_dataset['maintainer_email'], 'test_email@example.com')
+        assert_equals(promoted_dataset['owner_org'], self.org['id'])
+
+    def test_promote_version_updates_extras(self):
+        context = self._get_context(self.org_admin)
+
+        initial_dataset = factories.Dataset(
+            extras=[{'key': u'original extra',
+                     'value': u'"original value"'}])
+
+        version = helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=initial_dataset['id'],
+            name="Version 1")
+
+        helpers.call_action(
+            'package_update',
+            id=initial_dataset['id'],
+            extras=[
+                {'key': u'new extra', 'value': u'"new value"'},
+                {'key': u'new extra 2', 'value': u'"new value 2"'}
+                ],
+        )
+
+        helpers.call_action(
+            'dataset_version_promote',
+            context,
+            version=version['id']
+            )
+
+        promoted_dataset = helpers.call_action(
+            'package_show',
+            context,
+            id=initial_dataset['id']
+            )
+
+        assert_equals(
+            promoted_dataset['extras'][0]['key'],
+            'original extra')
+        assert_equals(
+            promoted_dataset['extras'][0]['value'],
+            '"original value"')
+        assert_equals(len(promoted_dataset['extras']), 1)
+
+    def test_promote_version_updates_resources(self):
+        context = self._get_context(self.org_admin)
+
+        initial_dataset = factories.Dataset()
+
+        first_resource = factories.Resource(
+            name="First Resource",
+            package_id=initial_dataset['id']
+        )
+        initial_dataset['resources'].append(first_resource)
+
+        version = helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=initial_dataset['id'],
+            name="Version 1")
+
+        second_resource = factories.Resource(
+            name="Second Resource",
+            package_id=initial_dataset['id']
+        )
+        initial_dataset['resources'].append(second_resource)
+
+        helpers.call_action(
+            'dataset_version_promote',
+            context,
+            version=version['id']
+            )
+
+        promoted_dataset = helpers.call_action(
+            'package_show',
+            context,
+            id=initial_dataset['id']
+            )
+
+        assert_equals(len(promoted_dataset['resources']), 1)
+        assert_equals(
+            promoted_dataset['resources'][0]['name'],
+            'First Resource')

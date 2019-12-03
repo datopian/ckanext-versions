@@ -119,6 +119,49 @@ def dataset_version_create(context, data_dict):
     return version.as_dict()
 
 
+def dataset_version_promote(context, data_dict):
+    """ Promotes a dataset version to the current state of the dataset.
+
+    """
+    model = context.get('model', core_model)
+    version_id = toolkit.get_or_bust(data_dict, ['version'])
+
+    session = model.Session()
+    version = session.query(DatasetVersion).\
+        filter(DatasetVersion.id == version_id).\
+        one_or_none()
+
+    if not version:
+        raise toolkit.ObjectNotFound('Version not found')
+
+    data_dict['dataset'] = version.package_id
+    toolkit.check_access('dataset_version_create', context, data_dict)
+    assert context.get('auth_user_obj')  # Should be here after `check_access`
+
+    # use_cache will force to call package_dictize with the revision_id
+    revision_dict = toolkit.get_action('package_show')(
+        {
+            'model': model,
+            'use_cache': False,
+            'revision_id': version.package_revision_id,
+            'user': context.get('auth_user_obj').id
+        },
+        {
+            'id': version.package_id
+        }
+    )
+
+    promoted_dataset = toolkit.get_action('package_update')(
+        context, revision_dict)
+
+    log.info(
+        'Version "%s" promoted as latest for package %s',
+        version.name,
+        promoted_dataset['title'])
+
+    return promoted_dataset
+
+
 @toolkit.side_effect_free
 def dataset_version_list(context, data_dict):
     """List versions of a given dataset
