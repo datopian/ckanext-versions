@@ -1,5 +1,11 @@
 {% ckan_extends %}
 
+{% block content_action %}
+  {% if not c.current_version %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
+
 {% block page_heading %}
   {{ super() }}
   {% if c.current_version %}
