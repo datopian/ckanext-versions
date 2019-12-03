@@ -6,7 +6,7 @@
 
 {% block resource_item_title %}
   {% if not url_is_edit %}
-    {% set url = h.url_for_version(pkg.name, controller='package', action='resource_read', resource_id=res.id, version=c.current_version) %}
+    {% set url = h.url_for_version(pkg, controller='package', action='resource_read', resource_id=res.id, version=c.current_version) %}
   {% endif %}
   <a class="heading" href="{{ url }}" title="{{ res.name or res.description }}">
     {{ h.resource_display_name(res) | truncate(50) }}<span class="format-label" property="dc:format" data-format="{{ res.format.lower() or 'data' }}">{{ h.get_translated(res, 'format') }}</span>
@@ -19,7 +19,7 @@
    with a revision aware one :(
 #}
 {% block resource_item_explore_links %}
-  {% set url = h.url_for_version(pkg.name, controller='package', action='resource_read', resource_id=res.id, version=c.current_version) %}
+  {% set url = h.url_for_version(pkg, controller='package', action='resource_read', resource_id=res.id, version=c.current_version) %}
   <li>
     <a href="{{ url }}">
       {% if res.has_views %}

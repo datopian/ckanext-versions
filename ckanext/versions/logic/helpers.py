@@ -1,7 +1,7 @@
 from ckan.plugins import toolkit
 
 
-def url_for_version(package_name, version=None, **kwargs):
+def url_for_version(package, version=None, **kwargs):
     """Get the URL for a package / resource related action, with potential
     revision ID taken from a version info object
 
@@ -15,32 +15,33 @@ def url_for_version(package_name, version=None, **kwargs):
     name; Otherwise, `controller` and `action` are expected as arguments.
     """
     if version:
-        package_name = "{}@{}".format(package_name,
-                                      version['package_revision_id'])
+        package_id = "@".join([package['id'], version['package_revision_id']])
         if 'version' not in kwargs:
             kwargs['version'] = version['id']
+    else:
+        package_id = package.get('name', package['id'])
 
     if 'route_name' in kwargs:
         route = kwargs.pop('route_name')
-        return toolkit.url_for(route, id=package_name, **kwargs)
+        return toolkit.url_for(route, id=package_id, **kwargs)
     else:
-        return toolkit.url_for(id=package_name, **kwargs)
+        return toolkit.url_for(id=package_id, **kwargs)
 
 
-def url_for_resource_version(package_name, version, **kwargs):
+def url_for_resource_version(package, version, **kwargs):
     """Similar to `url_for_version`, but also adds an "@revision" to the
     resource_id if it and a version is provided
 
-    :param package_name:
+    :param package:
     :param version:
     :param kwargs:
     :return:
     """
     if version and 'resource_id' in kwargs:
-        kwargs['resource_id'] = "{}@{}".format(kwargs['resource_id'],
-                                               version['package_revision_id'])
+        kwargs['resource_id'] = "@".join([kwargs['resource_id'],
+                                          version['package_revision_id']])
 
-    return url_for_version(package_name, version, **kwargs)
+    return url_for_version(package, version, **kwargs)
 
 
 def has_link_resources(package):
@@ -50,6 +51,6 @@ def has_link_resources(package):
     link_resource = any(
         resource['url_type'] is None or resource['url_type'] == ''
         for resource in package.get('resources', [])
-        )
+    )
 
     return link_resource
