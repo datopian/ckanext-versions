@@ -5,9 +5,9 @@ import logging
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
+from ckanext.versions import blueprints
 from ckanext.versions.logic import action, auth, helpers, uploader
 from ckanext.versions.model import tables_exist
-from ckanext.versions import blueprints
 
 log = logging.getLogger(__name__)
 
