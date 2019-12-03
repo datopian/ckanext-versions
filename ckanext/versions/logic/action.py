@@ -413,14 +413,25 @@ def dataset_versions_diff(context, data_dict):
             'You can only compare versions of the same dataset')
 
     toolkit.check_access(
-        u'dataset_versions_diff', context, {'dataset': version_1['package_id']})
+        u'dataset_versions_diff',
+        context,
+        {'dataset': version_1['package_id']}
+    )
 
     dataset_version_1 = toolkit.get_action('package_show_version')(
-        context, {'id': version_1['package_id'], 'version_id': version_1['id']})
+        context, {
+            'id': version_1['package_id'],
+            'version_id': version_1['id']
+        }
+    )
     dataset_version_1.pop('version_metadata', None)
 
     dataset_version_2 = toolkit.get_action('package_show_version')(
-        context, {'id': version_1['package_id'], 'version_id': version_2['id']})
+        context, {
+            'id': version_1['package_id'],
+            'version_id': version_2['id']
+        }
+    )
     dataset_version_2.pop('version_metadata', None)
 
     diff = _generate_diff(dataset_version_1, dataset_version_2, diff_type)

@@ -294,7 +294,8 @@ class TestVersionsActions(FunctionalTestBase):
         )
 
         assert_in(
-            '-  "notes": "Just another test dataset.", \n+  "notes": "Some changed notes",',
+            '-  "notes": "Just another test dataset.", '
+            '\n+  "notes": "Some changed notes",',
             diff['diff']
         )
 
