@@ -154,11 +154,6 @@ def dataset_version_promote(context, data_dict):
         version.name,
         promoted_dataset['title'])
 
-    toolkit.h.flash_success(
-        toolkit._('Version {} was promoted succesfully.'.format(
-            version.name
-        )))
-
     return promoted_dataset
 
 
