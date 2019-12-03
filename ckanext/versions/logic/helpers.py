@@ -1,8 +1,7 @@
 from ckan.plugins import toolkit
 
-from ckanext.versions.lib.changes import (
-    check_metadata_changes, check_resource_changes
-)
+from ckanext.versions.lib.changes import (check_metadata_changes,
+                                          check_resource_changes)
 
 
 def get_show_url(package_name, version):

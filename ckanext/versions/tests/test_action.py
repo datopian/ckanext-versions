@@ -1,7 +1,7 @@
 from ckan import model
 from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
-from nose.tools import assert_equals, assert_raises, assert_in
+from nose.tools import assert_equals, assert_in, assert_raises
 
 from ckanext.versions.tests import FunctionalTestBase
 

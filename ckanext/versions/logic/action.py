@@ -1,10 +1,9 @@
 # encoding: utf-8
-import logging
-from datetime import datetime
 import difflib
-import re
 import json
-
+import logging
+import re
+from datetime import datetime
 
 from ckan import model as core_model
 from ckan.logic.action.get import package_show as core_package_show
