@@ -26,6 +26,7 @@ def changes(id):
     if version_id_1 and version_id_2:
         diff = toolkit.get_action('dataset_versions_diff')(
             context, {
+                'id': id,
                 'version_id_1': version_id_1,
                 'version_id_2': version_id_2,
                 'diff_type': 'html',

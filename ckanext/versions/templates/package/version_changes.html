@@ -19,12 +19,11 @@
       <form id="range_form" action="" data-module="select-switch" data-module-target="" class="form-inline">
       View changes from
         <select class="form-control select-time" form="range_form" name="version_id_1">
-          {# Skip the most recent one in the from field #}
-          {% snippet 'package/snippets/versions_select_options.html', versions=versions[1:], selected_id=version_id_1 %}
+          {% snippet 'package/snippets/versions_select_options.html', versions=versions, selected_id=version_id_1 %}
         </select> to
         <select class="form-control select-time" form="range_form" name="version_id_2">
 
-          {% snippet 'package/snippets/versions_select_options.html', versions=versions, selected_id=version_id_2 %}
+          {% snippet 'package/snippets/versions_select_options.html', versions=versions, selected_id=version_id_2, include_current=True %}
         </select>
       </form>
 

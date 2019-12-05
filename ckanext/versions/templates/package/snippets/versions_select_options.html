@@ -1,5 +1,11 @@
+{% if include_current %}
+  <option value="current" {% if selected_id == 'current' %}selected="selected"{% endif %}>
+  {{ _('[Current live version]') }}
+  </option>
+{% endif %}
+
 {% for version in versions %}
-<option value="{{ version.id }}" {% if version.id == selected_id %}selected="selected"{% endif %}>
-{{ version.name }} - {{ h.render_datetime(version.created, with_hours=True)}}
-</option>
+  <option value="{{ version.id }}" {% if version.id == selected_id %}selected="selected"{% endif %}>
+    {{ version.name }} - {{ h.render_datetime(version.created, with_hours=True)}}
+  </option>
 {% endfor %}

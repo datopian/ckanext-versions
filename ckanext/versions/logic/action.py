@@ -390,6 +390,8 @@ def _fix_resource_data(resource_dict, revision_id):
 def dataset_versions_diff(context, data_dict):
     '''Returns a diff between two dataset versions
 
+    :param id: the id of the dataset
+    :type id: string
     :param version_id_1: the id of the first version to compare
     :type id: string
     :param version_id_2: the id of the second version to compare
@@ -399,50 +401,52 @@ def dataset_versions_diff(context, data_dict):
 
     '''
 
-    version_id_1, version_id_2 = toolkit.get_or_bust(
-        data_dict, ['version_id_1', 'version_id_2'])
+    dataset_id, version_id_1, version_id_2 = toolkit.get_or_bust(
+        data_dict, ['id', 'version_id_1', 'version_id_2'])
     diff_type = data_dict.get('diff_type', 'unified')
-
-    version_1 = toolkit.get_action('dataset_version_show')(
-        context, {'id': version_id_1})
-    version_2 = toolkit.get_action('dataset_version_show')(
-        context, {'id': version_id_2})
-
-    if not version_1['package_id'] == version_2['package_id']:
-        raise toolkit.ValidationError(
-            'You can only compare versions of the same dataset')
 
     toolkit.check_access(
         u'dataset_versions_diff',
         context,
-        {'dataset': version_1['package_id']}
+        {'dataset': 'dataset_id'}
     )
 
-    dataset_version_1 = toolkit.get_action('package_show_version')(
-        context, {
-            'id': version_1['package_id'],
-            'version_id': version_1['id']
-        }
-    )
-    dataset_version_1.pop('version_metadata', None)
-
-    dataset_version_2 = toolkit.get_action('package_show_version')(
-        context, {
-            'id': version_1['package_id'],
-            'version_id': version_2['id']
-        }
-    )
-    dataset_version_2.pop('version_metadata', None)
+    dataset_version_1 = _get_dataset_version_dict(
+        context, dataset_id, version_id_1)
+    dataset_version_2 = _get_dataset_version_dict(
+        context, dataset_id, version_id_2)
 
     diff = _generate_diff(dataset_version_1, dataset_version_2, diff_type)
 
     return {
         'diff': diff,
-        'version_1': version_1,
-        'version_2': version_2,
         'dataset_dict_1': dataset_version_1,
         'dataset_dict_2': dataset_version_2,
     }
+
+
+def _get_dataset_version_dict(context, dataset_id, version_id):
+
+    dataset_dict = toolkit.get_action('package_show')(
+        context, {'id': dataset_id})
+
+    if version_id != 'current':
+        version_dict = toolkit.get_action('dataset_version_show')(
+            context, {'id': version_id})
+
+        if not version_dict['package_id'] == dataset_dict['id']:
+            raise toolkit.ValidationError(
+                'You can only compare versions of the same dataset')
+
+        dataset_dict = toolkit.get_action('package_show_version')(
+            context, {
+                'id': version_dict['package_id'],
+                'version_id': version_dict['id']
+            }
+        )
+        dataset_dict.pop('version_metadata', None)
+
+    return dataset_dict
 
 
 def _generate_diff(obj1, obj2, diff_type):
