@@ -1,6 +1,6 @@
 from ckan import model
-from ckan.plugins import toolkit
 from ckan.lib import helpers as h
+from ckan.plugins import toolkit
 from flask import Blueprint
 
 versions = Blueprint('versions', __name__)
