@@ -1,5 +1,6 @@
 from ckan import model
 from ckan.plugins import toolkit
+from ckan.lib import helpers as h
 from flask import Blueprint
 
 versions = Blueprint('versions', __name__)
@@ -24,14 +25,23 @@ def changes(id):
     version_id_2 = toolkit.request.args.get('version_id_2')
 
     if version_id_1 and version_id_2:
-        diff = toolkit.get_action('dataset_versions_diff')(
-            context, {
-                'id': id,
-                'version_id_1': version_id_1,
-                'version_id_2': version_id_2,
-                'diff_type': 'html',
-            }
-        )
+        try:
+            diff = toolkit.get_action('dataset_versions_diff')(
+                context, {
+                    'id': id,
+                    'version_id_1': version_id_1,
+                    'version_id_2': version_id_2,
+                    'diff_type': 'html',
+                }
+            )
+        except (toolkit.ValidationError, toolkit.ObjectNotFound) as e:
+            h.flash_error(toolkit._('Errors found: {}').format(e))
+            return toolkit.render(
+                'package/version_changes.html', {
+                    'pkg_dict': current_pkg_dict,
+                    'versions': versions
+                }
+            )
     else:
         diff = None
 
