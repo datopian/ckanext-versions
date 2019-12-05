@@ -289,6 +289,7 @@ class TestVersionsActions(FunctionalTestBase):
         diff = helpers.call_action(
             'dataset_versions_diff',
             context,
+            id=self.dataset['id'],
             version_id_1=version_1['id'],
             version_id_2=version_2['id'],
         )
@@ -296,6 +297,36 @@ class TestVersionsActions(FunctionalTestBase):
         assert_in(
             '-  "notes": "Just another test dataset.", '
             '\n+  "notes": "Some changed notes",',
+            diff['diff']
+        )
+
+    def test_versions_diff_with_current(self):
+        context = self._get_context(self.org_admin)
+        version_1 = helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name='Version 1',
+            description='Version 1')
+
+        helpers.call_action(
+            'package_patch',
+            context,
+            id=self.dataset['id'],
+            notes='Some changed notes 2',
+        )
+
+        diff = helpers.call_action(
+            'dataset_versions_diff',
+            context,
+            id=self.dataset['id'],
+            version_id_1=version_1['id'],
+            version_id_2='current',
+        )
+
+        assert_in(
+            '-  "notes": "Just another test dataset.", '
+            '\n+  "notes": "Some changed notes 2",',
             diff['diff']
         )
 
