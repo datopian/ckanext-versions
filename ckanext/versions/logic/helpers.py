@@ -63,7 +63,7 @@ def compare_pkg_dicts(old, new, old_activity_id):
     '''
     Takes two package dictionaries that represent consecutive versions of
     the same dataset and returns a list of detailed & formatted summaries of
-    the changes between the two versions. old and new are the two package
+    the changes between the two versions. Old and new are the two package
     dictionaries. The function assumes that both dictionaries will have
     all of the default package dictionary keys, and also checks for fields
     added by extensions and extra fields added by the user in the web
