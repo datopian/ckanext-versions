@@ -1,0 +1,27 @@
+<div class="modal fade" id="compareVersionsModal" tabindex="-1" role="dialog" aria-labelledby="compareVersionsModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <form class="compare-versions-form" action="{{ h.url_for('versions.changes', id=pkg.name) }}">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="compareVersionsModalLabel">Compare versions of dataset {{ pkg.title }}</h4>
+          </div>
+          <div class="modal-body">
+            View changes from
+              <select class="form-control select-time" name="version_id_1">
+                {# Skip the most recent one in the from field #}
+                {% snippet 'package/snippets/versions_select_options.html', versions=pkg.versions, selected_id=version_id_1 %}
+              </select> to
+              <select class="form-control select-time" name="version_id_2">
+
+                {% snippet 'package/snippets/versions_select_options.html', versions=pkg.versions, selected_id=version_id_2, include_current=True %}
+              </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Compare</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>

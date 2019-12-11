@@ -6,6 +6,7 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.lib.uploader import ALLOWED_UPLOAD_TYPES
 
+from ckanext.versions import blueprints
 from ckanext.versions.logic import action, auth, helpers, uploader
 from ckanext.versions.model import tables_exist
 
@@ -23,6 +24,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IUploader, inherit=True)
     plugins.implements(plugins.IDatasetForm, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.IBlueprint)
 
     # IConfigurer
 
@@ -52,6 +54,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'dataset_version_promote': action.dataset_version_promote,
             'package_show_version': action.package_show_version,
             'resource_show_version': action.resource_show_version,
+            'dataset_versions_diff': action.dataset_versions_diff,
 
             # Overridden
             'package_show': action.package_show_revision,
@@ -66,6 +69,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'dataset_version_delete': auth.dataset_version_delete,
             'dataset_version_list': auth.dataset_version_list,
             'dataset_version_show': auth.dataset_version_show,
+            'dataset_versions_diff': action.dataset_versions_diff,
         }
 
     # ITemplateHelpers
@@ -75,6 +79,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'url_for_version': helpers.url_for_version,
             'url_for_resource_version': helpers.url_for_resource_version,
             'dataset_version_has_link_resources': helpers.has_link_resources,
+            'dataset_version_compare_pkg_dicts': helpers.compare_pkg_dicts,
         }
 
     # IPackageController
@@ -100,6 +105,16 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             pkg_dict['metadata_updated'] = None
 
         return pkg_dict
+
+    # IBlueprint
+
+    def get_blueprint(self):
+        return [blueprints.versions]
+
+    # IResourceController
+
+    def before_delete(self, context, resource, resources):
+        pass
 
     # IUploader
 

@@ -7,8 +7,7 @@ class FunctionalTestBase(helpers.FunctionalTestBase):
 
     _load_plugins = ['versions']
 
-    @classmethod
-    def setup_class(cls):
-        super(FunctionalTestBase, cls).setup_class()
+    def setup(self):
         if not model.tables_exist():
             model.create_tables()
+        super(FunctionalTestBase, self).setup()
