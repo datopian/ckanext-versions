@@ -168,6 +168,6 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         elif data_dict.get('clear_upload') and UPLOAD_TS_FIELD in data_dict:
             log.debug("Clearing upload timestamp field")
             del data_dict[UPLOAD_TS_FIELD]
-        elif current is not None:
-            data_dict[UPLOAD_TS_FIELD] = current.get(UPLOAD_TS_FIELD, None)
+        elif current and UPLOAD_TS_FIELD in current:
+            data_dict[UPLOAD_TS_FIELD] = current[UPLOAD_TS_FIELD]
         return data_dict

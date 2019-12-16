@@ -14,7 +14,9 @@ def get_uploader(this_plugin, data_dict):
     """This is somewhat copied from ckan.lib.uploader logic
 
     Generate an uploader object and return it; We wrap uploader instantiation
-    with this factory function,
+    with this factory function, to support cases where a custom uploader has
+    been enabled; In such cases, we will not override it, and it is expected
+    that this uploader will support per-revision storage.
     """
     upload = None
     for plugin in plugins.PluginImplementations(plugins.IUploader):
