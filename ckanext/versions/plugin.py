@@ -129,7 +129,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         return schema
 
     def is_fallback(self):
-        return True
+        return False
 
     def package_types(self):
         return []
