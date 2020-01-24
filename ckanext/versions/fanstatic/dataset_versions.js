@@ -89,19 +89,11 @@ ckan.module('dataset_version_controls', function ($) {
             let params = {
                 id: versionId
             };
-
+            let that = this;
             this._apiPost(action, params)
                 .then(function (response) {
                     if (response.status !== 200) {
-                      response.json().then(function (jsonResponse) {
-                        if (jsonResponse.error.message) {
-                          alert(jsonResponse.error.message)
-                        }
-                        else {
-                          alert("There was an error deleting the dataset version.");
-                          console.error({ params, jsonResponse });
-                        }
-                      });
+                      that._message(response,'deleting')
                     } else {
                         location.href = this._packageUrl;
                     }
@@ -115,19 +107,11 @@ ckan.module('dataset_version_controls', function ($) {
                 name: versionName,
                 description: description
             };
-
+            let that = this;
             this._apiPost(action, params)
                 .then(function (response) {
                     if (response.status !== 200) {
-                      response.json().then(function (jsonResponse) {
-                        if (jsonResponse.error.message) {
-                          alert(jsonResponse.error.message)
-                        }
-                        else {
-                          alert("There was an error creating the dataset version.");
-                          console.error({ params, jsonResponse });
-                        }
-                      });
+                      that._message(response,'creating')
                     } else {
                         location.reload();
                     }
@@ -142,19 +126,11 @@ ckan.module('dataset_version_controls', function ($) {
                 name: versionName,
                 description: description
             };
-
+            let that = this;
             this._apiPost(action, params)
                 .then(function (response) {
                     if (response.status !== 200) {
-                      response.json().then(function (jsonResponse) {
-                        if (jsonResponse.error.message) {
-                          alert(jsonResponse.error.message)
-                        }
-                        else {
-                          alert("There was an error updating the dataset version.");
-                          console.error({ params, jsonResponse });
-                        }
-                      });
+                      that._message(response,'updating')
                     } else {
                         location.reload();
                     }
@@ -166,25 +142,28 @@ ckan.module('dataset_version_controls', function ($) {
             let params = {
                 version: versionId
             };
-
+            let that = this;
             this._apiPost(action, params)
                 .then(function (response) {
                     if (response.status !== 200) {
-                      response.json().then(function (jsonResponse) {
-                        if (jsonResponse.error.message) {
-                          alert(jsonResponse.error.message)
-                        }
-                        else {
-                          alert("There was an error promoting the dataset version.");
-                          console.error({ params, jsonResponse });
-                        }
-                      });
+                      that._message(response,'promoting')
                     } else {
                         location.href = this._packageUrl;
                     }
                 }.bind(this));
-        }
+        },
 
+        _message: function (response, type) {
+          response.json().then(function (jsonResponse) {
+            if (jsonResponse.error.message) {
+              alert(jsonResponse.error.message)
+            }
+            else {
+              alert(`There was an error ${type} the dataset version.`);
+              console.error({ params, jsonResponse });
+            }
+          });
+        }
     };
 
 });
