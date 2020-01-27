@@ -339,8 +339,8 @@ def check_metadata_changes(change_list, old, new):
 
     # make sets out of the tags for each dataset
     # Validating whether key exist, if not default as []
-    old_tags = {tag['name'] for tag in old.get('tags',[])}
-    new_tags = {tag['name'] for tag in new.get('tags',[])}
+    old_tags = {tag['name'] for tag in old.get('tags', [])}
+    new_tags = {tag['name'] for tag in new.get('tags', [])}
     # if the tags have changed
     if old_tags != new_tags:
         _tag_change(change_list, new_tags, old_tags, new)
