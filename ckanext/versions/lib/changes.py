@@ -694,7 +694,7 @@ def _extension_fields(change_list, old, new):
                             u'pkg_id': new['id'],
                             u'title': new['title'],
                             u'key': field,
-                            u'value': new[field]})
+                            u'value': _list_to_str(new[field])})
 
     # if additional fields have been changed
     addl_fields_list = list(addl_fields)
@@ -704,7 +704,7 @@ def _extension_fields(change_list, old, new):
                                 u'pkg_id': new['id'],
                                 u'title': new['title'],
                                 u'key': field,
-                                u'value': new[field]})
+                                u'value': _list_to_str(new[field])})
 
 
 def _extra_fields(change_list, old, new):
@@ -830,3 +830,11 @@ def _extra_fields(change_list, old, new):
                                 u'pkg_id': new['id'],
                                 u'title': new['title'],
                                 u'key_list': deleted_fields})
+
+
+def _list_to_str(value):
+    # Converting to comma seperated string if type of value is list
+    if isinstance(value, list):
+        return ', '.join(map(str, value))
+    else:
+        return str(value)
