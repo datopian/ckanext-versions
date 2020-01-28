@@ -69,7 +69,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'dataset_version_delete': auth.dataset_version_delete,
             'dataset_version_list': auth.dataset_version_list,
             'dataset_version_show': auth.dataset_version_show,
-            'dataset_versions_diff': action.dataset_versions_diff,
+            'dataset_versions_diff': auth.dataset_versions_diff,
         }
 
     # ITemplateHelpers
