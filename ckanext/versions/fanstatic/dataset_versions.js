@@ -154,15 +154,15 @@ ckan.module('dataset_version_controls', function ($) {
         },
 
         _show_error_message: function (response, failed_action) {
-          response.json().then(function (jsonResponse) {
-            if (jsonResponse.error.message) {
-                alert(jsonResponse.error.message)
-            }
-            else {
-                alert(`There was an error ${failed_action} the dataset version.`);
-                console.error({ params, jsonResponse });
-            }
-          });
+            response.json().then(function (jsonResponse) {
+                if (jsonResponse.error.message) {
+                    alert(jsonResponse.error.message)
+                }
+                else {
+                    alert(`There was an error ${failed_action} the dataset version.`);
+                    console.error({ params, jsonResponse });
+                }
+            });
         }
     };
 
