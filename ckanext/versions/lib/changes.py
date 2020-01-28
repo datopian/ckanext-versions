@@ -830,7 +830,9 @@ def _extra_fields(change_list, old, new):
                                 u'title': new['title'],
                                 u'key_list': deleted_fields})
 
+
 def _unicode_list_to_str(value):
+    # Converting to comma seperated string if type of value is list
     if type(value == list):
         return ', '.join(map(str, value))
     else:
