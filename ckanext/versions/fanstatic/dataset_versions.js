@@ -93,7 +93,7 @@ ckan.module('dataset_version_controls', function ($) {
             this._apiPost(action, params)
                 .then(function (response) {
                     if (response.status !== 200) {
-                      that._message(response,'deleting')
+                        that._show_error_message(response, 'deleting')
                     } else {
                         location.href = this._packageUrl;
                     }
@@ -111,7 +111,7 @@ ckan.module('dataset_version_controls', function ($) {
             this._apiPost(action, params)
                 .then(function (response) {
                     if (response.status !== 200) {
-                      that._message(response,'creating')
+                        that._show_error_message(response, 'creating')
                     } else {
                         location.reload();
                     }
@@ -130,7 +130,7 @@ ckan.module('dataset_version_controls', function ($) {
             this._apiPost(action, params)
                 .then(function (response) {
                     if (response.status !== 200) {
-                      that._message(response,'updating')
+                        that._show_error_message(response, 'updating')
                     } else {
                         location.reload();
                     }
@@ -146,21 +146,21 @@ ckan.module('dataset_version_controls', function ($) {
             this._apiPost(action, params)
                 .then(function (response) {
                     if (response.status !== 200) {
-                      that._message(response,'promoting')
+                        that._show_error_message(response, 'promoting')
                     } else {
                         location.href = this._packageUrl;
                     }
                 }.bind(this));
         },
 
-        _message: function (response, type) {
+        _show_error_message: function (response, failed_action) {
           response.json().then(function (jsonResponse) {
             if (jsonResponse.error.message) {
-              alert(jsonResponse.error.message)
+                alert(jsonResponse.error.message)
             }
             else {
-              alert(`There was an error ${type} the dataset version.`);
-              console.error({ params, jsonResponse });
+                alert(`There was an error ${failed_action} the dataset version.`);
+                console.error({ params, jsonResponse });
             }
           });
         }
