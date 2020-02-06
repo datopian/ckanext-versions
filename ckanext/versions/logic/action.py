@@ -413,7 +413,7 @@ def dataset_versions_diff(context, data_dict):
     toolkit.check_access(
         u'dataset_versions_diff',
         context,
-        {'dataset': 'dataset_id'}
+        {'dataset': dataset_id}
     )
 
     dataset_version_1 = _get_dataset_version_dict(
