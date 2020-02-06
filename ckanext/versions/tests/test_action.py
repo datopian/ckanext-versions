@@ -314,6 +314,7 @@ class TestVersionsActions(FunctionalTestBase):
             context,
             id=self.dataset['id'],
             notes='Some changed notes 2',
+            license_id='odc-pddl',
         )
 
         diff = helpers.call_action(
@@ -327,6 +328,16 @@ class TestVersionsActions(FunctionalTestBase):
         assert_in(
             '-  "notes": "Just another test dataset.", '
             '\n+  "notes": "Some changed notes 2",',
+            diff['diff']
+        )
+
+        assert_in(
+            '\n-  "license_id": null, '
+            '\n+  "license_id": "odc-pddl", '
+            '\n   "license_title": "Open Data Commons Public '
+            'Domain Dedication and License (PDDL)", '
+            '\n   "license_url": "http://www.opendefinition.org/'
+            'licenses/odc-pddl", ',
             diff['diff']
         )
 
