@@ -1,3 +1,4 @@
+from ckan import model
 from ckan.plugins import toolkit
 
 from ckanext.versions.lib.changes import (check_metadata_changes,
@@ -86,3 +87,17 @@ def compare_pkg_dicts(old, new, old_activity_id):
         change_list.append({u'type': 'no_change'})
 
     return change_list
+
+
+def get_license(license_id):
+    '''
+    Get the license details from the license_id as license details are
+    not stored in DB but in the license file.
+    Method package_show doesn't fetch the license again from file but
+    only from SOLR. So need to fetch the license details in case of versions
+    from the license file.
+    Using the upsteam method to fetch license Details
+    https://github.com/ckan/ckan/blob/8f271bfe3eccaa83a419ee55e3e35042d1196c5a/ckan/logic/action/get.py#L1806
+    '''
+
+    return model.Package.get_license_register().get(license_id)

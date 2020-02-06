@@ -12,6 +12,7 @@ from ckan.plugins import toolkit
 from sqlalchemy.exc import IntegrityError
 
 from ckanext.versions.model import DatasetVersion
+from ckanext.versions.logic import helpers as h
 
 log = logging.getLogger(__name__)
 
@@ -448,6 +449,12 @@ def _get_dataset_version_dict(context, dataset_id, version_id):
                 'version_id': version_dict['id']
             }
         )
+        # Fetching the license_url from the license registry
+        if dataset_dict['license_id']:
+            _license = h.get_license(
+                dataset_dict['license_id'])
+            dataset_dict['license_url'] = _license.url
+            dataset_dict['license_title'] = _license.title
         dataset_dict.pop('version_metadata', None)
 
     return dataset_dict
