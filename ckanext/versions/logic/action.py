@@ -11,8 +11,8 @@ from ckan.logic.action.get import resource_show as core_resource_show
 from ckan.plugins import toolkit
 from sqlalchemy.exc import IntegrityError
 
-from ckanext.versions.model import DatasetVersion
 from ckanext.versions.logic import helpers as h
+from ckanext.versions.model import DatasetVersion
 
 log = logging.getLogger(__name__)
 
