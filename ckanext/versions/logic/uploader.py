@@ -51,4 +51,5 @@ class LocalResourceUpload(ResourceUpload):
         return filepath
 
     def upload(self, *args, **kwargs):
+        self.clear = False
         return super(LocalResourceUpload, self).upload(*args, **kwargs)
