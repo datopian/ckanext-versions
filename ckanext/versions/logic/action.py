@@ -138,11 +138,10 @@ def dataset_version_promote(context, data_dict):
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     # use_cache will force to call package_dictize with the revision_id
+    show_ctx = dict(context, use_cache=False,
+                    revision_id=version.package_revision_id)
     revision_dict = toolkit.get_action('package_show')(
-        dict(context, use_cache=False),
-        {
-            'id': version.package_id
-        }
+        show_ctx, {'id': version.package_id}
     )
 
     promoted_dataset = toolkit.get_action('package_update')(
