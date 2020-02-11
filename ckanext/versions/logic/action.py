@@ -139,12 +139,7 @@ def dataset_version_promote(context, data_dict):
 
     # use_cache will force to call package_dictize with the revision_id
     revision_dict = toolkit.get_action('package_show')(
-        {
-            'model': model,
-            'use_cache': False,
-            'revision_id': version.package_revision_id,
-            'user': context.get('auth_user_obj').id
-        },
+        dict(context, use_cache=False),
         {
             'id': version.package_id
         }
