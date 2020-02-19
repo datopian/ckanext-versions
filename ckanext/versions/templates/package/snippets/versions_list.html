@@ -75,6 +75,8 @@
 
       {% snippet 'package/snippets/create_version.html' %}
 
+    {% endif %}
+    {% if h.check_access('dataset_versions_diff', {'dataset': pkg.id}) %}
       <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#compareVersionsModal" />
         {{ _('Compare Versions') }}
       </button>

@@ -40,4 +40,4 @@ def dataset_version_show(context, data_dict):
 
 
 def dataset_versions_diff(context, data_dict):
-    return dataset_version_create(context, data_dict)
+    return dataset_version_show(context, data_dict)
