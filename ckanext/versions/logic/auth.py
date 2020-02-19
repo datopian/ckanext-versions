@@ -39,5 +39,6 @@ def dataset_version_show(context, data_dict):
     return is_authorized('package_show', context, {"id": data_dict['dataset']})
 
 
+@toolkit.auth_allow_anonymous_access
 def dataset_versions_diff(context, data_dict):
     return dataset_version_show(context, data_dict)
