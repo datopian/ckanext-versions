@@ -1,0 +1,6 @@
+ckantoolkit==0.0.3
+isort==4.3.21
+flake8==3.7.9
+paster>=0.8
+nose>=1.3.7
+sed==0.3.1
