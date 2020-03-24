@@ -343,7 +343,13 @@ def _get_package_in_revision(context, data_dict, revision_id):
         context['revision_id'] = current_revision_id
     elif revision_id:
         del context['revision_id']
-
+    # Fetching the license_url, title from the license registry and validate
+    if 'license_id' in result and result['license_id']:
+        license_data = h.get_license(result['license_id'])
+        # Validate license has url and title both
+        result['license_url'] = license_data.url if license_data.url else ''
+        result['license_title'] = license_data.title if license_data.title \
+            else ''
     return result
 
 
