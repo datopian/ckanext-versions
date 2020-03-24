@@ -92,7 +92,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             # Do not blow up if package is gone
             return pkg_dict
 
-        pkg_dict.update({'versions': versions})
+        toolkit.c.versions = versions
 
         version_id = toolkit.request.params.get('version', None)
         if version_id:
@@ -103,7 +103,6 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             # Hide package creation / update date if viewing a specific version
             pkg_dict['metadata_created'] = None
             pkg_dict['metadata_updated'] = None
-        toolkit.c.package_dict = pkg_dict
         return pkg_dict
 
     # IBlueprint
