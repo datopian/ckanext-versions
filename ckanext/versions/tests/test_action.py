@@ -179,6 +179,102 @@ class TestVersionsActions(FunctionalTestBase):
 
         assert_equals(version2, version1)
 
+    def test_license_in_package_show(self):
+        licenceValue = {
+            'license_id': u'odc-pddl',
+            'license_title': u'Open Data Commons Public Domain '
+            'Dedication and License (PDDL)',
+            'license_url': u'http://www.opendefinition.org/licenses/odc-pddl'
+        }
+
+        context = self._get_context(self.org_admin)
+        helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name="Version 0.1.2",
+            description="The best dataset ever, it **rules!**"
+        )
+
+        helpers.call_action(
+            'package_patch',
+            context,
+            id=self.dataset['id'],
+            notes='Some changed notes 2',
+            license_id=licenceValue['license_id'],
+        )
+
+        package = helpers.call_action(
+            'package_show',
+            context,
+            id=self.dataset['id'],
+        )
+
+        assert_equals(package['license_id'], licenceValue['license_id'])
+        assert_equals(package['license_title'], licenceValue['license_title'])
+        assert_equals(package['license_url'], licenceValue['license_url'])
+
+    def test_license_in_versioning(self):
+        context = self._get_context(self.org_admin)
+        helpers.call_action(
+            'package_patch',
+            context,
+            id=self.dataset['id'],
+            license_id='odc-pddl',
+            notes='Some changed notes 2'
+        )
+
+        version_1 = helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name="Version 1",
+            description="Version 1"
+        )
+
+        helpers.call_action(
+            'package_patch',
+            context,
+            id=self.dataset['id'],
+            license_id='odc-by',
+            notes='Some changed notes 2'
+        )
+
+        version_2 = helpers.call_action(
+            'dataset_version_create',
+            context,
+            dataset=self.dataset['id'],
+            name="Version 2",
+            description="Version 2"
+        )
+
+        diff = helpers.call_action(
+            'dataset_versions_diff',
+            context,
+            id=self.dataset['id'],
+            version_id_1=version_1['id'],
+            version_id_2=version_2['id']
+        )
+
+        assert_in(
+            '\n-  "license_id": "odc-pddl", '
+            '\n-  "license_title": "Open Data Commons Public Domain '
+            'Dedication and License (PDDL)", '
+            '\n-  "license_url": '
+            '"http://www.opendefinition.org/licenses/odc-pddl", '
+            '\n+  "license_id": "odc-by", '
+            '\n+  "license_title": "Open Data Commons Attribution License", '
+            '\n+  "license_url": '
+            '"http://www.opendefinition.org/licenses/odc-by", ',
+            diff['diff']
+        )
+
+        assert_in(
+            '\n-  "revision_id": "' + version_1['package_revision_id'] + '", '
+            '\n+  "revision_id": "' + version_2['package_revision_id'] + '", ',
+            diff['diff']
+        )
+
     def test_show_not_found(self):
         payload = {'id': 'abc123'}
         assert_raises(toolkit.ObjectNotFound, helpers.call_action,
@@ -239,7 +335,7 @@ class TestVersionsActions(FunctionalTestBase):
             version=old_version['id'],
             name="Version 1.1",
             description="This is an edited old version!"
-            )
+        )
 
         assert_equals(old_version['id'],
                       updated_version['id'])
@@ -409,13 +505,13 @@ class TestVersionsPromote(FunctionalTestBase):
             'dataset_version_promote',
             context,
             version=version['id']
-            )
+        )
 
         promoted_dataset = helpers.call_action(
             'package_show',
             context,
             id=initial_dataset['id']
-            )
+        )
 
         assert_equals(promoted_dataset['title'], 'Testing Promote')
         assert_equals(promoted_dataset['notes'], 'Initial Description')
@@ -443,20 +539,20 @@ class TestVersionsPromote(FunctionalTestBase):
             extras=[
                 {'key': u'new extra', 'value': u'"new value"'},
                 {'key': u'new extra 2', 'value': u'"new value 2"'}
-                ],
+            ],
         )
 
         helpers.call_action(
             'dataset_version_promote',
             context,
             version=version['id']
-            )
+        )
 
         promoted_dataset = helpers.call_action(
             'package_show',
             context,
             id=initial_dataset['id']
-            )
+        )
 
         assert_equals(
             promoted_dataset['extras'][0]['key'],
@@ -493,13 +589,13 @@ class TestVersionsPromote(FunctionalTestBase):
             'dataset_version_promote',
             context,
             version=version['id']
-            )
+        )
 
         promoted_dataset = helpers.call_action(
             'package_show',
             context,
             id=initial_dataset['id']
-            )
+        )
 
         assert_equals(len(promoted_dataset['resources']), 1)
         assert_equals(
