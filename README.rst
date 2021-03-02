@@ -1,9 +1,7 @@
-.. image:: https://gitlab.com/datopian/ckanext-versions/badges/develop/pipeline.svg
-    :target: https://gitlab.com/datopian/ckanext-versions/commits/develop
-
 =============
 ckanext-versions
 =============
+
 This CKAN extension adds an ability to create and manage named dataset
 versions in CKAN.
 
