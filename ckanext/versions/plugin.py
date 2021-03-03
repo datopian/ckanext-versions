@@ -6,7 +6,7 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.lib.uploader import ALLOWED_UPLOAD_TYPES
 
-from ckanext.versions import blueprints
+from ckanext.versions import blueprints, cli
 from ckanext.versions.logic import action, auth, helpers, uploader
 from ckanext.versions.model import tables_exist
 
@@ -25,6 +25,12 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IDatasetForm, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IBlueprint)
+    plugins.implements(plugins.IClick)
+
+    # IClick
+
+    def get_commands(self):
+        return cli.get_commands()
 
     # IConfigurer
 
