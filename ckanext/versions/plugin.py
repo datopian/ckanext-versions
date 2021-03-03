@@ -24,7 +24,6 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IUploader, inherit=True)
     plugins.implements(plugins.IDatasetForm, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
-    plugins.implements(plugins.IBlueprint)
     plugins.implements(plugins.IClick)
 
     # IClick
@@ -60,7 +59,6 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'dataset_version_promote': action.dataset_version_promote,
             'package_show_version': action.package_show_version,
             'resource_show_version': action.resource_show_version,
-            'dataset_versions_diff': action.dataset_versions_diff,
 
             # Overridden
             'package_show': action.package_show_revision,
@@ -75,7 +73,6 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'dataset_version_delete': auth.dataset_version_delete,
             'dataset_version_list': auth.dataset_version_list,
             'dataset_version_show': auth.dataset_version_show,
-            'dataset_versions_diff': auth.dataset_versions_diff,
         }
 
     # ITemplateHelpers
@@ -110,11 +107,6 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             pkg_dict['metadata_created'] = None
             pkg_dict['metadata_updated'] = None
         return pkg_dict
-
-    # IBlueprint
-
-    def get_blueprint(self):
-        return [blueprints.versions]
 
     # IResourceController
 
