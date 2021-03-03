@@ -12,7 +12,7 @@ from ckan.plugins import toolkit
 from sqlalchemy.exc import IntegrityError
 
 from ckanext.versions.logic import helpers as h
-from ckanext.versions.model import DatasetVersion
+from ckanext.versions.model import Version
 
 log = logging.getLogger(__name__)
 
@@ -37,8 +37,8 @@ def dataset_version_update(context, data_dict):
     # I'll create my own session! With Blackjack! And H**kers!
     session = model.meta.create_local_session()
 
-    version = session.query(DatasetVersion).\
-        filter(DatasetVersion.id == version_id).\
+    version = session.query(Version).\
+        filter(Version.id == version_id).\
         one_or_none()
 
     if not version:
@@ -93,7 +93,7 @@ def dataset_version_create(context, data_dict):
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     latest_revision_id = dataset.latest_related_revision.id
-    version = DatasetVersion(package_id=dataset.id,
+    version = Version(package_id=dataset.id,
                              package_revision_id=latest_revision_id,
                              name=name,
                              description=data_dict.get('description', None),
@@ -127,8 +127,8 @@ def dataset_version_promote(context, data_dict):
     version_id = toolkit.get_or_bust(data_dict, ['version'])
 
     session = model.Session()
-    version = session.query(DatasetVersion).\
-        filter(DatasetVersion.id == version_id).\
+    version = session.query(Version).\
+        filter(Version.id == version_id).\
         one_or_none()
 
     if not version:
@@ -173,9 +173,9 @@ def dataset_version_list(context, data_dict):
 
     toolkit.check_access('dataset_version_list', context, data_dict)
 
-    versions = model.Session.query(DatasetVersion).\
-        filter(DatasetVersion.package_id == dataset.id).\
-        order_by(DatasetVersion.created.desc())
+    versions = model.Session.query(Version).\
+        filter(Version.package_id == dataset.id).\
+        order_by(Version.created.desc())
 
     return [v.as_dict() for v in versions]
 
@@ -191,7 +191,7 @@ def dataset_version_show(context, data_dict):
     """
     model = context.get('model', core_model)
     version_id = toolkit.get_or_bust(data_dict, ['id'])
-    version = model.Session.query(DatasetVersion).get(version_id)
+    version = model.Session.query(Version).get(version_id)
     if not version:
         raise toolkit.ObjectNotFound('Dataset version not found')
 
@@ -211,7 +211,7 @@ def dataset_version_delete(context, data_dict):
     """
     model = context.get('model', core_model)
     version_id = toolkit.get_or_bust(data_dict, ['id'])
-    version = model.Session.query(DatasetVersion).get(version_id)
+    version = model.Session.query(Version).get(version_id)
     if not version:
         raise toolkit.ObjectNotFound('Dataset version not found')
 
