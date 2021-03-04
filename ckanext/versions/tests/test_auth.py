@@ -2,7 +2,6 @@ import pytest
 from ckan import model
 from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
-from nose.tools import assert_raises
 
 
 @pytest.mark.usefixtures("clean_db", "versions_setup")
@@ -72,11 +71,8 @@ class TestVersionsAuth(object):
         user = getattr(self, user_type)
         dataset = getattr(self, dataset_type)
         context = self._get_context(user)
-        assert_raises(toolkit.NotAuthorized,
-                      helpers.call_auth,
-                      'version_create',
-                      context=context,
-                      dataset=dataset['id'])
+        with pytest.raises(toolkit.NotAuthorized):
+            helpers.call_auth('version_create',context=context,dataset=dataset['id'])
 
     @pytest.mark.parametrize("user_type, dataset_type",[
         ('org_admin', 'private_dataset'),
@@ -109,11 +105,8 @@ class TestVersionsAuth(object):
         user = getattr(self, user_type)
         dataset = getattr(self, dataset_type)
         context = self._get_context(user)
-        assert_raises(toolkit.NotAuthorized,
-                      helpers.call_auth,
-                      'version_delete',
-                      context=context,
-                      dataset=dataset['id'])
+        with pytest.raises(toolkit.NotAuthorized):
+            helpers.call_auth('version_delete', context=context, dataset=dataset['id'])
 
     @pytest.mark.parametrize("user_type, dataset_type",[
         ('org_admin', 'private_dataset'),
@@ -146,11 +139,8 @@ class TestVersionsAuth(object):
         user = getattr(self, user_type)
         dataset = getattr(self, dataset_type)
         context = self._get_context(user)
-        assert_raises(toolkit.NotAuthorized,
-                      helpers.call_auth,
-                      'version_list',
-                      context=context,
-                      dataset=dataset['id'])
+        with pytest.raises(toolkit.NotAuthorized):
+            helpers.call_auth('version_list', context=context, dataset=dataset['id'])
 
     @pytest.mark.parametrize("user_type, dataset_type",[
         ('org_admin', 'private_dataset'),
@@ -183,8 +173,5 @@ class TestVersionsAuth(object):
         user = getattr(self, user_type)
         dataset = getattr(self, dataset_type)
         context = self._get_context(user)
-        assert_raises(toolkit.NotAuthorized,
-                      helpers.call_auth,
-                      'version_show',
-                      context=context,
-                      dataset=dataset['id'])
+        with pytest.raises(toolkit.NotAuthorized):
+            helpers.call_auth('version_show', context=context, dataset=dataset['id'])
