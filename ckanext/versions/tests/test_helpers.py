@@ -1,15 +1,15 @@
+import pytest
+
 from ckan.tests import factories
-from nose.tools import assert_equals
 
 from ckanext.versions.logic import helpers
-from ckanext.versions.tests import FunctionalTestBase
 
 
-class TestHelpers(FunctionalTestBase):
+@pytest.mark.usefixtures("clean_db", "versions_setup")
+class TestHelpers(object):
 
     def setup(self):
-        super(TestHelpers, self).setup()
-
+        #TODO: Refactor to a new pytest approach
         self.admin_user = factories.Sysadmin()
 
         self.org = factories.Organization(
@@ -32,9 +32,7 @@ class TestHelpers(FunctionalTestBase):
 
         self.dataset['resources'].extend([upload_resource, link_resource])
 
-        assert_equals(
-            helpers.has_link_resources(self.dataset),
-            True)
+        assert helpers.has_link_resources(self.dataset) == True
 
     def test_dataset_does_not_has_link_resources(self):
         upload_resource = factories.Resource(
@@ -44,6 +42,4 @@ class TestHelpers(FunctionalTestBase):
 
         self.dataset['resources'].append(upload_resource)
 
-        assert_equals(
-            helpers.has_link_resources(self.dataset),
-            False)
+        assert helpers.has_link_resources(self.dataset) == False
