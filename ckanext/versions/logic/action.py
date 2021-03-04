@@ -6,12 +6,10 @@ import re
 from datetime import datetime
 
 from ckan import model as core_model
-from ckan.logic.action.get import package_show as core_package_show
 from ckan.logic.action.get import resource_show as core_resource_show
 from ckan.plugins import toolkit
 from sqlalchemy.exc import IntegrityError
 
-from ckanext.versions.logic import helpers as h
 from ckanext.versions.model import Version
 
 log = logging.getLogger(__name__)
@@ -93,12 +91,13 @@ def version_create(context, data_dict):
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     latest_revision_id = dataset.latest_related_revision.id
-    version = Version(package_id=dataset.id,
-                             package_revision_id=latest_revision_id,
-                             name=name,
-                             description=data_dict.get('description', None),
-                             created=datetime.utcnow(),
-                             creator_user_id=context['auth_user_obj'].id)
+    version = Version(
+        package_id=dataset.id,
+        package_revision_id=latest_revision_id,
+        name=name,
+        description=data_dict.get('description', None),
+        created=datetime.utcnow(),
+        creator_user_id=context['auth_user_obj'].id)
 
     # I'll create my own session! With Blackjack! And H**kers!
     session = model.meta.create_local_session()
