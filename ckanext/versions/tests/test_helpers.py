@@ -1,5 +1,4 @@
 import pytest
-
 from ckan.tests import factories
 
 from ckanext.versions.logic import helpers
@@ -9,7 +8,7 @@ from ckanext.versions.logic import helpers
 class TestHelpers(object):
 
     def setup(self):
-        #TODO: Refactor to a new pytest approach
+        # TODO: Refactor to a new pytest approach
         self.admin_user = factories.Sysadmin()
 
         self.org = factories.Organization(
@@ -32,7 +31,7 @@ class TestHelpers(object):
 
         self.dataset['resources'].extend([upload_resource, link_resource])
 
-        assert helpers.has_link_resources(self.dataset) == True
+        assert helpers.has_link_resources(self.dataset) is True
 
     def test_dataset_does_not_has_link_resources(self):
         upload_resource = factories.Resource(
@@ -42,4 +41,4 @@ class TestHelpers(object):
 
         self.dataset['resources'].append(upload_resource)
 
-        assert helpers.has_link_resources(self.dataset) == False
+        assert helpers.has_link_resources(self.dataset) is False

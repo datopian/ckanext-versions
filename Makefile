@@ -6,32 +6,20 @@ SHELL := bash
 PIP := pip
 ISORT := isort
 FLAKE8 := flake8
-NOSETESTS := nosetests
+PYTEST := pytest
 SED := sed
-PASTER := paster
+CKAN := ckan
 
 TEST_INI_PATH := ./test.ini
-CKAN_PATH := ../../src/ckan
+CKAN_PATH := ../ckan
 
-prepare-config:
-	$(SED) "s@use = config:.*@use = config:$(CKAN_PATH)/test-core.ini@" -i $(TEST_INI_PATH)
 
-test: prepare-config
+test:
 	$(PIP) install -r dev-requirements.txt
 	$(ISORT) -rc -df -c $(PACKAGE_DIR)
 	$(FLAKE8) $(PACKAGE_DIR)
-	$(PASTER) --plugin=ckan db init -c $(CKAN_PATH)/test-core.ini
-	$(NOSETESTS) --ckan \
-	      --with-pylons=$(TEST_INI_PATH) \
-          --nologcapture \
-          --with-doctest
-
-coverage: prepare-config test
-	$(NOSETESTS) --ckan \
-	      --with-pylons=$(TEST_INI_PATH) \
-          --nologcapture \
-		  --with-coverage \
-          --cover-package=ckanext.versions \
-          --cover-inclusive \
-          --cover-erase \
-          --cover-tests
+	$(CKAN) -c $(CKAN_PATH)/test-core.ini db init
+	$(PYTEST) --ckan-ini=$(TEST_INI_PATH)  \
+		  -s \
+		  --cov=ckanext.versions \
+          ckanext/versions

@@ -14,7 +14,7 @@ class TestVersionsAuth(object):
         }
 
     def setup(self):
-        #TODO: Refactor to a new pytest approach
+        # TODO: Refactor to a new pytest approach
         self.org_admin = factories.User()
         self.org_editor = factories.User()
         self.org_member = factories.User()
@@ -40,7 +40,7 @@ class TestVersionsAuth(object):
         self.public_dataset = factories.Dataset(owner_org=self.org['id'],
                                                 private=False)
 
-    @pytest.mark.parametrize("user_type, dataset_type",[
+    @pytest.mark.parametrize("user_type, dataset_type", [
         ('org_admin', 'private_dataset'),
         ('org_admin', 'public_dataset'),
         ('org_editor', 'private_dataset'),
@@ -58,7 +58,7 @@ class TestVersionsAuth(object):
                                  context=context,
                                  dataset=dataset['id'])
 
-    @pytest.mark.parametrize("user_type, dataset_type",[
+    @pytest.mark.parametrize("user_type, dataset_type", [
         ('org_member', 'private_dataset'),
         ('org_member', 'public_dataset'),
         ('other_org_admin', 'private_dataset'),
@@ -72,9 +72,12 @@ class TestVersionsAuth(object):
         dataset = getattr(self, dataset_type)
         context = self._get_context(user)
         with pytest.raises(toolkit.NotAuthorized):
-            helpers.call_auth('version_create',context=context,dataset=dataset['id'])
+            helpers.call_auth(
+                'version_create',
+                context=context,
+                dataset=dataset['id'])
 
-    @pytest.mark.parametrize("user_type, dataset_type",[
+    @pytest.mark.parametrize("user_type, dataset_type", [
         ('org_admin', 'private_dataset'),
         ('org_admin', 'public_dataset'),
         ('org_editor', 'private_dataset'),
@@ -92,7 +95,7 @@ class TestVersionsAuth(object):
                                  context=context,
                                  dataset=dataset['id'])
 
-    @pytest.mark.parametrize("user_type, dataset_type",[
+    @pytest.mark.parametrize("user_type, dataset_type", [
         ('org_member', 'private_dataset'),
         ('org_member', 'public_dataset'),
         ('other_org_admin', 'private_dataset'),
@@ -106,9 +109,12 @@ class TestVersionsAuth(object):
         dataset = getattr(self, dataset_type)
         context = self._get_context(user)
         with pytest.raises(toolkit.NotAuthorized):
-            helpers.call_auth('version_delete', context=context, dataset=dataset['id'])
+            helpers.call_auth(
+                'version_delete',
+                context=context,
+                dataset=dataset['id'])
 
-    @pytest.mark.parametrize("user_type, dataset_type",[
+    @pytest.mark.parametrize("user_type, dataset_type", [
         ('org_admin', 'private_dataset'),
         ('org_admin', 'public_dataset'),
         ('org_editor', 'private_dataset'),
@@ -129,7 +135,7 @@ class TestVersionsAuth(object):
                                  context=context,
                                  dataset=dataset['id'])
 
-    @pytest.mark.parametrize("user_type, dataset_type",[
+    @pytest.mark.parametrize("user_type, dataset_type", [
         ('other_org_admin', 'private_dataset'),
     ])
     def test_list_is_unauthorized(self, user_type, dataset_type):
@@ -140,9 +146,12 @@ class TestVersionsAuth(object):
         dataset = getattr(self, dataset_type)
         context = self._get_context(user)
         with pytest.raises(toolkit.NotAuthorized):
-            helpers.call_auth('version_list', context=context, dataset=dataset['id'])
+            helpers.call_auth(
+                'version_list',
+                context=context,
+                dataset=dataset['id'])
 
-    @pytest.mark.parametrize("user_type, dataset_type",[
+    @pytest.mark.parametrize("user_type, dataset_type", [
         ('org_admin', 'private_dataset'),
         ('org_admin', 'public_dataset'),
         ('org_editor', 'private_dataset'),
@@ -163,7 +172,7 @@ class TestVersionsAuth(object):
                                  context=context,
                                  dataset=dataset['id'])
 
-    @pytest.mark.parametrize("user_type, dataset_type",[
+    @pytest.mark.parametrize("user_type, dataset_type", [
         ('other_org_admin', 'private_dataset'),
     ])
     def test_show_is_unauthorized(self, user_type, dataset_type):
@@ -174,4 +183,7 @@ class TestVersionsAuth(object):
         dataset = getattr(self, dataset_type)
         context = self._get_context(user)
         with pytest.raises(toolkit.NotAuthorized):
-            helpers.call_auth('version_show', context=context, dataset=dataset['id'])
+            helpers.call_auth(
+                'version_show',
+                context=context,
+                dataset=dataset['id'])
