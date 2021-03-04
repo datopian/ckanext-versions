@@ -58,7 +58,7 @@ class TestVersionsAuth(FunctionalTestBase):
         user = getattr(self, user_type)
         dataset = getattr(self, dataset_type)
         context = self._get_context(user)
-        assert helpers.call_auth('dataset_version_create',
+        assert helpers.call_auth('version_create',
                                  context=context,
                                  dataset=dataset['id'])
 
@@ -77,7 +77,7 @@ class TestVersionsAuth(FunctionalTestBase):
         context = self._get_context(user)
         assert_raises(toolkit.NotAuthorized,
                       helpers.call_auth,
-                      'dataset_version_create',
+                      'version_create',
                       context=context,
                       dataset=dataset['id'])
 
@@ -114,7 +114,7 @@ class TestVersionsAuth(FunctionalTestBase):
         context = self._get_context(user)
         assert_raises(toolkit.NotAuthorized,
                       helpers.call_auth,
-                      'dataset_version_delete',
+                      'version_delete',
                       context=context,
                       dataset=dataset['id'])
 
@@ -135,7 +135,7 @@ class TestVersionsAuth(FunctionalTestBase):
         user = getattr(self, user_type)
         dataset = getattr(self, dataset_type)
         context = self._get_context(user)
-        assert helpers.call_auth('dataset_version_list',
+        assert helpers.call_auth('version_list',
                                  context=context,
                                  dataset=dataset['id'])
 
@@ -172,7 +172,7 @@ class TestVersionsAuth(FunctionalTestBase):
         user = getattr(self, user_type)
         dataset = getattr(self, dataset_type)
         context = self._get_context(user)
-        assert helpers.call_auth('dataset_version_show',
+        assert helpers.call_auth('version_show',
                                  context=context,
                                  dataset=dataset['id'])
 
@@ -188,6 +188,6 @@ class TestVersionsAuth(FunctionalTestBase):
         context = self._get_context(user)
         assert_raises(toolkit.NotAuthorized,
                       helpers.call_auth,
-                      'dataset_version_show',
+                      'version_show',
                       context=context,
                       dataset=dataset['id'])
