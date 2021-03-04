@@ -19,7 +19,6 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IAuthFunctions)
-    plugins.implements(plugins.IPackageController, inherit=True)
     plugins.implements(plugins.IResourceController, inherit=True)
     plugins.implements(plugins.IUploader, inherit=True)
     plugins.implements(plugins.IDatasetForm, inherit=True)
@@ -78,34 +77,6 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'dataset_version_compare_pkg_dicts': helpers.compare_pkg_dicts,
         }
 
-    # IPackageController
-
-    def before_view(self, pkg_dict):
-        try:
-            versions = action.dataset_version_list({"ignore_auth": True},
-                                                   {"dataset": pkg_dict['id']})
-        except toolkit.ObjectNotFound:
-            # Do not blow up if package is gone
-            return pkg_dict
-
-        toolkit.c.versions = versions
-
-        version_id = toolkit.request.params.get('version', None)
-        if version_id:
-            version = action.dataset_version_show({"ignore_auth": True},
-                                                  {"id": version_id})
-            toolkit.c.current_version = version
-
-            # Hide package creation / update date if viewing a specific version
-            pkg_dict['metadata_created'] = None
-            pkg_dict['metadata_updated'] = None
-        return pkg_dict
-
-    # IResourceController
-
-    def before_delete(self, context, resource, resources):
-        pass
-
     # IUploader
 
     def get_resource_uploader(self, data_dict):
@@ -140,6 +111,9 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         return []
 
     # IResourceController
+
+    def before_delete(self, context, resource, resources):
+        pass
 
     def before_create(self, context, data_dict):
         return self._set_upload_timestamp(data_dict)
