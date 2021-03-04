@@ -16,7 +16,7 @@ Base = declarative_base(metadata=metadata)
 
 
 class Version(Base):
-    __tablename__ = u'resource_version'
+    __tablename__ = u'version'
     __table_args__ = (
         UniqueConstraint('package_id', 'resource_id', 'name'),
     )
