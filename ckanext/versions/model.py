@@ -15,15 +15,16 @@ log = logging.getLogger(__name__)
 Base = declarative_base(metadata=metadata)
 
 
-class DatasetVersion(Base):
-    __tablename__ = u'package_version'
+class Version(Base):
+    __tablename__ = u'version'
     __table_args__ = (
-        UniqueConstraint('package_id', 'name'),
+        UniqueConstraint('package_id', 'resource_id', 'name'),
     )
 
     id = Column(UuidType, primary_key=True, default=UuidType.default)
     package_id = Column(UuidType, ForeignKey('package.id'), nullable=False)
-    package_revision_id = Column(UuidType, nullable=False)
+    resource_id = Column(UuidType, ForeignKey('resource.id'), nullable=False)
+    activity_id = Column(UuidType, ForeignKey('activity.id'), nullable=False)
     name = Column(Unicode, nullable=False)
     description = Column(Unicode, nullable=True)
     creator_user_id = Column(UuidType, ForeignKey('user.id'), nullable=False)
@@ -43,8 +44,8 @@ class DatasetVersion(Base):
 
 
 def create_tables():
-    DatasetVersion.__table__.create()
+    Version.__table__.create()
 
 
 def tables_exist():
-    return DatasetVersion.__table__.exists()
+    return Version.__table__.exists()

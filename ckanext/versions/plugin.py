@@ -6,7 +6,7 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.lib.uploader import ALLOWED_UPLOAD_TYPES
 
-from ckanext.versions import blueprints
+from ckanext.versions import cli
 from ckanext.versions.logic import action, auth, helpers, uploader
 from ckanext.versions.model import tables_exist
 
@@ -19,12 +19,16 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IAuthFunctions)
-    plugins.implements(plugins.IPackageController, inherit=True)
     plugins.implements(plugins.IResourceController, inherit=True)
     plugins.implements(plugins.IUploader, inherit=True)
     plugins.implements(plugins.IDatasetForm, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
-    plugins.implements(plugins.IBlueprint)
+    plugins.implements(plugins.IClick)
+
+    # IClick
+
+    def get_commands(self):
+        return cli.get_commands()
 
     # IConfigurer
 
@@ -46,30 +50,21 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     def get_actions(self):
         return {
-            'dataset_version_create': action.dataset_version_create,
-            'dataset_version_delete': action.dataset_version_delete,
-            'dataset_version_list': action.dataset_version_list,
-            'dataset_version_update': action.dataset_version_update,
-            'dataset_version_show': action.dataset_version_show,
-            'dataset_version_promote': action.dataset_version_promote,
-            'package_show_version': action.package_show_version,
-            'resource_show_version': action.resource_show_version,
-            'dataset_versions_diff': action.dataset_versions_diff,
-
-            # Overridden
-            'package_show': action.package_show_revision,
-            'resource_show': action.resource_show_revision
+            'version_create': action.version_create,
+            'version_delete': action.version_delete,
+            'version_list': action.version_list,
+            'version_update': action.version_update,
+            'version_show': action.version_show,
         }
 
     # IAuthFunctions
 
     def get_auth_functions(self):
         return {
-            'dataset_version_create': auth.dataset_version_create,
-            'dataset_version_delete': auth.dataset_version_delete,
-            'dataset_version_list': auth.dataset_version_list,
-            'dataset_version_show': auth.dataset_version_show,
-            'dataset_versions_diff': auth.dataset_versions_diff,
+            'version_create': auth.version_create,
+            'version_delete': auth.version_delete,
+            'version_list': auth.version_list,
+            'version_show': auth.version_show,
         }
 
     # ITemplateHelpers
@@ -81,39 +76,6 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'dataset_version_has_link_resources': helpers.has_link_resources,
             'dataset_version_compare_pkg_dicts': helpers.compare_pkg_dicts,
         }
-
-    # IPackageController
-
-    def before_view(self, pkg_dict):
-        try:
-            versions = action.dataset_version_list({"ignore_auth": True},
-                                                   {"dataset": pkg_dict['id']})
-        except toolkit.ObjectNotFound:
-            # Do not blow up if package is gone
-            return pkg_dict
-
-        toolkit.c.versions = versions
-
-        version_id = toolkit.request.params.get('version', None)
-        if version_id:
-            version = action.dataset_version_show({"ignore_auth": True},
-                                                  {"id": version_id})
-            toolkit.c.current_version = version
-
-            # Hide package creation / update date if viewing a specific version
-            pkg_dict['metadata_created'] = None
-            pkg_dict['metadata_updated'] = None
-        return pkg_dict
-
-    # IBlueprint
-
-    def get_blueprint(self):
-        return [blueprints.versions]
-
-    # IResourceController
-
-    def before_delete(self, context, resource, resources):
-        pass
 
     # IUploader
 
@@ -149,6 +111,9 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         return []
 
     # IResourceController
+
+    def before_delete(self, context, resource, resources):
+        pass
 
     def before_create(self, context, data_dict):
         return self._set_upload_timestamp(data_dict)
