@@ -175,8 +175,8 @@ def version_show(context, data_dict):
     version_id = data_dict.get('version_id', None)
     if version_id:
         resource_dict = _get_resource_in_revision(
-            context, data_dict, version_dict['package_revision_id'])
-        resource_dict['version_metadata'] = version_dict
+            context, data_dict, version_id)
+        resource_dict['version_metadata'] = version_id
         return resource_dict
 
     else:
