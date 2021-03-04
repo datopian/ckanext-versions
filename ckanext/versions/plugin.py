@@ -51,28 +51,21 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     def get_actions(self):
         return {
-            'dataset_version_create': action.dataset_version_create,
-            'dataset_version_delete': action.dataset_version_delete,
-            'dataset_version_list': action.dataset_version_list,
-            'dataset_version_update': action.dataset_version_update,
-            'dataset_version_show': action.dataset_version_show,
-            'dataset_version_promote': action.dataset_version_promote,
-            'package_show_version': action.package_show_version,
-            'resource_show_version': action.resource_show_version,
-
-            # Overridden
-            'package_show': action.package_show_revision,
-            'resource_show': action.resource_show_revision
+            'version_create': action.version_create,
+            'version_delete': action.version_delete,
+            'version_list': action.version_list,
+            'version_update': action.version_update,
+            'version_show': action.version_show,
         }
 
     # IAuthFunctions
 
     def get_auth_functions(self):
         return {
-            'dataset_version_create': auth.dataset_version_create,
-            'dataset_version_delete': auth.dataset_version_delete,
-            'dataset_version_list': auth.dataset_version_list,
-            'dataset_version_show': auth.dataset_version_show,
+            'version_create': auth.version_create,
+            'version_delete': auth.version_delete,
+            'version_list': auth.version_list,
+            'version_show': auth.version_show,
         }
 
     # ITemplateHelpers
