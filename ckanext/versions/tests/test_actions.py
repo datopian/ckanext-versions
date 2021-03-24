@@ -4,7 +4,8 @@ from ckan.plugins import toolkit
 from ckan.tests import factories
 
 from ckanext.versions.logic.action import (resource_version_create,
-                                           resource_version_list, version_show)
+                                           resource_version_list,
+                                           version_delete, version_show)
 from ckanext.versions.tests import get_context
 
 
@@ -221,3 +222,31 @@ class TestVersionShow(object):
         assert result['name'] == '1'
         assert result['notes'] == 'Version notes'
         assert result['creator_user_id'] == user['id']
+
+@pytest.mark.usefixtures("clean_db", "versions_setup")
+class TestVersionDelete(object):
+
+    def test_version_delete(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(
+            package_id=dataset['id'],
+            name='First name'
+            )
+        user = factories.Sysadmin()
+        context = get_context(user)
+
+        version = resource_version_create(
+            context, {
+                'package_id': dataset['id'],
+                'resource_id': resource['id'],
+                'name': '1',
+                'notes': 'Version notes'
+            }
+        )
+
+        assert version
+
+        version_delete(context, {'version_id': version['id']})
+
+        with pytest.raises(toolkit.ObjectNotFound):
+            version_show(context, {'version_id': version['id']})

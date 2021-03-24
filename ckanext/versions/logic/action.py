@@ -153,27 +153,26 @@ def resource_version_list(context, data_dict):
 
 
 def version_delete(context, data_dict):
-    """Delete a specific version by ID
+    """Delete a specific version
 
-    :param id: the id of the version
-    :type id: string
+    :param version_id: the id of the version
+    :type version_id: string
     :returns: The matched version
     :rtype: dict
     """
     model = context.get('model', core_model)
-    version_id = toolkit.get_or_bust(data_dict, ['id'])
+    version_id = toolkit.get_or_bust(data_dict, ['version_id'])
     version = model.Session.query(Version).get(version_id)
     if not version:
-        raise toolkit.ObjectNotFound('Dataset version not found')
+        raise toolkit.ObjectNotFound('Version not found')
 
-    toolkit.check_access('dataset_version_delete', context,
-                         {"dataset": version.package_id, "id": version_id})
+    toolkit.check_access('version_delete', context,
+                         {"package_id": version.package_id})
 
     model.Session.delete(version)
     model.repo.commit()
 
-    log.info('Version %s of dataset %s was deleted',
-             version_id, version.package_id)
+    log.info('Version %s was deleted', version_id)
 
 
 @toolkit.side_effect_free
