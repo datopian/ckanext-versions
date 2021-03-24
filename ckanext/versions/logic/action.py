@@ -65,42 +65,41 @@ def version_update(context, data_dict):
     return version.as_dict()
 
 
-def version_create(context, data_dict):
+def resource_version_create(context, data_dict):
     """Create a new version from the current dataset's revision
 
     Currently you must have editor level access on the dataset
     to create a version.
 
-    :param dataset: the id or name of the dataset
-    :type dataset: string
+    :param package_id: the id or name of the dataset
+    :type package_id: string
+    :param resource: the id of the resource
+    :type resource: string
     :param name: A short name for the version
     :type name: string
-    :param description: A description for the version
-    :type description: string
+    :param notes: A description for the version
+    :type notes: string
     :returns: the newly created version
     :rtype: dictionary
     """
-    model = context.get('model', core_model)
-    dataset_id_or_name, name = toolkit.get_or_bust(
-        data_dict, ['dataset', 'name'])
-    dataset = model.Package.get(dataset_id_or_name)
-    if not dataset:
-        raise toolkit.ObjectNotFound('Dataset not found')
-
-    toolkit.check_access('dataset_version_create', context, data_dict)
+    toolkit.check_access('version_create', context, data_dict)
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
-    latest_revision_id = dataset.latest_related_revision.id
+    session = core_model.meta.create_local_session()
+    obj = session.query(core_model.Activity). \
+        filter_by(object_id=data_dict['package_id']).\
+        order_by(core_model.Activity.timestamp.desc()).\
+        first()
+
     version = Version(
-        package_id=dataset.id,
-        package_revision_id=latest_revision_id,
-        name=name,
-        description=data_dict.get('description', None),
+        package_id=data_dict['package_id'],
+        resource_id=data_dict['resource_id'],
+        activity_id=obj.id,
+        name=data_dict.get('name', None),
+        notes=data_dict.get('notes', None),
         created=datetime.utcnow(),
         creator_user_id=context['auth_user_obj'].id)
 
-    # I'll create my own session! With Blackjack! And H**kers!
-    session = model.meta.create_local_session()
     session.add(version)
 
     try:
@@ -110,10 +109,10 @@ def version_create(context, data_dict):
         session.rollback()
         log.debug("DB integrity error (version name not unique?): %s", e)
         raise toolkit.ValidationError(
-            'Version names must be unique per dataset'
+            'Version names must be unique per resource'
         )
 
-    log.info('Version "%s" created for package %s', name, dataset.id)
+    log.info('Version "%s" created for resource %s', data_dict['name'], data_dict['resource_id'])
 
     return version.as_dict()
 

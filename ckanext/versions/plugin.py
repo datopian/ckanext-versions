@@ -50,11 +50,8 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     def get_actions(self):
         return {
-            'version_create': action.version_create,
-            'version_delete': action.version_delete,
-            'version_list': action.version_list,
-            'version_update': action.version_update,
-            'version_show': action.version_show,
+            'resource_version_create': action.resource_version_create,
+
         }
 
     # IAuthFunctions
