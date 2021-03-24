@@ -3,7 +3,8 @@ from ckan import model
 from ckan.plugins import toolkit
 from ckan.tests import factories
 
-from ckanext.versions.logic.action import resource_version_create
+from ckanext.versions.logic.action import (resource_version_create,
+                                           resource_version_list)
 from ckanext.versions.tests import get_context
 
 
@@ -139,3 +140,56 @@ class TestCreateResourceVersion(object):
 
         assert activity_resource['id'] == resource['id']
         assert activity_resource['name'] == 'Second Name'
+
+
+
+@pytest.mark.usefixtures("clean_db", "versions_setup")
+class TestResourceVersionList(object):
+
+    def test_resource_version_list(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(
+            package_id=dataset['id'],
+            name='First name'
+            )
+        user = factories.Sysadmin()
+        context = get_context(user)
+
+        resource_version_create(
+            context, {
+                'package_id': dataset['id'],
+                'resource_id': resource['id'],
+                'name': '1'
+            }
+        )
+
+        toolkit.get_action('resource_patch')(context, {
+            'id': resource['id'], 'name': 'Second name'
+        })
+
+        resource_version_create(
+            context, {
+                'package_id': dataset['id'],
+                'resource_id': resource['id'],
+                'name': '2',
+                'notes': 'Notes for version 2'
+            }
+        )
+
+        version_list = resource_version_list(context, {
+            'resource_id': resource['id']}
+            )
+
+        assert len(version_list) == 2
+        assert version_list[0]['name'] == '2'
+        assert version_list[0]['notes'] == 'Notes for version 2'
+        assert version_list[1]['name'] == '1'
+        assert version_list[0]['activity_id'] != version_list[1]['activity_id']
+
+    def test_list_fails_if_resource_does_not_exist(self):
+        user = factories.Sysadmin()
+        with pytest.raises(toolkit.ObjectNotFound) as e:
+            resource_version_list(
+                get_context(user), {'resource_id': 'fake-resource-id'}
+            )
+            assert e.msg == 'Resource not found'

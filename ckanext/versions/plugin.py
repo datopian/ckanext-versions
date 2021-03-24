@@ -51,7 +51,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def get_actions(self):
         return {
             'resource_version_create': action.resource_version_create,
-
+            'resource_version_list': action.resource_version_list,
         }
 
     # IAuthFunctions

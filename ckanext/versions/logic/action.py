@@ -129,24 +129,24 @@ def resource_version_create(context, data_dict):
 
 
 @toolkit.side_effect_free
-def version_list(context, data_dict):
-    """List versions of a given dataset
+def resource_version_list(context, data_dict):
+    """List versions of a given resource
 
-    :param dataset: the id or name of the dataset
-    :type dataset: string
+    :param resource_id: the id the resource
+    :type resource_id: string
     :returns: list of matched versions
     :rtype: list
     """
     model = context.get('model', core_model)
-    dataset_id_or_name = toolkit.get_or_bust(data_dict, ['dataset'])
-    dataset = model.Package.get(dataset_id_or_name)
-    if not dataset:
-        raise toolkit.ObjectNotFound('Dataset not found')
+    resource_id = toolkit.get_or_bust(data_dict, ['resource_id'])
+    resource = model.Resource.get(resource_id)
+    if not resource:
+        raise toolkit.ObjectNotFound('Resource not found')
 
-    toolkit.check_access('dataset_version_list', context, data_dict)
+    toolkit.check_access('version_list', context, data_dict)
 
     versions = model.Session.query(Version).\
-        filter(Version.package_id == dataset.id).\
+        filter(Version.resource_id == resource.id).\
         order_by(Version.created.desc())
 
     return [v.as_dict() for v in versions]
