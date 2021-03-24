@@ -52,6 +52,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         return {
             'resource_version_create': action.resource_version_create,
             'resource_version_list': action.resource_version_list,
+            'version_show': action.version_show,
         }
 
     # IAuthFunctions

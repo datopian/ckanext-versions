@@ -178,18 +178,21 @@ def version_delete(context, data_dict):
 
 @toolkit.side_effect_free
 def version_show(context, data_dict):
-    """Wrapper for resource_show allowing to get a resource from a specific
-    dataset version
-    """
-    version_id = data_dict.get('version_id', None)
-    if version_id:
-        resource_dict = _get_resource_in_revision(
-            context, data_dict, version_id)
-        resource_dict['version_metadata'] = version_id
-        return resource_dict
+    """Show a specific version object
 
-    else:
-        return toolkit.get_action('resource_show')(context, data_dict)
+    :param version_id: the id of the version
+    :type version_id: string
+    :returns: the version dictionary
+    :rtype: dict
+    """
+    toolkit.check_access('version_show', context, data_dict)
+    model = context.get('model', core_model)
+    version_id = toolkit.get_or_bust(data_dict, ['version_id'])
+    version = model.Session.query(Version).get(version_id)
+    if not version:
+        raise toolkit.ObjectNotFound('Version not found')
+
+    return version.as_dict()
 
 
 def _get_resource_in_revision(context, data_dict, revision_id):
