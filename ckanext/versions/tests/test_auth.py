@@ -56,7 +56,7 @@ class TestVersionsAuth(object):
         context = self._get_context(user)
         assert helpers.call_auth('version_create',
                                  context=context,
-                                 dataset=dataset['id'])
+                                 package_id=dataset['id'])
 
     @pytest.mark.parametrize("user_type, dataset_type", [
         ('org_member', 'private_dataset'),
@@ -75,7 +75,7 @@ class TestVersionsAuth(object):
             helpers.call_auth(
                 'version_create',
                 context=context,
-                dataset=dataset['id'])
+                package_id=dataset['id'])
 
     @pytest.mark.parametrize("user_type, dataset_type", [
         ('org_admin', 'private_dataset'),
@@ -93,7 +93,7 @@ class TestVersionsAuth(object):
         context = self._get_context(user)
         assert helpers.call_auth('version_delete',
                                  context=context,
-                                 dataset=dataset['id'])
+                                 package_id=dataset['id'])
 
     @pytest.mark.parametrize("user_type, dataset_type", [
         ('org_member', 'private_dataset'),
@@ -112,7 +112,7 @@ class TestVersionsAuth(object):
             helpers.call_auth(
                 'version_delete',
                 context=context,
-                dataset=dataset['id'])
+                package_id=dataset['id'])
 
     @pytest.mark.parametrize("user_type, dataset_type", [
         ('org_admin', 'private_dataset'),
@@ -133,7 +133,7 @@ class TestVersionsAuth(object):
         context = self._get_context(user)
         assert helpers.call_auth('version_list',
                                  context=context,
-                                 dataset=dataset['id'])
+                                 package_id=dataset['id'])
 
     @pytest.mark.parametrize("user_type, dataset_type", [
         ('other_org_admin', 'private_dataset'),
@@ -149,7 +149,7 @@ class TestVersionsAuth(object):
             helpers.call_auth(
                 'version_list',
                 context=context,
-                dataset=dataset['id'])
+                package_id=dataset['id'])
 
     @pytest.mark.parametrize("user_type, dataset_type", [
         ('org_admin', 'private_dataset'),
@@ -170,7 +170,7 @@ class TestVersionsAuth(object):
         context = self._get_context(user)
         assert helpers.call_auth('version_show',
                                  context=context,
-                                 dataset=dataset['id'])
+                                 package_id=dataset['id'])
 
     @pytest.mark.parametrize("user_type, dataset_type", [
         ('other_org_admin', 'private_dataset'),
@@ -186,4 +186,4 @@ class TestVersionsAuth(object):
             helpers.call_auth(
                 'version_show',
                 context=context,
-                dataset=dataset['id'])
+                package_id=dataset['id'])
