@@ -42,7 +42,7 @@ class TestCreateResourceVersion(object):
         user = factories.Sysadmin()
 
         version = resource_version_create(
-            self._get_context(user),{
+            self._get_context(user), {
                 'package_id': dataset['id'],
                 'resource_id': resource['id'],
                 'name': '1',
@@ -52,7 +52,7 @@ class TestCreateResourceVersion(object):
 
         with pytest.raises(toolkit.ValidationError):
             resource_version_create(
-                self._get_context(user),{
+                self._get_context(user), {
                     'package_id': dataset['id'],
                     'resource_id': resource['id'],
                     'name': '1',
@@ -64,7 +64,7 @@ class TestCreateResourceVersion(object):
         user = factories.Sysadmin()
         with pytest.raises(toolkit.ObjectNotFound) as e:
             resource_version_create(
-                self._get_context(user),{
+                self._get_context(user), {
                     'package_id': 'fake-dataset-id',
                     'resource_id': 'fake-resource-id',
                     'name': '1',
@@ -76,7 +76,7 @@ class TestCreateResourceVersion(object):
         dataset = factories.Dataset()
         with pytest.raises(toolkit.ObjectNotFound) as e:
             resource_version_create(
-                self._get_context(user),{
+                self._get_context(user), {
                     'package_id': dataset['id'],
                     'resource_id': 'fake-resource-id',
                     'name': '1',
@@ -92,9 +92,55 @@ class TestCreateResourceVersion(object):
 
         with pytest.raises(toolkit.ValidationError):
             resource_version_create(
-                self._get_context(user),{
+                self._get_context(user), {
                     'package_id': dataset['id'],
                     'resource_id': resource['id'],
                     'notes': 'Version notes'
                 }
             )
+
+    def test_version_activity_is_correct(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(
+            package_id=dataset['id'],
+            name='First name'
+            )
+        user = factories.Sysadmin()
+        context = self._get_context(user)
+
+        version = resource_version_create(
+            context, {
+                'package_id': dataset['id'],
+                'resource_id': resource['id'],
+                'name': '1',
+                'notes': 'Version notes'
+            }
+        )
+
+        toolkit.get_action('resource_patch')(context, {
+            'id': resource['id'], 'name': 'Second Name'
+        })
+
+        package = toolkit.get_action('activity_data_show')(
+            context, {'id': version['activity_id']}
+            )['package']
+        activity_resource = package['resources'][0]
+
+        assert activity_resource['id'] == resource['id']
+        assert activity_resource['name'] == 'First name'
+
+        version = resource_version_create(
+            context, {
+                'package_id': dataset['id'],
+                'resource_id': resource['id'],
+                'name': '2'
+            }
+        )
+
+        package = toolkit.get_action('activity_data_show')(
+            context, {'id': version['activity_id']}
+            )['package']
+        activity_resource = package['resources'][0]
+
+        assert activity_resource['id'] == resource['id']
+        assert activity_resource['name'] == 'Second Name'
