@@ -4,16 +4,11 @@ from ckan.plugins import toolkit
 from ckan.tests import factories
 
 from ckanext.versions.logic.action import resource_version_create
+from ckanext.versions.tests import get_context
 
 
 @pytest.mark.usefixtures("clean_db", "versions_setup")
 class TestCreateResourceVersion(object):
-
-    def _get_context(self, user):
-        return {
-            'model': model,
-            'user': user if isinstance(user, str) else user['name']
-        }
 
     def test_resource_version_create(self):
         dataset = factories.Dataset()
@@ -21,7 +16,7 @@ class TestCreateResourceVersion(object):
         user = factories.Sysadmin()
 
         version = resource_version_create(
-            self._get_context(user),{
+            get_context(user),{
                 'package_id': dataset['id'],
                 'resource_id': resource['id'],
                 'name': '1',
@@ -42,7 +37,7 @@ class TestCreateResourceVersion(object):
         user = factories.Sysadmin()
 
         version = resource_version_create(
-            self._get_context(user), {
+            get_context(user), {
                 'package_id': dataset['id'],
                 'resource_id': resource['id'],
                 'name': '1',
@@ -52,7 +47,7 @@ class TestCreateResourceVersion(object):
 
         with pytest.raises(toolkit.ValidationError):
             resource_version_create(
-                self._get_context(user), {
+                get_context(user), {
                     'package_id': dataset['id'],
                     'resource_id': resource['id'],
                     'name': '1',
@@ -64,7 +59,7 @@ class TestCreateResourceVersion(object):
         user = factories.Sysadmin()
         with pytest.raises(toolkit.ObjectNotFound) as e:
             resource_version_create(
-                self._get_context(user), {
+                get_context(user), {
                     'package_id': 'fake-dataset-id',
                     'resource_id': 'fake-resource-id',
                     'name': '1',
@@ -76,7 +71,7 @@ class TestCreateResourceVersion(object):
         dataset = factories.Dataset()
         with pytest.raises(toolkit.ObjectNotFound) as e:
             resource_version_create(
-                self._get_context(user), {
+                get_context(user), {
                     'package_id': dataset['id'],
                     'resource_id': 'fake-resource-id',
                     'name': '1',
@@ -92,7 +87,7 @@ class TestCreateResourceVersion(object):
 
         with pytest.raises(toolkit.ValidationError):
             resource_version_create(
-                self._get_context(user), {
+                get_context(user), {
                     'package_id': dataset['id'],
                     'resource_id': resource['id'],
                     'notes': 'Version notes'
@@ -106,7 +101,7 @@ class TestCreateResourceVersion(object):
             name='First name'
             )
         user = factories.Sysadmin()
-        context = self._get_context(user)
+        context = get_context(user)
 
         version = resource_version_create(
             context, {
