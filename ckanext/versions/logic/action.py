@@ -85,8 +85,19 @@ def resource_version_create(context, data_dict):
     toolkit.check_access('version_create', context, data_dict)
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
+    package_id, resource_id, name = toolkit.get_or_bust(
+        data_dict, ['package_id', 'resource_id', 'name'])
+
+    package = core_model.Package.get(package_id)
+    if not package:
+        raise toolkit.ObjectNotFound('Dataset not found')
+
+    resource = core_model.Resource.get(resource_id)
+    if not resource:
+        raise toolkit.ObjectNotFound('Resource not found')
+
     session = core_model.meta.create_local_session()
-    obj = session.query(core_model.Activity). \
+    activity = session.query(core_model.Activity). \
         filter_by(object_id=data_dict['package_id']).\
         order_by(core_model.Activity.timestamp.desc()).\
         first()
@@ -94,7 +105,7 @@ def resource_version_create(context, data_dict):
     version = Version(
         package_id=data_dict['package_id'],
         resource_id=data_dict['resource_id'],
-        activity_id=obj.id,
+        activity_id=activity.id,
         name=data_dict.get('name', None),
         notes=data_dict.get('notes', None),
         created=datetime.utcnow(),
