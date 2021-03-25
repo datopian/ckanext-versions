@@ -18,14 +18,14 @@ log = logging.getLogger(__name__)
 def version_update(context, data_dict):
     """Update a version from the current dataset.
 
-    :param dataset: the id or name of the dataset
-    :type dataset: string
-    :param version: the id of the version
-    :type version: string
+    :param package_id: the id the dataset
+    :type package_id: string
+    :param version_id: the id of the version
+    :type version_id: string
     :param name: A short name for the version
     :type name: string
-    :param description: A description for the version
-    :type description: string
+    :param notes: A description for the version
+    :type notes: string
     :returns: the edited version
     :rtype: dictionary
     """
@@ -65,42 +65,54 @@ def version_update(context, data_dict):
     return version.as_dict()
 
 
-def version_create(context, data_dict):
+def resource_version_create(context, data_dict):
     """Create a new version from the current dataset's revision
 
     Currently you must have editor level access on the dataset
     to create a version.
 
-    :param dataset: the id or name of the dataset
-    :type dataset: string
+    :param package_id: the id of the dataset
+    :type package_id: string
+    :param resource_id: the id of the resource
+    :type resource_id: string
     :param name: A short name for the version
     :type name: string
-    :param description: A description for the version
-    :type description: string
+    :param notes: A description for the version
+    :type notes: string
     :returns: the newly created version
     :rtype: dictionary
     """
-    model = context.get('model', core_model)
-    dataset_id_or_name, name = toolkit.get_or_bust(
-        data_dict, ['dataset', 'name'])
-    dataset = model.Package.get(dataset_id_or_name)
-    if not dataset:
-        raise toolkit.ObjectNotFound('Dataset not found')
-
-    toolkit.check_access('dataset_version_create', context, data_dict)
+    toolkit.check_access('version_create', context, data_dict)
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
-    latest_revision_id = dataset.latest_related_revision.id
+    model = context.get('model', core_model)
+
+    package_id, resource_id, name = toolkit.get_or_bust(
+        data_dict, ['package_id', 'resource_id', 'name'])
+
+    package = model.Package.get(package_id)
+    if not package:
+        raise toolkit.ObjectNotFound('Dataset not found')
+
+    resource = model.Resource.get(resource_id)
+    if not resource:
+        raise toolkit.ObjectNotFound('Resource not found')
+
+    session = model.meta.create_local_session()
+    activity = session.query(model.Activity). \
+        filter_by(object_id=data_dict['package_id']).\
+        order_by(model.Activity.timestamp.desc()).\
+        first()
+
     version = Version(
-        package_id=dataset.id,
-        package_revision_id=latest_revision_id,
-        name=name,
-        description=data_dict.get('description', None),
+        package_id=data_dict['package_id'],
+        resource_id=data_dict['resource_id'],
+        activity_id=activity.id,
+        name=data_dict.get('name', None),
+        notes=data_dict.get('notes', None),
         created=datetime.utcnow(),
         creator_user_id=context['auth_user_obj'].id)
 
-    # I'll create my own session! With Blackjack! And H**kers!
-    session = model.meta.create_local_session()
     session.add(version)
 
     try:
@@ -110,76 +122,101 @@ def version_create(context, data_dict):
         session.rollback()
         log.debug("DB integrity error (version name not unique?): %s", e)
         raise toolkit.ValidationError(
-            'Version names must be unique per dataset'
+            'Version names must be unique per resource'
         )
 
-    log.info('Version "%s" created for package %s', name, dataset.id)
+    log.info('Version "%s" created for resource %s', data_dict['name'], data_dict['resource_id'])
 
     return version.as_dict()
 
 
 @toolkit.side_effect_free
-def version_list(context, data_dict):
-    """List versions of a given dataset
+def resource_version_list(context, data_dict):
+    """List versions of a given resource
 
-    :param dataset: the id or name of the dataset
-    :type dataset: string
+    :param package_id: the id the dataset
+    :type package_id: string
+    :param resource_id: the id the resource
+    :type resource_id: string
     :returns: list of matched versions
     :rtype: list
     """
     model = context.get('model', core_model)
-    dataset_id_or_name = toolkit.get_or_bust(data_dict, ['dataset'])
-    dataset = model.Package.get(dataset_id_or_name)
-    if not dataset:
-        raise toolkit.ObjectNotFound('Dataset not found')
+    resource_id = toolkit.get_or_bust(data_dict, ['resource_id'])
+    resource = model.Resource.get(resource_id)
+    if not resource:
+        raise toolkit.ObjectNotFound('Resource not found')
 
-    toolkit.check_access('dataset_version_list', context, data_dict)
+    toolkit.check_access('version_list', context, data_dict)
 
     versions = model.Session.query(Version).\
-        filter(Version.package_id == dataset.id).\
+        filter(Version.resource_id == resource.id).\
         order_by(Version.created.desc())
+
+    if not versions:
+        raise toolkit.ObjectNotFound('Versions not found for this resource')
 
     return [v.as_dict() for v in versions]
 
 
 def version_delete(context, data_dict):
-    """Delete a specific version by ID
+    """Delete a specific version
 
-    :param id: the id of the version
-    :type id: string
+    :param package_id: the id the dataset
+    :type package_id: string
+    :param version_id: the id of the version
+    :type version_id: string
     :returns: The matched version
     :rtype: dict
     """
     model = context.get('model', core_model)
-    version_id = toolkit.get_or_bust(data_dict, ['id'])
+    version_id = toolkit.get_or_bust(data_dict, ['version_id'])
     version = model.Session.query(Version).get(version_id)
     if not version:
-        raise toolkit.ObjectNotFound('Dataset version not found')
+        raise toolkit.ObjectNotFound('Version not found')
 
-    toolkit.check_access('dataset_version_delete', context,
-                         {"dataset": version.package_id, "id": version_id})
+    toolkit.check_access('version_delete', context,
+                         {"package_id": version.package_id})
 
     model.Session.delete(version)
     model.repo.commit()
 
-    log.info('Version %s of dataset %s was deleted',
-             version_id, version.package_id)
+    log.info('Version %s was deleted', version_id)
 
 
 @toolkit.side_effect_free
 def version_show(context, data_dict):
-    """Wrapper for resource_show allowing to get a resource from a specific
-    dataset version
-    """
-    version_id = data_dict.get('version_id', None)
-    if version_id:
-        resource_dict = _get_resource_in_revision(
-            context, data_dict, version_id)
-        resource_dict['version_metadata'] = version_id
-        return resource_dict
+    """Show a specific version object
 
-    else:
-        return toolkit.get_action('resource_show')(context, data_dict)
+    :param package_id: the id the dataset
+    :type package_id: string
+    :param version_id: the id of the version
+    :type version_id: string
+    :returns: the version dictionary
+    :rtype: dict
+    """
+    toolkit.check_access('version_show', context, data_dict)
+    model = context.get('model', core_model)
+    version_id = toolkit.get_or_bust(data_dict, ['version_id'])
+    version = model.Session.query(Version).get(version_id)
+    if not version:
+        raise toolkit.ObjectNotFound('Version not found')
+
+    return version.as_dict()
+
+
+def resource_version_current(context, data_dict):
+    ''' Show the current version for a resource
+
+    :param package_id: the id the dataset
+    :type package_id: string
+    :param resource_id: the if of the resource
+    :type resource_id: string
+    :returns the version dictionary
+    :rtype dict
+    '''
+    version_list = resource_version_list(context, data_dict)
+    return version_list[0]
 
 
 def _get_resource_in_revision(context, data_dict, revision_id):

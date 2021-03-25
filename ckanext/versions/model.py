@@ -23,10 +23,10 @@ class Version(Base):
 
     id = Column(UuidType, primary_key=True, default=UuidType.default)
     package_id = Column(UuidType, ForeignKey('package.id'), nullable=False)
-    resource_id = Column(UuidType, ForeignKey('resource.id'), nullable=False)
+    resource_id = Column(UuidType, ForeignKey('resource.id'), nullable=True)
     activity_id = Column(UuidType, ForeignKey('activity.id'), nullable=False)
     name = Column(Unicode, nullable=False)
-    description = Column(Unicode, nullable=True)
+    notes = Column(Unicode, nullable=True)
     creator_user_id = Column(UuidType, ForeignKey('user.id'), nullable=False)
     created = Column(DateTime, default=datetime.datetime.utcnow)
 

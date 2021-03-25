@@ -37,7 +37,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             log.critical(
                 "The versions extension requires a database setup. Please run "
                 "the following to create the database tables: \n"
-                "paster --plugin=ckanext-versions versions init-db"
+                "ckan versions initdb"
             )
         else:
             log.debug("Dataset versions tables verified to exist")
@@ -50,11 +50,11 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     def get_actions(self):
         return {
-            'version_create': action.version_create,
-            'version_delete': action.version_delete,
-            'version_list': action.version_list,
-            'version_update': action.version_update,
+            'resource_version_create': action.resource_version_create,
+            'resource_version_list': action.resource_version_list,
+            'resource_version_current': action.resource_version_current,
             'version_show': action.version_show,
+            'version_delete': action.version_delete
         }
 
     # IAuthFunctions
