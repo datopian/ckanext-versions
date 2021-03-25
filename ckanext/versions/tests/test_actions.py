@@ -195,7 +195,7 @@ class TestResourceVersionList(object):
             )
             assert e.msg == 'Resource not found'
 
-    def test_resource_version_list(self):
+    def test_resource_version_current(self):
         dataset = factories.Dataset()
         resource = factories.Resource(
             package_id=dataset['id'],
