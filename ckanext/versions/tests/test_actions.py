@@ -4,6 +4,7 @@ from ckan.plugins import toolkit
 from ckan.tests import factories
 
 from ckanext.versions.logic.action import (resource_version_create,
+                                           resource_version_current,
                                            resource_version_list,
                                            version_delete, version_show)
 from ckanext.versions.tests import get_context
