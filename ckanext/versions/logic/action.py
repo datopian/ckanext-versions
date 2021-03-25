@@ -18,9 +18,7 @@ log = logging.getLogger(__name__)
 def version_update(context, data_dict):
     """Update a version from the current dataset.
 
-    :param dataset: the id or name of the dataset
-    :type dataset: string
-    :param version: the id of the version
+    :param version_id: the id of the version
     :type version: string
     :param name: A short name for the version
     :type name: string
@@ -73,8 +71,8 @@ def resource_version_create(context, data_dict):
 
     :param package_id: the id or name of the dataset
     :type package_id: string
-    :param resource: the id of the resource
-    :type resource: string
+    :param resource_id: the id of the resource
+    :type resource_id: string
     :param name: A short name for the version
     :type name: string
     :param notes: A description for the version
@@ -85,21 +83,23 @@ def resource_version_create(context, data_dict):
     toolkit.check_access('version_create', context, data_dict)
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
+    model = context.get('model', core_model)
+
     package_id, resource_id, name = toolkit.get_or_bust(
         data_dict, ['package_id', 'resource_id', 'name'])
 
-    package = core_model.Package.get(package_id)
+    package = model.Package.get(package_id)
     if not package:
         raise toolkit.ObjectNotFound('Dataset not found')
 
-    resource = core_model.Resource.get(resource_id)
+    resource = model.Resource.get(resource_id)
     if not resource:
         raise toolkit.ObjectNotFound('Resource not found')
 
-    session = core_model.meta.create_local_session()
-    activity = session.query(core_model.Activity). \
+    session = model.meta.create_local_session()
+    activity = session.query(model.Activity). \
         filter_by(object_id=data_dict['package_id']).\
-        order_by(core_model.Activity.timestamp.desc()).\
+        order_by(model.Activity.timestamp.desc()).\
         first()
 
     version = Version(
@@ -149,6 +149,9 @@ def resource_version_list(context, data_dict):
         filter(Version.resource_id == resource.id).\
         order_by(Version.created.desc())
 
+    if not versions:
+        raise toolkit.ObjectNotFound('Versions not found for this resource')
+
     return [v.as_dict() for v in versions]
 
 
@@ -192,6 +195,18 @@ def version_show(context, data_dict):
         raise toolkit.ObjectNotFound('Version not found')
 
     return version.as_dict()
+
+
+def resource_version_current(context, data_dict):
+    ''' Show the current version for a resource
+
+    :param resource_id: the if of the resource
+    :type resource_id: string
+    :returns the version dictionary
+    :rtype dict
+    '''
+    version_list = resource_version_list(context, data_dict)
+    return version_list[0]
 
 
 def _get_resource_in_revision(context, data_dict, revision_id):

@@ -52,6 +52,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         return {
             'resource_version_create': action.resource_version_create,
             'resource_version_list': action.resource_version_list,
+            'resource_version_current': action.resource_version_current,
             'version_show': action.version_show,
             'version_delete': action.version_delete
         }
@@ -110,6 +111,16 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         return []
 
     # IResourceController
+
+    def before_show(self, resource_dict):
+        context = {'user': toolkit.g.user}
+        current_version = action.resource_version_current(context, {
+            'package_id': resource_dict['package_id'],
+            'resource_id': resource_dict['id']
+            })
+        resource_dict['version'] = current_version
+        return resource_dict
+
 
     def before_delete(self, context, resource, resources):
         pass

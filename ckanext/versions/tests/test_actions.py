@@ -194,6 +194,43 @@ class TestResourceVersionList(object):
             )
             assert e.msg == 'Resource not found'
 
+    def test_resource_version_list(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(
+            package_id=dataset['id'],
+            name='First name'
+            )
+        user = factories.Sysadmin()
+        context = get_context(user)
+
+        resource_version_create(
+            context, {
+                'package_id': dataset['id'],
+                'resource_id': resource['id'],
+                'name': '1'
+            }
+        )
+
+        toolkit.get_action('resource_patch')(context, {
+            'id': resource['id'], 'name': 'Second name'
+        })
+
+        resource_version_create(
+            context, {
+                'package_id': dataset['id'],
+                'resource_id': resource['id'],
+                'name': '2',
+                'notes': 'Notes for version 2'
+            }
+        )
+
+        current_version = resource_version_current(context, {
+            'resource_id': resource['id']}
+            )
+
+        assert current_version['name'] == '2'
+        assert current_version['notes'] == 'Notes for version 2'
+
 
 @pytest.mark.usefixtures("clean_db", "versions_setup")
 class TestVersionShow(object):
