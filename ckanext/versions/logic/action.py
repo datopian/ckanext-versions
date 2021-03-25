@@ -18,12 +18,14 @@ log = logging.getLogger(__name__)
 def version_update(context, data_dict):
     """Update a version from the current dataset.
 
+    :param package_id: the id the dataset
+    :type package_id: string
     :param version_id: the id of the version
-    :type version: string
+    :type version_id: string
     :param name: A short name for the version
     :type name: string
-    :param description: A description for the version
-    :type description: string
+    :param notes: A description for the version
+    :type notes: string
     :returns: the edited version
     :rtype: dictionary
     """
@@ -69,7 +71,7 @@ def resource_version_create(context, data_dict):
     Currently you must have editor level access on the dataset
     to create a version.
 
-    :param package_id: the id or name of the dataset
+    :param package_id: the id of the dataset
     :type package_id: string
     :param resource_id: the id of the resource
     :type resource_id: string
