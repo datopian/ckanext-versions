@@ -134,6 +134,8 @@ def resource_version_create(context, data_dict):
 def resource_version_list(context, data_dict):
     """List versions of a given resource
 
+    :param package_id: the id the dataset
+    :type package_id: string
     :param resource_id: the id the resource
     :type resource_id: string
     :returns: list of matched versions
@@ -160,6 +162,8 @@ def resource_version_list(context, data_dict):
 def version_delete(context, data_dict):
     """Delete a specific version
 
+    :param package_id: the id the dataset
+    :type package_id: string
     :param version_id: the id of the version
     :type version_id: string
     :returns: The matched version
@@ -184,6 +188,8 @@ def version_delete(context, data_dict):
 def version_show(context, data_dict):
     """Show a specific version object
 
+    :param package_id: the id the dataset
+    :type package_id: string
     :param version_id: the id of the version
     :type version_id: string
     :returns: the version dictionary
@@ -202,6 +208,8 @@ def version_show(context, data_dict):
 def resource_version_current(context, data_dict):
     ''' Show the current version for a resource
 
+    :param package_id: the id the dataset
+    :type package_id: string
     :param resource_id: the if of the resource
     :type resource_id: string
     :returns the version dictionary
