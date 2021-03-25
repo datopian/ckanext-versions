@@ -24,6 +24,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IDatasetForm, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IClick)
+    plugins.implements(plugins.IResourceView)
 
     # IClick
 
@@ -135,3 +136,46 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         elif current and UPLOAD_TS_FIELD in current:
             data_dict[UPLOAD_TS_FIELD] = current[UPLOAD_TS_FIELD]
         return data_dict
+
+    #IResourceView
+    def info(self):
+            return {'name': 'versions_view',
+                    'title': 'Versioning',
+                    'icon': 'table',
+                    'default_title': plugins.toolkit._('Versioning'),}
+
+    def can_view(self, data_dict):
+        resource = data_dict['resource']
+        resource['version'] = True # TODO - should remove it once the back-end is done
+        version = resource.get('version')
+        if version:
+            return True
+        return False
+
+    def setup_template_variables(self, context, data_dict):
+        return {'resource_version': [
+                    {
+                        "name": "cars",
+                        "version_notes": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. ",
+                        "version_number": "2.0",
+                        "publish_date": "February 10, 2021 12:01 PM PST",
+                        "created_by": "Gilia Angell",
+                        "version_link": "https://localhost:5000/dataset/new-data/resource/697f3fda-1049-42ad-8876-19f36ced92ff",
+                        "current_version": True
+                    },
+                    {
+                        "name": "cars",
+                        "version_notes": "Lorem Ipsum is simply dum",
+                        "version_number": "1.0",
+                        "publish_date": "January 1, 2020 12:01 PM PST",
+                        "created_by": "Marty Hall",
+                        "version_link": "https://localhost:5000/dataset/new-data/resource/697f3fda-1049-42ad-8876-19f36ced92ff",
+                        "current_version": False
+                    }
+                ]}
+
+    def view_template(self, context, data_dict):
+        return 'versions_view.html'
+
+    def form_template(self, context, data_dict):
+        return False

@@ -1,0 +1,60 @@
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+{# start test versioning #}
+<div class="module-content">
+  <table class="table table-striped table-bordered table-condensed" data-module="table-toggle-more">
+    <thead>
+      <tr>
+        <th scope="col" style="font-size: 14px; font-weight: normal; width: 65px;">{{ _('Current Version') }}</th>
+        <th scope="col" style="font-size: 14px; font-weight: normal; width: 62px;">{{ _('Version Number') }}</th>
+        <th scope="col" style="font-size: 14px; font-weight: normal;">{{ _('Name') }}</th>
+        <th scope="col" style="font-size: 14px; font-weight: normal;">{{ _('Version Notes') }}</th>
+        <th scope="col" style="font-size: 14px; font-weight: normal;">{{ _('Publish Date') }}</th>
+        <th scope="col" style="font-size: 14px; font-weight: normal;">{{ _('Created by') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for version in resource_version %}
+          <tr role="row">
+            <td style="text-align: center;">
+              {% if version.current_version %}
+                <i class="fa fa-check"></i>
+              {% endif %}
+            </td>
+            <td style="text-align: center;">{{version.version_number}}</td>
+            <td><a href="#">{{version.name}}</a></td>
+            <td id="td-{{loop.index}}"><span id="foo-{{loop.index}}" style="white-space: nowrap;
+              display: inline-block;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              width: 80%;
+              color: #222;"
+              >{{version.version_notes}}</span>
+              {% if version.version_notes|length > 26 %}
+                <b
+                class="caret"
+                style="color: #4885A7; position: absolute; margin-left: 20px; margin-top: 8px"
+                onclick="(function(){
+                  $('#td-{{loop.index}}').toggleClass('dropup');
+                  if( $('#foo-{{loop.index}}').css('white-space') == 'nowrap') {
+                    $('#foo-{{loop.index}}').css('white-space', 'normal');
+                  } else {
+                    $('#foo-{{loop.index}}').css('white-space', 'nowrap');
+                  }
+                })();"></b>
+            {% endif %}
+            </td>
+            <td>{{version.publish_date}}</td>
+            <td><a href="{{version.version_link}}">{{version.created_by}}</a></td>
+          </tr>
+      {% endfor %}
+  </table>
+</div>
+{# end test versioning #}
