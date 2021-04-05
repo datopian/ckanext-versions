@@ -145,12 +145,14 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                     'default_title': plugins.toolkit._('Versioning'),}
 
     def can_view(self, data_dict):
+        context = {'user': toolkit.c.user}
         resource = data_dict['resource']
-        resource['version'] = True # TODO - should remove it once the back-end is done
-        version = resource.get('version')
-        if version:
-            return True
-        return False
+        resource_id = resource.get('id')
+        response = action.resource_version_list(context, {'resource_id': resource_id})
+
+        if not response:
+            return False
+        return True
 
     def setup_template_variables(self, context, data_dict):
         return {'resource_version': [
