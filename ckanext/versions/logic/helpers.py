@@ -1,9 +1,11 @@
 from ckan import model
 from ckan.plugins import toolkit
+from datetime import datetime
 
 from ckanext.versions.lib.changes import (check_metadata_changes,
                                           check_resource_changes)
-
+from ckanext.versions.logic import action
+import json
 
 def url_for_version(package, version=None, **kwargs):
     """Get the URL for a package / resource related action, with potential
@@ -101,3 +103,18 @@ def get_license(license_id):
     '''
 
     return model.Package.get_license_register().get(license_id)
+
+def format_date(date):
+    '''
+    Format date to be e.g April 02, 2021 07:52PM
+    '''
+    return datetime.strptime(str(date), '%Y-%m-%d %H:%M:%S.%f').strftime("%B %d, %Y %I:%M%p%z")
+
+def get_version_list(context, data_dict):
+    """
+    Get list of versions using user context
+    """
+    resource = data_dict['resource']
+    resource_id = resource.get('id')
+    version_list = action.resource_version_list(context, {'resource_id': resource_id})
+    return json.loads(json.dumps((version_list)))

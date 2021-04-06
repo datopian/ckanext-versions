@@ -10,6 +10,8 @@ from ckanext.versions import cli
 from ckanext.versions.logic import action, auth, helpers, uploader
 from ckanext.versions.model import tables_exist
 
+from ckan.lib.helpers import resource_display_name
+
 UPLOAD_TS_FIELD = uploader.UPLOAD_TS_FIELD
 
 log = logging.getLogger(__name__)
@@ -76,6 +78,8 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'url_for_resource_version': helpers.url_for_resource_version,
             'dataset_version_has_link_resources': helpers.has_link_resources,
             'dataset_version_compare_pkg_dicts': helpers.compare_pkg_dicts,
+            'format_date': helpers.format_date,
+            'get_version_list': helpers.get_version_list,
         }
 
     # IUploader
@@ -146,35 +150,21 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     def can_view(self, data_dict):
         context = {'user': toolkit.c.user}
-        resource = data_dict['resource']
-        resource_id = resource.get('id')
-        response = action.resource_version_list(context, {'resource_id': resource_id})
 
-        if not response:
+        version_list = helpers.get_version_list(context, data_dict)
+
+        if not version_list:
             return False
         return True
 
-    def setup_template_variables(self, context, data_dict):
-        return {'resource_version': [
-                    {
-                        "name": "cars",
-                        "version_notes": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. ",
-                        "version_number": "2.0",
-                        "publish_date": "February 10, 2021 12:01 PM PST",
-                        "created_by": "Gilia Angell",
-                        "version_link": "https://localhost:5000/dataset/new-data/resource/697f3fda-1049-42ad-8876-19f36ced92ff",
-                        "current_version": True
-                    },
-                    {
-                        "name": "cars",
-                        "version_notes": "Lorem Ipsum is simply dum",
-                        "version_number": "1.0",
-                        "publish_date": "January 1, 2020 12:01 PM PST",
-                        "created_by": "Marty Hall",
-                        "version_link": "https://localhost:5000/dataset/new-data/resource/697f3fda-1049-42ad-8876-19f36ced92ff",
-                        "current_version": False
-                    }
-                ]}
+    def setup_template_variables(self,context, data_dict):
+        version_list = helpers.get_version_list(context, data_dict)
+        resource_name = resource_display_name(data_dict['resource'])
+
+        return {
+            'resource_version': version_list,
+            'resource_name': resource_name
+            }
 
     def view_template(self, context, data_dict):
         return 'versions_view.html'
