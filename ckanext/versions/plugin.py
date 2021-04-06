@@ -2,6 +2,7 @@
 import logging
 from datetime import datetime
 
+import json
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.lib.uploader import ALLOWED_UPLOAD_TYPES
@@ -79,7 +80,6 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'dataset_version_has_link_resources': helpers.has_link_resources,
             'dataset_version_compare_pkg_dicts': helpers.compare_pkg_dicts,
             'format_date': helpers.format_date,
-            'get_version_list': helpers.get_version_list,
         }
 
     # IUploader
@@ -150,15 +150,18 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
     def can_view(self, data_dict):
         context = {'user': toolkit.c.user}
-
-        version_list = helpers.get_version_list(context, data_dict)
+        resource = data_dict['resource']
+        resource_id = resource.get('id')
+        version_list =  json.loads(json.dumps((action.resource_version_list(context, {'resource_id': resource_id}))))
 
         if not version_list:
             return False
         return True
 
-    def setup_template_variables(self,context, data_dict):
-        version_list = helpers.get_version_list(context, data_dict)
+    def setup_template_variables(self, context, data_dict):
+        resource = data_dict['resource']
+        resource_id = resource.get('id')
+        version_list =  json.loads(json.dumps((action.resource_version_list(context, {'resource_id': resource_id}))))
         resource_name = resource_display_name(data_dict['resource'])
 
         return {
