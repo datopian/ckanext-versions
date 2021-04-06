@@ -40,7 +40,7 @@ integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQV
               {% if version.notes|length > 26 %}
                 <b
                 class="caret"
-                style="color: #4885A7; position: absolute; margin-left: 20px; margin-top: 8px"
+                style="color: #4885A7; position: absolute; margin-left: 20px; margin-top: 8px; cursor: pointer;"
                 onclick="(function(){
                   $('#td-{{loop.index}}').toggleClass('dropup');
                   if( $('#foo-{{loop.index}}').css('white-space') == 'nowrap') {
