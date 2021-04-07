@@ -19,7 +19,6 @@ class TestCreateResourceVersion(object):
 
         version = resource_version_create(
             get_context(user),{
-                'package_id': dataset['id'],
                 'resource_id': resource['id'],
                 'name': '1',
                 'notes': 'Version notes'
@@ -40,7 +39,6 @@ class TestCreateResourceVersion(object):
 
         version = resource_version_create(
             get_context(user), {
-                'package_id': dataset['id'],
                 'resource_id': resource['id'],
                 'name': '1',
                 'notes': 'Version notes'
@@ -50,7 +48,6 @@ class TestCreateResourceVersion(object):
         with pytest.raises(toolkit.ValidationError):
             resource_version_create(
                 get_context(user), {
-                    'package_id': dataset['id'],
                     'resource_id': resource['id'],
                     'name': '1',
                     'notes': 'Version notes'
@@ -62,7 +59,6 @@ class TestCreateResourceVersion(object):
         with pytest.raises(toolkit.ObjectNotFound) as e:
             resource_version_create(
                 get_context(user), {
-                    'package_id': 'fake-dataset-id',
                     'resource_id': 'fake-resource-id',
                     'name': '1',
                     'notes': 'Version notes'
@@ -74,7 +70,6 @@ class TestCreateResourceVersion(object):
         with pytest.raises(toolkit.ObjectNotFound) as e:
             resource_version_create(
                 get_context(user), {
-                    'package_id': dataset['id'],
                     'resource_id': 'fake-resource-id',
                     'name': '1',
                     'notes': 'Version notes'
@@ -90,7 +85,6 @@ class TestCreateResourceVersion(object):
         with pytest.raises(toolkit.ValidationError):
             resource_version_create(
                 get_context(user), {
-                    'package_id': dataset['id'],
                     'resource_id': resource['id'],
                     'notes': 'Version notes'
                 }
@@ -107,7 +101,6 @@ class TestCreateResourceVersion(object):
 
         version = resource_version_create(
             context, {
-                'package_id': dataset['id'],
                 'resource_id': resource['id'],
                 'name': '1',
                 'notes': 'Version notes'
@@ -128,7 +121,6 @@ class TestCreateResourceVersion(object):
 
         version = resource_version_create(
             context, {
-                'package_id': dataset['id'],
                 'resource_id': resource['id'],
                 'name': '2'
             }
@@ -157,7 +149,6 @@ class TestResourceVersionList(object):
 
         resource_version_create(
             context, {
-                'package_id': dataset['id'],
                 'resource_id': resource['id'],
                 'name': '1'
             }
@@ -169,7 +160,6 @@ class TestResourceVersionList(object):
 
         resource_version_create(
             context, {
-                'package_id': dataset['id'],
                 'resource_id': resource['id'],
                 'name': '2',
                 'notes': 'Notes for version 2'
@@ -205,7 +195,6 @@ class TestResourceVersionList(object):
 
         resource_version_create(
             context, {
-                'package_id': dataset['id'],
                 'resource_id': resource['id'],
                 'name': '1'
             }
@@ -217,7 +206,6 @@ class TestResourceVersionList(object):
 
         resource_version_create(
             context, {
-                'package_id': dataset['id'],
                 'resource_id': resource['id'],
                 'name': '2',
                 'notes': 'Notes for version 2'
@@ -246,7 +234,6 @@ class TestVersionShow(object):
 
         version = resource_version_create(
             context, {
-                'package_id': dataset['id'],
                 'resource_id': resource['id'],
                 'name': '1',
                 'notes': 'Version notes'
@@ -274,7 +261,6 @@ class TestVersionDelete(object):
 
         version = resource_version_create(
             context, {
-                'package_id': dataset['id'],
                 'resource_id': resource['id'],
                 'name': '1',
                 'notes': 'Version notes'
