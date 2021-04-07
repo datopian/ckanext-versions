@@ -21,7 +21,7 @@ integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQV
       </tr>
     </thead>
     <tbody>
-      {% for version in resource_version %}
+      {% for version in versions %}
           <tr role="row">
             <td style="text-align: center;">
               {% if version.current_version %}
@@ -29,7 +29,7 @@ integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQV
               {% endif %}
             </td>
             <td style="text-align: center;">{{ version.name }}</td>
-            <td><a href="{{h.url_for('resource.read', id=version.package_id, resource_id=version.resource_id, activity_id=version.activity_id)}}">{{ resource_name }}</a></td>
+            <td><a href="{{h.url_for('resource.read', id=version.package_id, resource_id=version.resource_id, activity_id=version.activity_id)}}">{{ resource.name }}</a></td>
             <td id="td-{{loop.index}}"><span id="foo-{{loop.index}}" style="white-space: nowrap;
               display: inline-block;
               overflow: hidden;

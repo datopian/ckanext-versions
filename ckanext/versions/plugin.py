@@ -11,8 +11,6 @@ from ckanext.versions import cli
 from ckanext.versions.logic import action, auth, helpers, uploader
 from ckanext.versions.model import tables_exist
 
-from ckan.lib.helpers import resource_display_name
-
 UPLOAD_TS_FIELD = uploader.UPLOAD_TS_FIELD
 
 log = logging.getLogger(__name__)
@@ -152,7 +150,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         context = {'user': toolkit.c.user}
         resource = data_dict['resource']
         resource_id = resource.get('id')
-        version_list =  json.loads(json.dumps((action.resource_version_list(context, {'resource_id': resource_id}))))
+        version_list =  action.resource_version_list(context, {'resource_id': resource_id})
 
         if not version_list:
             return False
@@ -161,12 +159,11 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def setup_template_variables(self, context, data_dict):
         resource = data_dict['resource']
         resource_id = resource.get('id')
-        version_list =  json.loads(json.dumps((action.resource_version_list(context, {'resource_id': resource_id}))))
-        resource_name = resource_display_name(data_dict['resource'])
+        version_list =  action.resource_version_list(context, {'resource_id': resource_id})
 
         return {
-            'resource_version': version_list,
-            'resource_name': resource_name
+            'versions': version_list,
+            'resource': resource
             }
 
     def view_template(self, context, data_dict):
