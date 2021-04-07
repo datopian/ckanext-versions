@@ -29,7 +29,7 @@ integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQV
               {% endif %}
             </td>
             <td style="text-align: center;">{{ version.name }}</td>
-            <td><a href="{{h.url_for('resource.read', id=version.package_id, resource_id=version.resource_id, activity_id=version.activity_id)}}">{{ resource.name }}</a></td>
+            <td><a target="_top" href="{{h.url_for('resource.read', id=version.package_id, resource_id=version.resource_id, activity_id=version.activity_id)}}">{{ resource.name }}</a></td>
             <td id="td-{{loop.index}}"><span id="foo-{{loop.index}}" style="white-space: nowrap;
               display: inline-block;
               overflow: hidden;
@@ -52,7 +52,7 @@ integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQV
             {% endif %}
             </td>
             <td>{{ h.format_date(version.created) }}</td>
-            <td><a href="{{version.version_link}}">{{ h.linked_user(version.creator_user_id) }}</a></td>
+            <td>{{ h.linked_user(version.creator_user_id) }}</td>
           </tr>
       {% endfor %}
   </table>
