@@ -2,6 +2,7 @@
 import logging
 from datetime import datetime
 
+import json
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.lib.uploader import ALLOWED_UPLOAD_TYPES
@@ -24,6 +25,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IDatasetForm, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IClick)
+    plugins.implements(plugins.IResourceView)
 
     # IClick
 
@@ -75,6 +77,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'url_for_resource_version': helpers.url_for_resource_version,
             'dataset_version_has_link_resources': helpers.has_link_resources,
             'dataset_version_compare_pkg_dicts': helpers.compare_pkg_dicts,
+            'format_date': helpers.format_date,
         }
 
     # IUploader
@@ -135,3 +138,36 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         elif current and UPLOAD_TS_FIELD in current:
             data_dict[UPLOAD_TS_FIELD] = current[UPLOAD_TS_FIELD]
         return data_dict
+
+    #IResourceView
+    def info(self):
+            return {'name': 'versions_view',
+                    'title': 'Versioning',
+                    'icon': 'table',
+                    'default_title': plugins.toolkit._('Versioning'),}
+
+    def can_view(self, data_dict):
+        context = {'user': toolkit.c.user}
+        resource = data_dict['resource']
+        resource_id = resource.get('id')
+        version_list =  action.resource_version_list(context, {'resource_id': resource_id})
+
+        if not version_list:
+            return False
+        return True
+
+    def setup_template_variables(self, context, data_dict):
+        resource = data_dict['resource']
+        resource_id = resource.get('id')
+        version_list =  action.resource_version_list(context, {'resource_id': resource_id})
+
+        return {
+            'versions': version_list,
+            'resource': resource
+            }
+
+    def view_template(self, context, data_dict):
+        return 'versions_view.html'
+
+    def form_template(self, context, data_dict):
+        return False
