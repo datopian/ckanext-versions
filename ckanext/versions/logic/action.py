@@ -71,7 +71,7 @@ def resource_version_create(context, data_dict):
     Currently you must have editor level access on the dataset
     to create a version.
 
-    :param package_id: the id of the dataset
+    :param package_id: the id or name of the dataset
     :type package_id: string
     :param resource_id: the id of the resource
     :type resource_id: string
@@ -87,10 +87,10 @@ def resource_version_create(context, data_dict):
 
     model = context.get('model', core_model)
 
-    package_id, resource_id, name = toolkit.get_or_bust(
+    package_id_or_name, resource_id, name = toolkit.get_or_bust(
         data_dict, ['package_id', 'resource_id', 'name'])
 
-    package = model.Package.get(package_id)
+    package = model.Package.get(package_id_or_name)
     if not package:
         raise toolkit.ObjectNotFound('Dataset not found')
 
@@ -100,12 +100,12 @@ def resource_version_create(context, data_dict):
 
     session = model.meta.create_local_session()
     activity = session.query(model.Activity). \
-        filter_by(object_id=data_dict['package_id']).\
+        filter_by(object_id=package.id). \
         order_by(model.Activity.timestamp.desc()).\
         first()
 
     version = Version(
-        package_id=data_dict['package_id'],
+        package_id=package.id,
         resource_id=data_dict['resource_id'],
         activity_id=activity.id,
         name=data_dict.get('name', None),
