@@ -92,8 +92,7 @@ def resource_version_create(context, data_dict):
     if not resource:
         raise toolkit.ObjectNotFound('Resource not found')
 
-    session = model.meta.create_local_session()
-    activity = session.query(model.Activity). \
+    activity = model.Session.query(model.Activity). \
         filter_by(object_id=resource.package_id). \
         order_by(model.Activity.timestamp.desc()).\
         first()
@@ -107,13 +106,13 @@ def resource_version_create(context, data_dict):
         created=datetime.utcnow(),
         creator_user_id=context['auth_user_obj'].id)
 
-    session.add(version)
+    model.Session.add(version)
 
     try:
-        session.commit()
+        model.Session.commit()
     except IntegrityError as e:
         #  Name not unique, or foreign key constraint violated
-        session.rollback()
+        model.Session.rollback()
         log.debug("DB integrity error (version name not unique?): %s", e)
         raise toolkit.ValidationError(
             'Version names must be unique per resource'
