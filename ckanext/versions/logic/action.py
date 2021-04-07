@@ -134,8 +134,6 @@ def resource_version_create(context, data_dict):
 def resource_version_list(context, data_dict):
     """List versions of a given resource
 
-    :param package_id: the id the dataset
-    :type package_id: string
     :param resource_id: the id the resource
     :type resource_id: string
     :returns: list of matched versions
@@ -147,7 +145,8 @@ def resource_version_list(context, data_dict):
     if not resource:
         raise toolkit.ObjectNotFound('Resource not found')
 
-    toolkit.check_access('version_list', context, data_dict)
+    toolkit.check_access('version_list', context,
+                         {"package_id": resource.package_id})
 
     versions = model.Session.query(Version).\
         filter(Version.resource_id == resource.id).\
@@ -162,8 +161,6 @@ def resource_version_list(context, data_dict):
 def version_delete(context, data_dict):
     """Delete a specific version
 
-    :param package_id: the id the dataset
-    :type package_id: string
     :param version_id: the id of the version
     :type version_id: string
     :returns: The matched version
@@ -188,19 +185,19 @@ def version_delete(context, data_dict):
 def version_show(context, data_dict):
     """Show a specific version object
 
-    :param package_id: the id the dataset
-    :type package_id: string
     :param version_id: the id of the version
     :type version_id: string
     :returns: the version dictionary
     :rtype: dict
     """
-    toolkit.check_access('version_show', context, data_dict)
     model = context.get('model', core_model)
     version_id = toolkit.get_or_bust(data_dict, ['version_id'])
     version = model.Session.query(Version).get(version_id)
     if not version:
         raise toolkit.ObjectNotFound('Version not found')
+
+    toolkit.check_access('version_delete', context,
+                         {"package_id": version.package_id})
 
     return version.as_dict()
 
@@ -208,8 +205,6 @@ def version_show(context, data_dict):
 def resource_version_current(context, data_dict):
     ''' Show the current version for a resource
 
-    :param package_id: the id the dataset
-    :type package_id: string
     :param resource_id: the if of the resource
     :type resource_id: string
     :returns the version dictionary
