@@ -77,7 +77,6 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'url_for_resource_version': helpers.url_for_resource_version,
             'dataset_version_has_link_resources': helpers.has_link_resources,
             'dataset_version_compare_pkg_dicts': helpers.compare_pkg_dicts,
-            'format_date': helpers.format_date,
         }
 
     # IUploader
@@ -144,7 +143,8 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             return {'name': 'versions_view',
                     'title': 'Versioning',
                     'icon': 'table',
-                    'default_title': plugins.toolkit._('Versioning'),}
+                    'default_title': plugins.toolkit._('Versioning'),
+                    'iframed': False}
 
     def can_view(self, data_dict):
         context = {'user': toolkit.c.user}
