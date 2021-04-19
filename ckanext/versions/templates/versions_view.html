@@ -51,7 +51,7 @@ integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQV
                 })();"></b>
             {% endif %}
             </td>
-            <td>{{ h.format_date(version.created) }}</td>
+            <td>{% snippet 'snippets/local_friendly_datetime.html', datetime_obj=version.created %}</td>
             <td>{{ h.linked_user(version.creator_user_id) }}</td>
           </tr>
       {% endfor %}
