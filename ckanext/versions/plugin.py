@@ -1,5 +1,4 @@
 # encoding: utf-8
-import json
 import logging
 from datetime import datetime
 
@@ -138,19 +137,21 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             data_dict[UPLOAD_TS_FIELD] = current[UPLOAD_TS_FIELD]
         return data_dict
 
-    #IResourceView
+    # IResourceView
     def info(self):
-            return {'name': 'versions_view',
-                    'title': 'Versioning',
-                    'icon': 'table',
-                    'default_title': plugins.toolkit._('Versioning'),
-                    'iframed': False}
+        return {'name': 'versions_view',
+                'title': 'Versioning',
+                'icon': 'table',
+                'default_title': plugins.toolkit._('Versioning'),
+                'iframed': False}
 
     def can_view(self, data_dict):
         context = {'user': toolkit.c.user}
         resource = data_dict['resource']
         resource_id = resource.get('id')
-        version_list =  action.resource_version_list(context, {'resource_id': resource_id})
+        version_list = action.resource_version_list(
+            context, {'resource_id': resource_id}
+            )
 
         if not version_list:
             return False
@@ -159,7 +160,9 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def setup_template_variables(self, context, data_dict):
         resource = data_dict['resource']
         resource_id = resource.get('id')
-        version_list =  action.resource_version_list(context, {'resource_id': resource_id})
+        version_list = action.resource_version_list(
+            context, {'resource_id': resource_id}
+            )
 
         return {
             'versions': version_list,

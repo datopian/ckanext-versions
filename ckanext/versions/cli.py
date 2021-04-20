@@ -12,6 +12,7 @@ from ckanext.versions.model import Version, create_tables, tables_exist
 def _log():
     return logging.getLogger(__name__)
 
+
 @click.group()
 def versions():
     '''versions commands
@@ -60,7 +61,9 @@ def create_initial_version(ctx, name, notes):
         click.secho('All resources contains at least one version.', fg="green")
         ctx.exit(1)
 
-    click.secho("Creating initial version for {} resources.".format(len(resources)))
+    click.secho(
+        "Creating initial version for {} resources.".format(len(resources))
+        )
     for resource in resources:
         _create_resource_initial_version(resource, name, notes)
     click.secho("Initial versions created succesfully.")
