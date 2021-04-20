@@ -27,7 +27,11 @@ def version_list(context, data_dict):
 
     This is permitted only to users who can view the dataset
     """
-    return is_authorized('package_show', context, {"id": data_dict['package_id']})
+    return is_authorized(
+        'package_show',
+        context,
+        {"id": data_dict['package_id']}
+        )
 
 
 @toolkit.auth_allow_anonymous_access
@@ -36,4 +40,8 @@ def version_show(context, data_dict):
 
     This is permitted only to users who can view the dataset
     """
-    return is_authorized('package_show', context, {"id": data_dict['package_id']})
+    return is_authorized(
+        'package_show',
+        context,
+        {"id": data_dict['package_id']}
+        )

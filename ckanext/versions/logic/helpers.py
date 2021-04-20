@@ -1,9 +1,9 @@
 from ckan import model
 from ckan.plugins import toolkit
-from datetime import datetime
 
 from ckanext.versions.lib.changes import (check_metadata_changes,
                                           check_resource_changes)
+
 
 def url_for_version(package, version=None, **kwargs):
     """Get the URL for a package / resource related action, with potential
