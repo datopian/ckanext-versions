@@ -101,10 +101,3 @@ def get_license(license_id):
     '''
 
     return model.Package.get_license_register().get(license_id)
-
-def format_date(date):
-    '''
-    Format date to be e.g April 02, 2021 07:52PM
-    '''
-    return datetime.strptime(str(date), '%Y-%m-%d %H:%M:%S.%f').strftime("%B %d, %Y %I:%M%p%z")
-
