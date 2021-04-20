@@ -69,7 +69,8 @@ def resource_version_create(context, data_dict):
     """Create a new version from the current dataset's revision
 
     Currently you must have editor level access on the dataset
-    to create a version.
+    to create a version. If no creator_user_id is passed as a parameter, the
+    logged user is going to be set as the version creator.
 
     :param resource_id: the id of the resource
     :type resource_id: string
@@ -77,16 +78,21 @@ def resource_version_create(context, data_dict):
     :type name: string
     :param notes: A description for the version
     :type notes: string
+    :param creator_user_id: Optional. The id of the user creating the version.
+    :type creator_user_id: string
     :returns: the newly created version
     :rtype: dictionary
     """
     toolkit.check_access('version_create', context, data_dict)
-    assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     model = context.get('model', core_model)
 
     resource_id, name = toolkit.get_or_bust(
         data_dict, ['resource_id', 'name'])
+
+    creator_user_id = data_dict.get('creator_user_id', None)
+    if not creator_user_id:
+        creator_user_id = context['auth_user_obj'].id
 
     resource = model.Resource.get(resource_id)
     if not resource:
@@ -104,7 +110,7 @@ def resource_version_create(context, data_dict):
         name=data_dict.get('name', None),
         notes=data_dict.get('notes', None),
         created=datetime.utcnow(),
-        creator_user_id=context['auth_user_obj'].id)
+        creator_user_id=creator_user_id)
 
     model.Session.add(version)
 
