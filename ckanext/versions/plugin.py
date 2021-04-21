@@ -2,16 +2,12 @@
 import logging
 from datetime import datetime
 
-import json
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-from ckan.lib.uploader import ALLOWED_UPLOAD_TYPES
 
 from ckanext.versions import cli
-from ckanext.versions.logic import action, auth, helpers, uploader
+from ckanext.versions.logic import action, auth, helpers
 from ckanext.versions.model import tables_exist
-
-UPLOAD_TS_FIELD = uploader.UPLOAD_TS_FIELD
 
 log = logging.getLogger(__name__)
 
@@ -20,9 +16,6 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IAuthFunctions)
-    plugins.implements(plugins.IResourceController, inherit=True)
-    plugins.implements(plugins.IUploader, inherit=True)
-    plugins.implements(plugins.IDatasetForm, inherit=True)
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IClick)
     plugins.implements(plugins.IResourceView)
@@ -79,72 +72,14 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'dataset_version_compare_pkg_dicts': helpers.compare_pkg_dicts,
         }
 
-    # IUploader
+    # IResourceView
 
-    def get_resource_uploader(self, data_dict):
-        return uploader.get_uploader(self, data_dict)
-
-    # IDatasetForm
-
-    def update_package_schema(self):
-        schema = super(VersionsPlugin, self).update_package_schema()
-        schema['resources'].update(
-            {UPLOAD_TS_FIELD: [
-                toolkit.get_validator('ignore_missing'),
-                toolkit.get_converter('convert_to_extras')
-            ]}
-        )
-        return schema
-
-    def show_package_schema(self):
-        schema = super(VersionsPlugin, self).show_package_schema()
-        schema['resources'].update(
-            {UPLOAD_TS_FIELD: [
-                toolkit.get_converter('convert_from_extras'),
-                toolkit.get_validator('ignore_missing')
-            ]}
-        )
-        return schema
-
-    def is_fallback(self):
-        return False
-
-    def package_types(self):
-        return []
-
-    # IResourceController
-
-    def before_delete(self, context, resource, resources):
-        pass
-
-    def before_create(self, context, data_dict):
-        return self._set_upload_timestamp(data_dict)
-
-    def before_update(self, context, current, data_dict):
-        return self._set_upload_timestamp(data_dict, current)
-
-    def _set_upload_timestamp(self, data_dict, current=None):
-        """When creating or updating a resource, if it contains a file upload,
-        save the upload timestamp as a resource extra field
-        """
-        if isinstance(data_dict.get('upload'), ALLOWED_UPLOAD_TYPES):
-            ts = datetime.now().isoformat()
-            log.debug("Setting upload timestamp to %s=%s", UPLOAD_TS_FIELD, ts)
-            data_dict[UPLOAD_TS_FIELD] = ts
-        elif data_dict.get('clear_upload') and UPLOAD_TS_FIELD in data_dict:
-            log.debug("Clearing upload timestamp field")
-            del data_dict[UPLOAD_TS_FIELD]
-        elif current and UPLOAD_TS_FIELD in current:
-            data_dict[UPLOAD_TS_FIELD] = current[UPLOAD_TS_FIELD]
-        return data_dict
-
-    #IResourceView
     def info(self):
-            return {'name': 'versions_view',
-                    'title': 'Version history',
-                    'icon': 'table',
-                    'default_title': plugins.toolkit._('Version history'),
-                    'iframed': False}
+        return {'name': 'versions_view',
+                'title': 'Version history',
+                'icon': 'table',
+                'default_title': plugins.toolkit._('Version history'),
+                'iframed': False}
 
     def can_view(self, data_dict):
         context = {'user': toolkit.c.user}
