@@ -80,9 +80,6 @@ def resource_version_create(context, data_dict):
     :returns: the newly created version
     :rtype: dictionary
     """
-    toolkit.check_access('version_create', context, data_dict)
-    assert context.get('auth_user_obj')  # Should be here after `check_access`
-
     model = context.get('model', core_model)
 
     resource_id, name = toolkit.get_or_bust(
@@ -91,6 +88,10 @@ def resource_version_create(context, data_dict):
     resource = model.Resource.get(resource_id)
     if not resource:
         raise toolkit.ObjectNotFound('Resource not found')
+
+    toolkit.check_access('version_create', context,
+                         {"package_id": resource.package_id})
+    assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     activity = model.Session.query(model.Activity). \
         filter_by(object_id=resource.package_id). \
