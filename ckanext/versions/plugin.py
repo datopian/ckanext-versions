@@ -157,6 +157,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         return True
 
     def setup_template_variables(self, context, data_dict):
+        context = {'user': toolkit.c.user}
         resource = data_dict['resource']
         resource_id = resource.get('id')
         version_list =  action.resource_version_list(context, {'resource_id': resource_id})
