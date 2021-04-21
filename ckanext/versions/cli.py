@@ -19,7 +19,7 @@ def initdb(ctx):
     """
     if tables_exist():
         click.secho('Dataset versions tables already exist', fg="green")
-        ctx.exit(1)
+        ctx.exit(0)
 
     create_tables()
     click.secho('Dataset versions tables created', fg="green")
@@ -32,7 +32,7 @@ def cleandb(ctx):
     """
     if tables_exist():
         click.secho('Dataset versions tables already exist', fg="green")
-        ctx.exit(1)
+        ctx.exit(0)
 
     create_tables()
     click.secho('Dataset versions tables created', fg="green")
