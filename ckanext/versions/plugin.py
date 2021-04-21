@@ -143,7 +143,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             return {'name': 'versions_view',
                     'title': 'Versioning',
                     'icon': 'table',
-                    'default_title': plugins.toolkit._('Versioning'),
+                    'default_title': plugins.toolkit._('Version history'),
                     'iframed': False}
 
     def can_view(self, data_dict):
