@@ -1,6 +1,5 @@
 # encoding: utf-8
 import logging
-from datetime import datetime
 
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
@@ -74,7 +73,9 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         context = {'user': toolkit.c.user}
         resource = data_dict['resource']
         resource_id = resource.get('id')
-        version_list =  action.resource_version_list(context, {'resource_id': resource_id})
+        version_list = action.resource_version_list(context, {
+            'resource_id': resource_id}
+            )
 
         if not version_list:
             return False
@@ -84,7 +85,9 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         context = {'user': toolkit.c.user}
         resource = data_dict['resource']
         resource_id = resource.get('id')
-        version_list =  action.resource_version_list(context, {'resource_id': resource_id})
+        version_list = action.resource_version_list(context, {
+            'resource_id': resource_id}
+            )
 
         return {
             'versions': version_list,

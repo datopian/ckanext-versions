@@ -119,7 +119,11 @@ def resource_version_create(context, data_dict):
             'Version names must be unique per resource'
         )
 
-    log.info('Version "%s" created for resource %s', data_dict['name'], data_dict['resource_id'])
+    log.info(
+        'Version "%s" created for resource %s',
+        data_dict['name'],
+        data_dict['resource_id']
+        )
 
     return version.as_dict()
 

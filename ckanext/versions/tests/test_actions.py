@@ -14,11 +14,11 @@ class TestCreateResourceVersion(object):
 
     def test_resource_version_create(self):
         dataset = factories.Dataset()
-        resource = factories.Resource(package_id = dataset['id'])
+        resource = factories.Resource(package_id=dataset['id'])
         user = factories.Sysadmin()
 
         version = resource_version_create(
-            get_context(user),{
+            get_context(user), {
                 'resource_id': resource['id'],
                 'name': '1',
                 'notes': 'Version notes'
@@ -38,10 +38,10 @@ class TestCreateResourceVersion(object):
             users=[{'name': user['name'], 'capacity': 'editor'}]
         )
         dataset = factories.Dataset(owner_org=owner_org['id'])
-        resource = factories.Resource(package_id = dataset['id'])
+        resource = factories.Resource(package_id=dataset['id'])
 
         version = resource_version_create(
-            get_context(user),{
+            get_context(user), {
                 'resource_id': resource['id'],
                 'name': '1',
                 'notes': 'Version notes'
@@ -57,10 +57,10 @@ class TestCreateResourceVersion(object):
 
     def test_cannot_create_versions_with_same_name(self):
         dataset = factories.Dataset()
-        resource = factories.Resource(package_id = dataset['id'])
+        resource = factories.Resource(package_id=dataset['id'])
         user = factories.Sysadmin()
 
-        version = resource_version_create(
+        resource_version_create(
             get_context(user), {
                 'resource_id': resource['id'],
                 'name': '1',
@@ -89,7 +89,7 @@ class TestCreateResourceVersion(object):
             )
             assert e.msg == 'Dataset not found'
 
-        dataset = factories.Dataset()
+        factories.Dataset()
         with pytest.raises(toolkit.ObjectNotFound) as e:
             resource_version_create(
                 get_context(user), {
@@ -102,7 +102,7 @@ class TestCreateResourceVersion(object):
 
     def test_fails_if_not_name_provided(self):
         dataset = factories.Dataset()
-        resource = factories.Resource(package_id = dataset['id'])
+        resource = factories.Resource(package_id=dataset['id'])
         user = factories.Sysadmin()
 
         with pytest.raises(toolkit.ValidationError):
@@ -269,6 +269,7 @@ class TestVersionShow(object):
         assert result['name'] == '1'
         assert result['notes'] == 'Version notes'
         assert result['creator_user_id'] == user['id']
+
 
 @pytest.mark.usefixtures("clean_db", "versions_setup")
 class TestVersionDelete(object):
