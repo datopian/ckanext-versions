@@ -141,9 +141,9 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     #IResourceView
     def info(self):
             return {'name': 'versions_view',
-                    'title': 'Versioning',
+                    'title': 'Version history',
                     'icon': 'table',
-                    'default_title': plugins.toolkit._('Versioning'),
+                    'default_title': plugins.toolkit._('Version history'),
                     'iframed': False}
 
     def can_view(self, data_dict):
