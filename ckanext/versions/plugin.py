@@ -2,14 +2,12 @@
 import logging
 
 import ckan.plugins as plugins
-import ckan.model as model
 import ckan.plugins.toolkit as toolkit
 
+from ckanext.blob_storage.interfaces import IResourceDownloadHandler
 from ckanext.versions import cli
 from ckanext.versions.logic import action, auth
 from ckanext.versions.model import tables_exist
-
-from ckanext.blob_storage.interfaces import IResourceDownloadHandler
 
 log = logging.getLogger(__name__)
 
@@ -29,23 +27,14 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
 
         if activity_id:
             context = {
-                'model': model,
-                'session': model.Session,
                 'user': toolkit.g.user,
                 'auth_user_obj': toolkit.g.userobj
             }
-            activity = toolkit.get_action('activity_show')(
-                        context, {'id': activity_id, 'include_data': True})
-            package = activity['data']['package']
-            old_resource = None
-            for res in package['resources']:
-                if res['id'] == resource['id']:
-                    old_resource = res
+            old_resource = action.activity_resource_show(context, {
+                'activity_id': activity_id, 'resource_id': resource['is']
+            })
+            resource = old_resource
 
-            if not old_resource:
-                raise toolkit.NotFound
-            else:
-                return old_resource
         return resource
 
     # IClick

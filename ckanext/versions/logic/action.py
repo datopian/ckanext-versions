@@ -275,3 +275,33 @@ def _generate_diff(obj1, obj2, diff_type):
         raise toolkit.ValidationError('diff_type not recognized')
 
     return diff
+
+
+def activity_resource_show(context, data_dict):
+    ''' Returns a resource from the activity object.
+
+    :param activity_id: the id of the activity
+    :type activity_id: string
+    :param resource_id: the id of the resource
+    :type resource_id: string
+    :returns: The resource in the activity
+    :rtype: dict
+
+    '''
+    activity_id, resource_id = toolkit.get_or_bust(data_dict,
+        ['activity_id', 'resource_id']
+        )
+    context['model'] = core_model
+    package = toolkit.get_action('activity_data_show')(
+                context, {'id': activity_id, 'object_type': 'package'}
+                )
+    old_resource = None
+    for res in package['resources']:
+        if res['id'] == resource_id:
+            old_resource = res
+            break
+
+    if not old_resource:
+        raise toolkit.NotFound('Resource not found in the activity object.')
+
+    return old_resource

@@ -2,7 +2,8 @@ import pytest
 from ckan.plugins import toolkit
 from ckan.tests import factories
 
-from ckanext.versions.logic.action import (resource_version_create,
+from ckanext.versions.logic.action import (activity_resource_show,
+                                           resource_version_create,
                                            resource_version_current,
                                            resource_version_list,
                                            version_delete, version_show)
@@ -297,3 +298,60 @@ class TestVersionDelete(object):
 
         with pytest.raises(toolkit.ObjectNotFound):
             version_show(context, {'version_id': version['id']})
+
+
+@pytest.mark.usefixtures("clean_db", "versions_setup")
+class TestActivityActions(object):
+
+    def test_activity_resource_shows_correct_resource(self):
+        user = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': user['name'], 'capacity': 'editor'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        resource = factories.Resource(
+            package_id=dataset['id'],
+            name='First name'
+            )
+
+        context = get_context(user)
+
+        version = resource_version_create(
+            context, {
+                'resource_id': resource['id'],
+                'name': '1',
+                'notes': 'Version notes'
+            }
+        )
+
+        toolkit.get_action('resource_patch')(context, {
+            'id': resource['id'], 'name': 'Second name'
+        })
+
+        version_2 = resource_version_create(
+            context, {
+                'resource_id': resource['id'],
+                'name': '2',
+                'notes': 'Notes for version 2'
+            }
+        )
+
+        activity_resource = activity_resource_show(
+            context, {
+                'activity_id': version['activity_id'],
+                'resource_id': resource['id']
+            }
+        )
+
+        assert activity_resource
+        assert activity_resource['name'] == 'First name'
+
+        activity_resource_2 = activity_resource_show(
+            context, {
+                'activity_id': version_2['activity_id'],
+                'resource_id': resource['id']
+            }
+        )
+
+        assert activity_resource_2
+        assert activity_resource_2['name'] == 'Second name'
