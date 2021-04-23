@@ -58,10 +58,13 @@ pytest-ckan==0.0.12
     # via -r dev-requirements.in
 pytest-cov==2.7.1
     # via -r dev-requirements.in
+pytest-rerunfailures==9.1.1
+    # via -r dev-requirements.in
 pytest==6.2.3
     # via
     #   pytest-ckan
     #   pytest-cov
+    #   pytest-rerunfailures
 python-dateutil==2.8.1
     # via giftless-client
 pytz==2021.1
@@ -91,3 +94,6 @@ typing==3.7.4.3
     #   ckanext-blob-storage
 urllib3==1.26.4
     # via requests
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

@@ -2,5 +2,6 @@ isort==4.3.21
 flake8==3.7.8
 pytest-cov==2.7.1
 pytest-ckan
+pytest-rerunfailures==9.1.1
 -r https://raw.githubusercontent.com/datopian/ckanext-blob-storage/v0.7.2/requirements.in
 git+https://github.com/datopian/ckanext-blob-storage.git@v0.7.2#egg=ckanext-blob-storage
