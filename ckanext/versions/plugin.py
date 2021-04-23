@@ -31,7 +31,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
                 'auth_user_obj': toolkit.g.userobj
             }
             old_resource = action.activity_resource_show(context, {
-                'activity_id': activity_id, 'resource_id': resource['is']
+                'activity_id': activity_id, 'resource_id': resource['id']
             })
             resource = old_resource
 
