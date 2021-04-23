@@ -13,13 +13,16 @@ CKAN := ckan
 TEST_INI_PATH := ./test.ini
 CKAN_PATH := ../ckan
 
+TEST_PATH :=
+
 
 test:
 	$(PIP) install -r dev-requirements.txt
 	$(ISORT) -rc -df -c $(PACKAGE_DIR)
 	$(FLAKE8) $(PACKAGE_DIR)
-	$(CKAN) -c $(CKAN_PATH)/test-core.ini db init
+	$(CKAN) -c $(TEST_INI_PATH) db init
 	$(PYTEST) --ckan-ini=$(TEST_INI_PATH)  \
 		  -s \
 		  --cov=ckanext.versions \
-          ckanext/versions
+		  --disable-warnings \
+          ckanext/versions/tests/${TEST_PATH}
