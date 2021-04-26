@@ -212,6 +212,69 @@ def resource_version_current(context, data_dict):
     return version_list[0]
 
 
+def resource_history(context, data_dict):
+    ''' Get an array with all the versions of the resource.
+
+    In addition, each resource object in the array will contain an extra
+    field called version, containing the version dictionary corresponding to
+    that activity.
+
+    :param resource_id: the id of the resource
+    :type resource_id: string
+    :returns array of resources
+    :rtype array
+    '''
+    resource_id = toolkit.get_or_bust(data_dict, ['resource_id'])
+
+    versions_list = resource_version_list(
+        {'model': core_model, 'user': context['user']},
+        {'resource_id': resource_id}
+        )
+
+    result = []
+    for version in versions_list:
+            resource = activity_resource_show({},
+            {
+                'activity_id': version['activity_id'],
+                'resource_id': version['resource_id']
+            }
+            )
+            resource['version'] = version
+            result.append(resource)
+
+    return result
+
+
+def activity_resource_show(context, data_dict):
+    ''' Returns a resource from the activity object.
+
+    :param activity_id: the id of the activity
+    :type activity_id: string
+    :param resource_id: the id of the resource
+    :type resource_id: string
+    :returns: The resource in the activity
+    :rtype: dict
+    '''
+    activity_id, resource_id = toolkit.get_or_bust(data_dict,
+        ['activity_id', 'resource_id']
+        )
+
+    package = toolkit.get_action('activity_data_show')(
+                {'model': core_model},
+                {'id': activity_id, 'object_type': 'package'}
+                )
+    old_resource = None
+    for res in package['resources']:
+        if res['id'] == resource_id:
+            old_resource = res
+            break
+
+    if not old_resource:
+        raise toolkit.NotFound('Resource not found in the activity object.')
+
+    return old_resource
+
+
 def _get_resource_in_revision(context, data_dict, revision_id):
     """Get resource from a given revision
     """
@@ -275,3 +338,4 @@ def _generate_diff(obj1, obj2, diff_type):
         raise toolkit.ValidationError('diff_type not recognized')
 
     return diff
+
