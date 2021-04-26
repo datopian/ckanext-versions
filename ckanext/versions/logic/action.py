@@ -260,7 +260,7 @@ def activity_resource_show(context, data_dict):
         )
 
     package = toolkit.get_action('activity_data_show')(
-                {'model': core_model},
+                {'model': core_model, 'user': context['user']},
                 {'id': activity_id, 'object_type': 'package'}
                 )
     old_resource = None
