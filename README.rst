@@ -9,8 +9,8 @@ Internally, this extension will use CKAN's 2.9 activities to preserve
 old revisions of metadata, and ensure uploaded data resources are unique
 and do not replace or override each other as resources are modified.
 
-Although the extension has it's own Uploader this extensions it is designed to be
-used with `ckanext-blob-storage <https://github.com/datopian/ckanext-blob-storage>`_
+This extensions it is designed to be used with
+`ckanext-blob-storage <https://github.com/datopian/ckanext-blob-storage>`_
 
 As interface, this extension exposes a few new API actions described below. (no
 UI work yet)
