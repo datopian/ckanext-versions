@@ -233,7 +233,9 @@ def resource_history(context, data_dict):
 
     result = []
     for version in versions_list:
-            resource = activity_resource_show({},
+            resource = activity_resource_show({
+                'user': context['user']
+            },
             {
                 'activity_id': version['activity_id'],
                 'resource_id': version['resource_id']
