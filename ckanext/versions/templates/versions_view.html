@@ -13,7 +13,9 @@
       {% for resource in resource_history %}
           <tr role="row">
             <td style="text-align: center;">
+              {% if loop.index == 1 %}
                 <i class="fa fa-check"></i>
+              {% endif %}
             </td>
             <td style="text-align: center;">{{ resource.version.name }}</td>
             <td><a href="{{h.url_for('resource.read', id=resource.package_id, resource_id=resource.id, activity_id=resource.version.activity_id)}}">{{ resource.name }}</a></td>
