@@ -104,13 +104,11 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
         context = {'user': toolkit.c.user}
         resource = data_dict['resource']
         resource_id = resource.get('id')
-        version_list = action.resource_version_list(context, {
+        resource_history = action.resource_history(context, {
             'resource_id': resource_id}
             )
-
         return {
-            'versions': version_list,
-            'resource': resource
+            'resource_history': resource_history
             }
 
     def view_template(self, context, data_dict):

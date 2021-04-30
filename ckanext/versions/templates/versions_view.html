@@ -10,23 +10,23 @@
       </tr>
     </thead>
     <tbody>
-      {% for version in versions %}
+      {% for resource in resource_history %}
           <tr role="row">
             <td style="text-align: center;">
-              {% if version.current_version %}
+              {% if loop.index == 1 %}
                 <i class="fa fa-check"></i>
               {% endif %}
             </td>
-            <td style="text-align: center;">{{ version.name }}</td>
-            <td><a href="{{h.url_for('resource.read', id=version.package_id, resource_id=version.resource_id, activity_id=version.activity_id)}}">{{ resource.name }}</a></td>
+            <td style="text-align: center;">{{ resource.version.name }}</td>
+            <td><a href="{{h.url_for('resource.read', id=resource.package_id, resource_id=resource.id, activity_id=resource.version.activity_id)}}">{{ resource.name }}</a></td>
             <td id="td-{{loop.index}}"><span id="foo-{{loop.index}}" style="white-space: nowrap;
               display: inline-block;
               overflow: hidden;
               text-overflow: ellipsis;
               width: 80%;
               color: #222;"
-              >{{ version.notes }}</span>
-              {% if version.notes|length > 26 %}
+              >{{ resource.version.notes }}</span>
+              {% if resource.version.notes|length > 26 %}
                 <b
                 class="caret"
                 style="color: #4885A7; position: absolute; margin-left: 20px; margin-top: 8px; cursor: pointer;"
@@ -40,8 +40,8 @@
                 })();"></b>
             {% endif %}
             </td>
-            <td>{% snippet 'snippets/local_friendly_datetime.html', datetime_obj=version.created %}</td>
-            <td>{{ h.linked_user(version.creator_user_id) }}</td>
+            <td>{% snippet 'snippets/local_friendly_datetime.html', datetime_obj=resource.version.created %}</td>
+            <td>{{ h.linked_user(resource.version.creator_user_id) }}</td>
           </tr>
       {% endfor %}
   </table>
