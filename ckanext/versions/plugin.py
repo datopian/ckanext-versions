@@ -4,6 +4,7 @@ import logging
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
+from ckanext.blob_storage.interfaces import IResourceDownloadHandler
 from ckanext.versions import cli
 from ckanext.versions.logic import action, auth
 from ckanext.versions.model import tables_exist
@@ -17,6 +18,24 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(plugins.IClick)
     plugins.implements(plugins.IResourceView)
+    plugins.implements(IResourceDownloadHandler)
+
+    # IResourceDownloaderHandler
+
+    def pre_resource_download(self, resource, package):
+        activity_id = toolkit.request.params.get('activity_id', None)
+
+        if activity_id:
+            context = {
+                'user': toolkit.g.user,
+                'auth_user_obj': toolkit.g.userobj
+            }
+            old_resource = action.activity_resource_show(context, {
+                'activity_id': activity_id, 'resource_id': resource['id']
+            })
+            resource = old_resource
+
+        return resource
 
     # IClick
 
