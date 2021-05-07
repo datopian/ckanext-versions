@@ -93,7 +93,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             }
 
     def view_template(self, context, data_dict):
-        return 'versions_view.html'
+        return 'versions/versions_view.html'
 
     def form_template(self, context, data_dict):
         return False

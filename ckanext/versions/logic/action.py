@@ -194,7 +194,7 @@ def version_show(context, data_dict):
     if not version:
         raise toolkit.ObjectNotFound('Version not found')
 
-    toolkit.check_access('version_delete', context,
+    toolkit.check_access('version_show', context,
                          {"package_id": version.package_id})
 
     return version.as_dict()
