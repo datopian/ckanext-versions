@@ -1,6 +1,6 @@
 import pytest
 from ckan.plugins import toolkit
-from ckan.tests import factories
+from ckan.tests import factories, helpers
 
 from ckanext.versions.logic.action import (activity_resource_show,
                                            resource_version_create,
@@ -10,7 +10,7 @@ from ckanext.versions.logic.action import (activity_resource_show,
 from ckanext.versions.tests import get_context
 
 
-@pytest.mark.usefixtures("clean_db", "versions_setup")
+@pytest.mark.usefixtures('clean_db', 'versions_setup')
 class TestCreateResourceVersion(object):
 
     def test_resource_version_create(self):
@@ -159,7 +159,7 @@ class TestCreateResourceVersion(object):
         assert activity_resource['name'] == 'Second Name'
 
 
-@pytest.mark.usefixtures("clean_db", "versions_setup")
+@pytest.mark.usefixtures('clean_db', 'versions_setup')
 class TestResourceVersionList(object):
 
     def test_resource_version_list(self):
@@ -244,7 +244,7 @@ class TestResourceVersionList(object):
         assert current_version['notes'] == 'Notes for version 2'
 
 
-@pytest.mark.usefixtures("clean_db", "versions_setup")
+@pytest.mark.usefixtures('clean_db', 'versions_setup')
 class TestVersionShow(object):
 
     def test_version_show(self):
@@ -272,7 +272,7 @@ class TestVersionShow(object):
         assert result['creator_user_id'] == user['id']
 
 
-@pytest.mark.usefixtures("clean_db", "versions_setup")
+@pytest.mark.usefixtures('clean_db', 'versions_setup')
 class TestVersionDelete(object):
 
     def test_version_delete(self):
@@ -300,7 +300,7 @@ class TestVersionDelete(object):
             version_show(context, {'version_id': version['id']})
 
 
-@pytest.mark.usefixtures("clean_db", "versions_setup")
+@pytest.mark.usefixtures('clean_db', 'versions_setup')
 class TestActivityActions(object):
 
     def test_activity_resource_shows_correct_resource(self):
@@ -355,3 +355,65 @@ class TestActivityActions(object):
 
         assert activity_resource_2
         assert activity_resource_2['name'] == 'Second name'
+
+@pytest.mark.usefixtures('clean_db', 'versions_setup')
+class TestResourceView(object):
+    def test_resource_view_list_returns_versions_view_last(self):
+        user = factories.Sysadmin()
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org = org['id'])
+        resource = factories.Resource(
+            package_id=dataset['id']
+        )
+        image_view_dict = {
+            'resource_id': resource['id'],
+            'view_type': 'image_view',
+            'title': 'Image View',
+            'description': 'A nice image view',
+            'image_url': 'url',
+        }
+
+        versions_view_dict = {
+            'resource_id': resource['id'],
+            'view_type': 'versions_view',
+            'title': 'Versions View',
+            'description': 'A nice versions view',
+        }
+
+        versions_view = helpers.call_action('resource_view_create',**versions_view_dict)
+        image_view = helpers.call_action('resource_view_create', **image_view_dict)
+
+        resource_views = helpers.call_action('resource_view_list', id=resource['id'])
+
+        assert resource_views[0]['id'] == image_view['id']
+        assert resource_views[1]['id'] == versions_view['id']
+
+    def test_resource_view_list_returns_versions_view_last(self):
+        user = factories.Sysadmin()
+        org = factories.Organization()
+        dataset = factories.Dataset(owner_org = org['id'])
+        resource = factories.Resource(
+            package_id=dataset['id']
+        )
+        image_view_dict = {
+            'resource_id': resource['id'],
+            'view_type': 'image_view',
+            'title': 'Image View',
+            'description': 'A nice image view',
+            'image_url': 'url',
+        }
+
+        image_view_dict_2 = {
+            'resource_id': resource['id'],
+            'view_type': 'image_view',
+            'title': 'Image View 2',
+            'image_url': 'url',
+        }
+
+        image_view = helpers.call_action('resource_view_create',**image_view_dict)
+        image_view_2 = helpers.call_action('resource_view_create', **image_view_dict_2)
+
+        resource_views = helpers.call_action('resource_view_list', id=resource['id'])
+
+        assert resource_views[0]['id'] == image_view['id']
+        assert resource_views[1]['id'] == image_view_2['id']

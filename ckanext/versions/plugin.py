@@ -47,7 +47,8 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'resource_version_list': action.resource_version_list,
             'resource_version_current': action.resource_version_current,
             'version_show': action.version_show,
-            'version_delete': action.version_delete
+            'version_delete': action.version_delete,
+            'resource_view_list': action.resource_view_list,
         }
 
     # IAuthFunctions
