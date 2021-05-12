@@ -4,7 +4,7 @@ import logging
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
-from ckanext.versions import cli
+from ckanext.versions import cli, helpers
 from ckanext.versions.logic import action, auth
 from ckanext.versions.model import tables_exist
 
@@ -17,6 +17,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(plugins.IClick)
     plugins.implements(plugins.IResourceView)
+    plugins.implements(plugins.ITemplateHelpers)
 
     # IClick
 
@@ -60,6 +61,17 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'version_list': auth.version_list,
             'version_show': auth.version_show,
         }
+
+    # ITemplateHelpers
+
+    def get_helpers(self):
+        helper_functions = {
+            'versions_resources_list_with_current_version': helpers.resources_list_with_current_version,
+            'versions_resource_version_list': helpers.resource_version_list,
+            'versions_resource_version_from_activity_id': helpers.resource_version_from_activity_id,
+            'versions_resource_current_version': helpers.resource_current_version,
+        }
+        return helper_functions
 
     # IResourceView
 
