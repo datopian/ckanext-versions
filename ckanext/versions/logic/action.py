@@ -341,3 +341,17 @@ def _generate_diff(obj1, obj2, diff_type):
 
     return diff
 
+@toolkit.chained_action
+def resource_view_list(up_func, context, data_dict):
+    ''' Overrides core action to always return versions_view as the last view.
+    '''
+    resource_views = up_func(context, data_dict)
+
+    versions_views = []
+    for i, view in enumerate(resource_views):
+        if view['view_type'] == 'versions_view':
+            versions_views.append(resource_views.pop(i))
+
+    resource_views.extend(versions_views)
+
+    return resource_views
