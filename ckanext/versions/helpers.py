@@ -10,13 +10,13 @@ def resources_list_with_current_version(resources):
             'resource_id': resource['id']}
             )
         if versions_list:
-           resource['version'] = versions_list[0]['name']
-           resource['version_url'] = toolkit.url_for(
-               'resource.read',
-               id=versions_list[0]['package_id'],
-               resource_id=versions_list[0]['resource_id'],
-               activity_id=versions_list[0]['activity_id']
-               )
+            resource['version'] = versions_list[0]['name']
+            resource['version_url'] = toolkit.url_for(
+                'resource.read',
+                id=versions_list[0]['package_id'],
+                resource_id=versions_list[0]['resource_id'],
+                activity_id=versions_list[0]['activity_id']
+                )
     return resources
 
 
@@ -30,7 +30,7 @@ def resource_version_list(resource):
     return resource_version_list
 
 
-def resource_version_from_activity_id(resource, activity_id ):
+def resource_version_from_activity_id(resource, activity_id):
     '''Get the resource version filtering for the given activity_id.
 
     '''
@@ -52,7 +52,8 @@ def resource_current_version(resource):
             'resource_id': resource['id']}
             )
     if versions_list:
-        current_version = toolkit.get_action('resource_version_current')(context, {
-                'resource_id': resource['id']})
+        current_version = toolkit.get_action('resource_version_current')(
+            context, {'resource_id': resource['id']}
+            )
         return current_version
     return False

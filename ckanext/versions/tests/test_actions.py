@@ -260,8 +260,8 @@ class TestVersionShow(object):
                 'resource_id': resource['id'],
                 'name': '1',
                 'notes': 'Version notes'
-            }
-        )
+                }
+                )
 
         result = version_show(context, {'version_id': version['id']})
 
@@ -388,9 +388,8 @@ class TestActivityActions(object):
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
 class TestResourceView(object):
     def test_resource_view_list_returns_versions_view_last(self):
-        user = factories.Sysadmin()
         org = factories.Organization()
-        dataset = factories.Dataset(owner_org = org['id'])
+        dataset = factories.Dataset(owner_org=org['id'])
         resource = factories.Resource(
             package_id=dataset['id']
         )
@@ -409,7 +408,7 @@ class TestResourceView(object):
             'description': 'A nice versions view',
         }
 
-        versions_view = helpers.call_action('resource_view_create',**versions_view_dict)
+        versions_view = helpers.call_action('resource_view_create', **versions_view_dict)
         image_view = helpers.call_action('resource_view_create', **image_view_dict)
 
         resource_views = helpers.call_action('resource_view_list', id=resource['id'])
@@ -417,10 +416,9 @@ class TestResourceView(object):
         assert resource_views[0]['id'] == image_view['id']
         assert resource_views[1]['id'] == versions_view['id']
 
-    def test_resource_view_list_returns_versions_view_last(self):
-        user = factories.Sysadmin()
+    def test_resource_view_list_returns_default_order_if_no_versions_view(self):
         org = factories.Organization()
-        dataset = factories.Dataset(owner_org = org['id'])
+        dataset = factories.Dataset(owner_org=org['id'])
         resource = factories.Resource(
             package_id=dataset['id']
         )
@@ -439,7 +437,7 @@ class TestResourceView(object):
             'image_url': 'url',
         }
 
-        image_view = helpers.call_action('resource_view_create',**image_view_dict)
+        image_view = helpers.call_action('resource_view_create', **image_view_dict)
         image_view_2 = helpers.call_action('resource_view_create', **image_view_dict_2)
 
         resource_views = helpers.call_action('resource_view_list', id=resource['id'])

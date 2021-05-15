@@ -233,14 +233,13 @@ def resource_history(context, data_dict):
 
     result = []
     for version in versions_list:
-            resource = activity_resource_show({
-                'user': context['user']
-            },
-            {
-                'activity_id': version['activity_id'],
-                'resource_id': version['resource_id']
-            }
-            )
+            resource = activity_resource_show(
+                {'user': context['user']},
+                {
+                    'activity_id': version['activity_id'],
+                    'resource_id': version['resource_id']
+                }
+                )
             resource['version'] = version
             result.append(resource)
 
@@ -257,7 +256,8 @@ def activity_resource_show(context, data_dict):
     :returns: The resource in the activity
     :rtype: dict
     '''
-    activity_id, resource_id = toolkit.get_or_bust(data_dict,
+    activity_id, resource_id = toolkit.get_or_bust(
+        data_dict,
         ['activity_id', 'resource_id']
         )
 
@@ -340,6 +340,7 @@ def _generate_diff(obj1, obj2, diff_type):
         raise toolkit.ValidationError('diff_type not recognized')
 
     return diff
+
 
 @toolkit.chained_action
 def resource_view_list(up_func, context, data_dict):
