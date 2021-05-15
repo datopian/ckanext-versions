@@ -111,7 +111,9 @@ version_delete::
 Download Endpoint
 ------------
 
-`/dataset/<dataset_id>/resource/<resource_id>/v/<version_name>/download/`
+To download the file for a specific version::
+
+    /dataset/<dataset_id>/resource/<resource_id>/v/<version_name>/download/
 
 This extension also has a specific endpoint to download the file in previous
 versions (only if the storage layer supports it). Internally it redirects to core
