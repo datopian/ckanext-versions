@@ -7,6 +7,7 @@ import ckan.plugins.toolkit as toolkit
 from ckanext.versions import cli, helpers
 from ckanext.versions.logic import action, auth
 from ckanext.versions.model import tables_exist
+from ckanext.versions.blueprints import blueprint
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +19,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IClick)
     plugins.implements(plugins.IResourceView)
     plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.IBlueprint)
 
     # IClick
 
@@ -72,6 +74,10 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'versions_resource_current_version': helpers.resource_current_version,
         }
         return helper_functions
+
+    # IBlueprints
+    def get_blueprint(self):
+        return blueprint
 
     # IResourceView
 

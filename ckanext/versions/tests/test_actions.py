@@ -3,6 +3,7 @@ from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
 
 from ckanext.versions.logic.action import (activity_resource_show,
+                                           get_activity_id_from_resource_version_name,
                                            resource_version_create,
                                            resource_version_current,
                                            resource_version_list,
@@ -355,6 +356,36 @@ class TestActivityActions(object):
 
         assert activity_resource_2
         assert activity_resource_2['name'] == 'Second name'
+
+    def test_get_activity_id_from_resource_version_name(self):
+        user = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': user['name'], 'capacity': 'editor'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        resource = factories.Resource(
+            package_id=dataset['id'],
+            name='First name'
+            )
+
+        context = get_context(user)
+
+        version = resource_version_create(
+            context, {
+                'resource_id': resource['id'],
+                'name': '1',
+                'notes': 'Version notes'
+            }
+        )
+        expected_activity_id = version['activity_id']
+
+        activity_id = get_activity_id_from_resource_version_name(
+            context,
+            {'resource_id': resource['id'], 'version_name': version['name']}
+        )
+
+        assert expected_activity_id == activity_id
+
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
 class TestResourceView(object):

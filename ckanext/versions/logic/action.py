@@ -358,3 +358,24 @@ def resource_view_list(up_func, context, data_dict):
     resource_views.extend(versions_views)
 
     return resource_views
+
+
+def get_activity_id_from_resource_version_name(context, data_dict):
+    ''' Returns the activity_id for the resource version
+
+    :param resource_id: the id of the resource
+    :type resource_id: string
+    :param version: the name of the version
+    :type version: string
+    :returns: The activity_id of the version
+    :rtype: string
+
+    '''
+    version_name = data_dict.get('version_name')
+    version_list = resource_version_list(context, data_dict)
+
+    for version in version_list:
+        if version['name'] == version_name:
+            return version['activity_id']
+
+    raise toolkit.NotFound('Version not found in the resource.')
