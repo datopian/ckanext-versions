@@ -19,7 +19,7 @@ UI work yet)
 API Endpoints
 ------------
 
-resource_version_create:
+resource_version_create::
 
     curl -X POST -H "Authorization: $API_KEY" \
                     -H "Content-Type: application/json;charset=utf-8"
@@ -40,7 +40,7 @@ resource_version_create:
         }
     }
 
-resource_version_list:
+resource_version_list::
 
     curl -X POST -H "Authorization: $API_KEY"
                  -H "Content-Type: application/json;charset=utf-8"
@@ -73,7 +73,7 @@ resource_version_list:
       ]
     }
 
-version_show:
+version_show::
 
     curl -X POST -H "Authorization: $API_KEY"
                  -H "Content-Type: application/json;charset=utf-8"
@@ -94,7 +94,7 @@ version_show:
       }
     }
 
-version_delete:
+version_delete::
 
     curl -X POST -H "Authorization: $API_KEY"
                  -H "Content-Type: application/json;charset=utf-8"
