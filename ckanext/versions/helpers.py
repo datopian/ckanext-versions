@@ -1,5 +1,6 @@
 from ckan.plugins import toolkit
 
+
 def resources_list_with_current_version(resources):
     '''Get the resource list and with name and url of the latest version.
     '''

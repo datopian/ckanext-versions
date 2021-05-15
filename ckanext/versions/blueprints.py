@@ -1,7 +1,6 @@
-from flask import Blueprint
-
 from ckan import model
 from ckan.plugins import toolkit
+from flask import Blueprint
 
 from ckanext.versions.logic import action
 

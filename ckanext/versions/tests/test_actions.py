@@ -2,12 +2,10 @@ import pytest
 from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
 
-from ckanext.versions.logic.action import (activity_resource_show,
-                                           get_activity_id_from_resource_version_name,
-                                           resource_version_create,
-                                           resource_version_current,
-                                           resource_version_list,
-                                           version_delete, version_show)
+from ckanext.versions.logic.action import (
+    activity_resource_show, get_activity_id_from_resource_version_name,
+    resource_version_create, resource_version_current, resource_version_list,
+    version_delete, version_show)
 from ckanext.versions.tests import get_context
 
 
