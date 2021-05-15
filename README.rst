@@ -9,11 +9,117 @@ Internally, this extension will use CKAN's 2.9 activities to preserve
 old revisions of metadata, and ensure uploaded data resources are unique
 and do not replace or override each other as resources are modified.
 
-Although the extension has it's own Uploader this extensions it is designed to be
-used with `ckanext-blob-storage <https://github.com/datopian/ckanext-blob-storage>`_
+This extension is designed to be used with
+`ckanext-blob-storage <https://github.com/datopian/ckanext-blob-storage>`_
 
 As interface, this extension exposes a few new API actions described below. (no
 UI work yet)
+
+------------
+API Endpoints
+------------
+
+resource_version_create:
+
+    curl -X POST -H "Authorization: $API_KEY" \
+                    -H "Content-Type: application/json;charset=utf-8"
+                    -d '{"resource_id": "9509ca60-a113-4d3b-8afa-83172b87368a", "name":"v1.0", "notes": "First Version."}'
+                    -k "http://ckan:5000/api/action/resource_version_create"
+    {
+    "help": "http://ckan:5000/api/3/action/help_show?name=resource_version_create",
+    "success": true,
+    "result": {
+        "id": "7eab640a-546a-4be1-97bf-9c7aa7a543ed",
+        "package_id": "9a2ca5e4-1018-479d-8365-9e2f54c69d26",
+        "resource_id": "9509ca60-a113-4d3b-8afa-83172b87368a",
+        "activity_id": "2efbf349-5c66-4d4a-8c22-8dc31db7453a",
+        "name": "v1.0",
+        "notes": "First Version.",
+        "creator_user_id": "62f05721-fb2f-453f-9816-702f9c9f76c6",
+        "created": "2021-05-15 21:01:30.980231"
+        }
+    }
+
+resource_version_list:
+
+    curl -X POST -H "Authorization: $API_KEY"
+                 -H "Content-Type: application/json;charset=utf-8"
+                 -d '{"resource_id": "9509ca60-a113-4d3b-8afa-83172b87368a"}'
+                 -k "http://ckan:5000/api/action/resource_version_list"
+    {
+    "help": "http://ckan:5000/api/3/action/help_show?name=resource_version_list",
+    "success": true,
+    "result": [
+        {
+        "id": "49a30927-d072-46c5-9602-f6388dfaf9c1",
+        "package_id": "9a2ca5e4-1018-479d-8365-9e2f54c69d26",
+        "resource_id": "9509ca60-a113-4d3b-8afa-83172b87368a",
+        "activity_id": "2efbf349-5c66-4d4a-8c22-8dc31db7453a",
+        "name": "v2.0",
+        "notes": "Second Version.",
+        "creator_user_id": "62f05721-fb2f-453f-9816-702f9c9f76c6",
+        "created": "2021-05-15 21:10:57.069277"
+        },
+        {
+        "id": "7eab640a-546a-4be1-97bf-9c7aa7a543ed",
+        "package_id": "9a2ca5e4-1018-479d-8365-9e2f54c69d26",
+        "resource_id": "9509ca60-a113-4d3b-8afa-83172b87368a",
+        "activity_id": "2efbf349-5c66-4d4a-8c22-8dc31db7453a",
+        "name": "v1.0",
+        "notes": "First Version.",
+        "creator_user_id": "62f05721-fb2f-453f-9816-702f9c9f76c6",
+        "created": "2021-05-15 21:01:30.980231"
+        }
+      ]
+    }
+
+version_show:
+
+    curl -X POST -H "Authorization: $API_KEY"
+                 -H "Content-Type: application/json;charset=utf-8"
+                 -d '{"version_id": "7eab640a-546a-4be1-97bf-9c7aa7a543ed"}'
+                 -k "http://ckan:5000/api/action/version_show"
+    {
+    "help": "http://ckan:5000/api/3/action/help_show?name=version_show",
+    "success": true,
+    "result": {
+        "id": "7eab640a-546a-4be1-97bf-9c7aa7a543ed",
+        "package_id": "9a2ca5e4-1018-479d-8365-9e2f54c69d26",
+        "resource_id": "9509ca60-a113-4d3b-8afa-83172b87368a",
+        "activity_id": "2efbf349-5c66-4d4a-8c22-8dc31db7453a",
+        "name": "v1.0",
+        "notes": "First Version.",
+        "creator_user_id": "62f05721-fb2f-453f-9816-702f9c9f76c6",
+        "created": "2021-05-15 21:01:30.980231"
+      }
+    }
+
+version_delete:
+
+    curl -X POST -H "Authorization: $API_KEY"
+                 -H "Content-Type: application/json;charset=utf-8"
+                 -d '{"version_id": "7eab640a-546a-4be1-97bf-9c7aa7a543ed"}'
+                 -k "http://ckan:5000/api/action/version_delete"
+    {
+    "help": "http://ckan:5000/api/3/action/help_show?name=version_delete",
+    "success": true,
+    "result": null
+    }
+
+
+------------
+Download Endpoint
+------------
+
+`/dataset/<dataset_id>/resource/<resource_id>/v/<version_name>/download/`
+
+This extension also has a specific endpoint to download the file in previous
+versions (only if the storage layer supports it). Internally it redirects to core
+CKAN download endpoint with an extra query parameter for the activity_id.
+
+Currently it works when using with `ckanext-blob-storage <https://github.com/datopian/ckanext-blob-storage>`_
+but any other storage layer with support for activity_id can be used as well.
+
 
 ------------
 Requirements

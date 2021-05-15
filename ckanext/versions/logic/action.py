@@ -66,7 +66,7 @@ def version_update(context, data_dict):
 
 
 def resource_version_create(context, data_dict):
-    """Create a new version from the current dataset's revision
+    """Create a new version from the current dataset's activity_id
 
     Currently you must have editor level access on the dataset
     to create a version.
@@ -75,7 +75,7 @@ def resource_version_create(context, data_dict):
     :type resource_id: string
     :param name: A short name for the version
     :type name: string
-    :param notes: A description for the version
+    :param notes optional: A description for the version
     :type notes: string
     :returns: the newly created version
     :rtype: dictionary
@@ -102,7 +102,7 @@ def resource_version_create(context, data_dict):
         package_id=resource.package_id,
         resource_id=data_dict['resource_id'],
         activity_id=activity.id,
-        name=data_dict.get('name', None),
+        name=name,
         notes=data_dict.get('notes', None),
         created=datetime.utcnow(),
         creator_user_id=context['auth_user_obj'].id)
