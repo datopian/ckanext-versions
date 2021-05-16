@@ -57,3 +57,24 @@ def resource_current_version(resource):
             )
         return current_version
     return False
+
+
+def download_url(resource_url, version_name):
+    '''Returns a url to download the specific version of the resource.
+
+    This method is to be used in templates, it takes the default download URL
+    and edits it to point to the endpoint for the specific version of the
+    resource.
+    '''
+    site_url = toolkit.config.get("ckan.site_url")
+    if not resource_url.startswith(site_url):
+        return resource_url
+
+    base_resource_url, filename = resource_url.split("/download/")
+    url = "{}/v/{}/download/{}".format(
+        base_resource_url,
+        version_name,
+        filename
+        )
+
+    return url
