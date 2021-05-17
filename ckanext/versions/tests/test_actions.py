@@ -2,11 +2,10 @@ import pytest
 from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
 
-from ckanext.versions.logic.action import (activity_resource_show,
-                                           resource_version_create,
-                                           resource_version_current,
-                                           resource_version_list,
-                                           version_delete, version_show)
+from ckanext.versions.logic.action import (
+    activity_resource_show, get_activity_id_from_resource_version_name,
+    resource_version_create, resource_version_current, resource_version_list,
+    version_delete, version_show)
 from ckanext.versions.tests import get_context
 
 
@@ -261,8 +260,8 @@ class TestVersionShow(object):
                 'resource_id': resource['id'],
                 'name': '1',
                 'notes': 'Version notes'
-            }
-        )
+                }
+                )
 
         result = version_show(context, {'version_id': version['id']})
 
@@ -356,12 +355,41 @@ class TestActivityActions(object):
         assert activity_resource_2
         assert activity_resource_2['name'] == 'Second name'
 
+    def test_get_activity_id_from_resource_version_name(self):
+        user = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': user['name'], 'capacity': 'editor'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        resource = factories.Resource(
+            package_id=dataset['id'],
+            name='First name'
+            )
+
+        context = get_context(user)
+
+        version = resource_version_create(
+            context, {
+                'resource_id': resource['id'],
+                'name': '1',
+                'notes': 'Version notes'
+            }
+        )
+        expected_activity_id = version['activity_id']
+
+        activity_id = get_activity_id_from_resource_version_name(
+            context,
+            {'resource_id': resource['id'], 'version_name': version['name']}
+        )
+
+        assert expected_activity_id == activity_id
+
+
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
 class TestResourceView(object):
     def test_resource_view_list_returns_versions_view_last(self):
-        user = factories.Sysadmin()
         org = factories.Organization()
-        dataset = factories.Dataset(owner_org = org['id'])
+        dataset = factories.Dataset(owner_org=org['id'])
         resource = factories.Resource(
             package_id=dataset['id']
         )
@@ -380,7 +408,7 @@ class TestResourceView(object):
             'description': 'A nice versions view',
         }
 
-        versions_view = helpers.call_action('resource_view_create',**versions_view_dict)
+        versions_view = helpers.call_action('resource_view_create', **versions_view_dict)
         image_view = helpers.call_action('resource_view_create', **image_view_dict)
 
         resource_views = helpers.call_action('resource_view_list', id=resource['id'])
@@ -388,10 +416,9 @@ class TestResourceView(object):
         assert resource_views[0]['id'] == image_view['id']
         assert resource_views[1]['id'] == versions_view['id']
 
-    def test_resource_view_list_returns_versions_view_last(self):
-        user = factories.Sysadmin()
+    def test_resource_view_list_returns_default_order_if_no_versions_view(self):
         org = factories.Organization()
-        dataset = factories.Dataset(owner_org = org['id'])
+        dataset = factories.Dataset(owner_org=org['id'])
         resource = factories.Resource(
             package_id=dataset['id']
         )
@@ -410,7 +437,7 @@ class TestResourceView(object):
             'image_url': 'url',
         }
 
-        image_view = helpers.call_action('resource_view_create',**image_view_dict)
+        image_view = helpers.call_action('resource_view_create', **image_view_dict)
         image_view_2 = helpers.call_action('resource_view_create', **image_view_dict_2)
 
         resource_views = helpers.call_action('resource_view_list', id=resource['id'])

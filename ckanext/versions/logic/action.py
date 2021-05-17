@@ -66,7 +66,7 @@ def version_update(context, data_dict):
 
 
 def resource_version_create(context, data_dict):
-    """Create a new version from the current dataset's revision
+    """Create a new version from the current dataset's activity_id
 
     Currently you must have editor level access on the dataset
     to create a version.
@@ -75,7 +75,7 @@ def resource_version_create(context, data_dict):
     :type resource_id: string
     :param name: A short name for the version
     :type name: string
-    :param notes: A description for the version
+    :param notes optional: A description for the version
     :type notes: string
     :returns: the newly created version
     :rtype: dictionary
@@ -102,7 +102,7 @@ def resource_version_create(context, data_dict):
         package_id=resource.package_id,
         resource_id=data_dict['resource_id'],
         activity_id=activity.id,
-        name=data_dict.get('name', None),
+        name=name,
         notes=data_dict.get('notes', None),
         created=datetime.utcnow(),
         creator_user_id=context['auth_user_obj'].id)
@@ -233,14 +233,13 @@ def resource_history(context, data_dict):
 
     result = []
     for version in versions_list:
-            resource = activity_resource_show({
-                'user': context['user']
-            },
-            {
-                'activity_id': version['activity_id'],
-                'resource_id': version['resource_id']
-            }
-            )
+            resource = activity_resource_show(
+                {'user': context['user']},
+                {
+                    'activity_id': version['activity_id'],
+                    'resource_id': version['resource_id']
+                }
+                )
             resource['version'] = version
             result.append(resource)
 
@@ -257,7 +256,8 @@ def activity_resource_show(context, data_dict):
     :returns: The resource in the activity
     :rtype: dict
     '''
-    activity_id, resource_id = toolkit.get_or_bust(data_dict,
+    activity_id, resource_id = toolkit.get_or_bust(
+        data_dict,
         ['activity_id', 'resource_id']
         )
 
@@ -341,6 +341,7 @@ def _generate_diff(obj1, obj2, diff_type):
 
     return diff
 
+
 @toolkit.chained_action
 def resource_view_list(up_func, context, data_dict):
     ''' Overrides core action to always return versions_view as the last view.
@@ -358,3 +359,24 @@ def resource_view_list(up_func, context, data_dict):
     resource_views.extend(versions_views)
 
     return resource_views
+
+
+def get_activity_id_from_resource_version_name(context, data_dict):
+    ''' Returns the activity_id for the resource version
+
+    :param resource_id: the id of the resource
+    :type resource_id: string
+    :param version: the name of the version
+    :type version: string
+    :returns: The activity_id of the version
+    :rtype: string
+
+    '''
+    version_name = data_dict.get('version_name')
+    version_list = resource_version_list(context, data_dict)
+
+    for version in version_list:
+        if version['name'] == version_name:
+            return version['activity_id']
+
+    raise toolkit.NotFound('Version not found in the resource.')
