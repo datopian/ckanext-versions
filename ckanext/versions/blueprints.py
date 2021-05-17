@@ -40,6 +40,6 @@ def version_download(id, resource_id, version):
 
 
 blueprint.add_url_rule(
-    u'/dataset/<id>/resource/<resource_id>/v/<version>/download',
+    u'/dataset/<id>/resource/<resource_id>/version/<version>/download',
     view_func=version_download
     )

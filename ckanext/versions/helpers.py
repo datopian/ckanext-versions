@@ -71,7 +71,7 @@ def download_url(resource_url, version_name):
         return resource_url
 
     base_resource_url, filename = resource_url.split("/download/")
-    url = "{}/v/{}/download/{}".format(
+    url = "{}/version/{}/download/{}".format(
         base_resource_url,
         version_name,
         filename
