@@ -10,8 +10,8 @@ blueprint = Blueprint(
 )
 
 
-def version_download(id, resource_id, version):
-    """Download resource blueprint supporting version name.
+def version_download(id, resource_id, version_id):
+    """Download resource blueprint supporting version id.
 
     This download blueprint gets the activity_id from the version and redirects
     to a download url that can handle it. Currently is working with
@@ -24,10 +24,12 @@ def version_download(id, resource_id, version):
     }
 
     try:
-        activity_id = action.get_activity_id_from_resource_version_name(
-            context, {'resource_id': resource_id, 'version_name': version})
+        version = action.version_show(
+            context, {'resource_id': resource_id, 'version_id': version_id}
+            )
+        activity_id = version['activity_id']
     except toolkit.NotFound:
-        toolkit.abort(404, toolkit._(u'Activity not found'))
+        toolkit.abort(404, toolkit._(u'Version not found'))
 
     download_url = toolkit.url_for(
         'resource.download',
@@ -40,6 +42,6 @@ def version_download(id, resource_id, version):
 
 
 blueprint.add_url_rule(
-    u'/dataset/<id>/resource/<resource_id>/version/<version>/download',
+    u'/dataset/<id>/resource/<resource_id>/version/<version_id>/download',
     view_func=version_download
     )

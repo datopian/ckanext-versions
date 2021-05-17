@@ -113,7 +113,7 @@ Download Endpoint
 
 To download the file for a specific version::
 
-    /dataset/<dataset_id>/resource/<resource_id>/v/<version_name>/download/
+    /dataset/<dataset_id>/resource/<resource_id>/vervsion/<version_id>/download/
 
 This extension also has a specific endpoint to download the file in previous
 versions (only if the storage layer supports it). Internally it redirects to core

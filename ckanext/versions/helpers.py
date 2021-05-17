@@ -59,7 +59,7 @@ def resource_current_version(resource):
     return False
 
 
-def download_url(resource_url, version_name):
+def download_url(resource_url, version_id):
     '''Returns a url to download the specific version of the resource.
 
     This method is to be used in templates, it takes the default download URL
@@ -73,7 +73,7 @@ def download_url(resource_url, version_name):
     base_resource_url, filename = resource_url.split("/download/")
     url = "{}/version/{}/download/{}".format(
         base_resource_url,
-        version_name,
+        version_id,
         filename
         )
 
