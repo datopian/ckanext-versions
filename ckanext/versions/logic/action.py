@@ -380,3 +380,17 @@ def get_activity_id_from_resource_version_name(context, data_dict):
             return version['activity_id']
 
     raise toolkit.NotFound('Version not found in the resource.')
+
+
+def resource_has_versions(context, data_dict):
+    """Check if the resource has versions.
+
+    :param resource_id: the id the resource
+    :type resource_id: string
+    :returns: True if the resource has at least 1 version
+    :rtype: boolean
+    """
+    version_list = resource_version_list(context, data_dict)
+    if not version_list:
+        return False
+    return True
