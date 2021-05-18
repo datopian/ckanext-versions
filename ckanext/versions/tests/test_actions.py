@@ -4,8 +4,8 @@ from ckan.tests import factories, helpers
 
 from ckanext.versions.logic.action import (
     activity_resource_show, get_activity_id_from_resource_version_name,
-    resource_version_create, resource_version_current, resource_version_list,
-    version_delete, version_show)
+    resource_has_versions, resource_has_versions, resource_version_create, resource_version_current,
+    resource_version_list, version_delete, version_show)
 from ckanext.versions.tests import get_context
 
 
@@ -156,6 +156,31 @@ class TestCreateResourceVersion(object):
 
         assert activity_resource['id'] == resource['id']
         assert activity_resource['name'] == 'Second Name'
+
+    def test_resource_has_version(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(
+            package_id=dataset['id'],
+            name='First name'
+            )
+        user = factories.Sysadmin()
+        context = get_context(user)
+
+        assert False == resource_has_versions(
+            context, {'resource_id': resource['id']}
+            )
+
+        resource_version_create(
+            context, {
+                'resource_id': resource['id'],
+                'name': '1',
+                'notes': 'Version notes'
+            }
+        )
+
+        assert True == resource_has_versions(
+            context, {'resource_id': resource['id']}
+            )
 
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
