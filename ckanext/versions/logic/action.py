@@ -69,7 +69,8 @@ def resource_version_create(context, data_dict):
     """Create a new version from the current dataset's activity_id
 
     Currently you must have editor level access on the dataset
-    to create a version.
+    to create a version. If creator_user_id is not present, it will be set as
+    the logged it user.
 
     :param resource_id: the id of the resource
     :type resource_id: string
@@ -77,6 +78,8 @@ def resource_version_create(context, data_dict):
     :type name: string
     :param notes optional: A description for the version
     :type notes: string
+    :param creator_user_id optional: the id of the creator
+    :type creator_user_id: string
     :returns: the newly created version
     :rtype: dictionary
     """
@@ -91,7 +94,14 @@ def resource_version_create(context, data_dict):
 
     toolkit.check_access('version_create', context,
                          {"package_id": resource.package_id})
-    assert context.get('auth_user_obj')  # Should be here after `check_access`
+
+    creator_user_id = data_dict.get('creator_user_id')
+    if creator_user_id:
+        creator_user = model.User.get(creator_user_id)
+        if not creator_user:
+            raise toolkit.ObjectNotFound('Creator user not found')
+    else:
+        creator_user_id = context['auth_user_obj'].id
 
     activity = model.Session.query(model.Activity). \
         filter_by(object_id=resource.package_id). \
@@ -105,7 +115,7 @@ def resource_version_create(context, data_dict):
         name=name,
         notes=data_dict.get('notes', None),
         created=datetime.utcnow(),
-        creator_user_id=context['auth_user_obj'].id)
+        creator_user_id=creator_user_id)
 
     model.Session.add(version)
 

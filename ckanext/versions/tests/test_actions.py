@@ -182,6 +182,31 @@ class TestCreateResourceVersion(object):
             context, {'resource_id': resource['id']}
             )
 
+    def test_resource_version_create_creator_user_id_parameter(self):
+        user = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': user['name'], 'capacity': 'editor'}]
+        )
+        user_creator = factories.User()
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        resource = factories.Resource(package_id=dataset['id'])
+
+        version = resource_version_create(
+            get_context(user), {
+                'resource_id': resource['id'],
+                'name': '1',
+                'notes': 'Version notes',
+                'creator_user_id': user_creator['id']
+            }
+        )
+
+        assert version
+        assert version['package_id'] == dataset['id']
+        assert version['resource_id'] == resource['id']
+        assert version['notes'] == 'Version notes'
+        assert version['name'] == '1'
+        assert version['creator_user_id'] == user_creator['id']
+
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
 class TestResourceVersionList(object):
