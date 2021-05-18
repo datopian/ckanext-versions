@@ -94,7 +94,6 @@ def resource_version_create(context, data_dict):
 
     toolkit.check_access('version_create', context,
                          {"package_id": resource.package_id})
-    assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     creator_user_id = data_dict.get('creator_user_id')
     if creator_user_id:
