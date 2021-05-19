@@ -28,7 +28,7 @@ def version_download(id, resource_id, version_id):
             context, {'resource_id': resource_id, 'version_id': version_id}
             )
         activity_id = version['activity_id']
-    except toolkit.NotFound:
+    except toolkit.ObjectNotFound:
         toolkit.abort(404, toolkit._(u'Version not found'))
 
     download_url = toolkit.url_for(
