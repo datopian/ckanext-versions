@@ -297,7 +297,7 @@ def resource_in_activity(context, data_dict):
     ''' Check if the resource exists in the activity object.
 
     This method can be use as a sanity check to validate that the activity_id
-    assigned to the resource contains the resource.
+    assigned to the resource version contains the resource.
 
     :param activity_id: the id of the activity
     :type activity_id: string
