@@ -288,7 +288,7 @@ def activity_resource_show(context, data_dict):
             break
 
     if not old_resource:
-        raise toolkit.NotFound('Resource not found in the activity object.')
+        raise toolkit.ObjectNotFound('Resource not found in the activity object.')
 
     return old_resource
 
@@ -308,7 +308,7 @@ def resource_in_activity(context, data_dict):
     '''
     try:
         activity_resource_show(context, data_dict)
-    except toolkit.NotFound:
+    except toolkit.ObjectNotFound:
         return False
     return True
 
@@ -415,7 +415,7 @@ def get_activity_id_from_resource_version_name(context, data_dict):
         if version['name'] == version_name:
             return version['activity_id']
 
-    raise toolkit.NotFound('Version not found in the resource.')
+    raise toolkit.ObjectNotFound('Version not found in the resource.')
 
 
 def resource_has_versions(context, data_dict):
