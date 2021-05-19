@@ -111,12 +111,12 @@ def resource_version_create(context, data_dict):
     if not activity:
         raise toolkit.ObjectNotFound('Activity not found')
 
-    if not resource_in_activity(context, data_dict):
+    if not resource_in_activity(context, {'activity_id': activity.id, 'resource_id': resource_id}):
         raise toolkit.ObjectNotFound('Resource not found in the activity.')
 
     version = Version(
         package_id=resource.package_id,
-        resource_id=data_dict['resource_id'],
+        resource_id=resource_id,
         activity_id=activity.id,
         name=name,
         notes=data_dict.get('notes', None),
