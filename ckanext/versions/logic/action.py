@@ -111,6 +111,9 @@ def resource_version_create(context, data_dict):
     if not activity:
         raise toolkit.ObjectNotFound('Activity not found')
 
+    if not resource_in_activity(context, data_dict):
+        raise toolkit.ObjectNotFound('Resource not found in the activity.')
+
     version = Version(
         package_id=resource.package_id,
         resource_id=data_dict['resource_id'],
@@ -288,6 +291,26 @@ def activity_resource_show(context, data_dict):
         raise toolkit.NotFound('Resource not found in the activity object.')
 
     return old_resource
+
+
+def resource_in_activity(context, data_dict):
+    ''' Check if the resource exists in the activity object.
+
+    This method can be use as a sanity check to validate that the activity_id
+    assigned to the resource contains the resource.
+
+    :param activity_id: the id of the activity
+    :type activity_id: string
+    :param resource_id: the id of the resource
+    :type resource_id: string
+    :returns: True if the resource exist in the activity
+    :rtype: boolean
+    '''
+    try:
+        activity_resource_show(context, data_dict)
+    except toolkit.NotFound:
+        return False
+    return True
 
 
 def _get_resource_in_revision(context, data_dict, revision_id):

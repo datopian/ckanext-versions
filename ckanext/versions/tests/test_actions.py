@@ -4,7 +4,8 @@ from ckan.tests import factories, helpers
 
 from ckanext.versions.logic.action import (
     activity_resource_show, get_activity_id_from_resource_version_name,
-    resource_has_versions, resource_has_versions, resource_version_create, resource_version_current,
+    resource_has_versions, resource_has_versions, resource_in_activity,
+    resource_version_create, resource_version_current,
     resource_version_list, version_delete, version_show)
 from ckanext.versions.tests import get_context
 
@@ -433,6 +434,42 @@ class TestActivityActions(object):
         )
 
         assert expected_activity_id == activity_id
+
+    def test_resource_in_activity(self):
+        user = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': user['name'], 'capacity': 'editor'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        resource = factories.Resource(
+            package_id=dataset['id'],
+            name='Resource 1'
+            )
+        resource_2 = factories.Resource(
+            package_id=dataset['id'],
+            name='Resource 2'
+            )
+
+        context = get_context(user)
+
+        version = resource_version_create(
+            context, {
+                'resource_id': resource['id'],
+                'name': '1',
+                'notes': 'Version notes'
+            }
+        )
+        expected_activity_id = version['activity_id']
+
+        assert True == resource_in_activity(context, {
+            'activity_id': expected_activity_id,
+            'resource_id': resource['id']}
+            )
+
+        assert False == resource_in_activity(context, {
+            'activity_id': expected_activity_id,
+            'resource_id': resource_2['id']}
+            )
 
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
