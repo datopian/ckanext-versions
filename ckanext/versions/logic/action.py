@@ -105,8 +105,11 @@ def resource_version_create(context, data_dict):
 
     activity = model.Session.query(model.Activity). \
         filter_by(object_id=resource.package_id). \
-        order_by(model.Activity.timestamp.desc()).\
+        order_by(model.Activity.timestamp.desc()). \
         first()
+
+    if not activity:
+        raise toolkit.ObjectNotFound('Activity not found')
 
     version = Version(
         package_id=resource.package_id,
