@@ -308,11 +308,12 @@ def resource_in_activity(context, data_dict):
     '''
     user = context.get('user')
     if not user:
-        user = toolkit.get_action('get_site_user')({'ignore_auth': True},{})
+        site_user = toolkit.get_action('get_site_user')({'ignore_auth': True},{})
+        user = site_user['name']
 
     activity_show_context = {
         'model': core_model,
-        'user': user['name']
+        'user': user
     }
 
     try:
