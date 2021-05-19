@@ -281,8 +281,13 @@ def activity_resource_show(context, data_dict):
                 {'model': core_model, 'user': context['user']},
                 {'id': activity_id, 'object_type': 'package'}
                 )
+
+    resources = package.get('resources')
+    if not resources:
+        raise toolkit.ObjectNotFound('Resource not found in the activity object.')
+
     old_resource = None
-    for res in package['resources']:
+    for res in resources:
         if res['id'] == resource_id:
             old_resource = res
             break
