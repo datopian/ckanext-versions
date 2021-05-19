@@ -445,10 +445,6 @@ class TestActivityActions(object):
             package_id=dataset['id'],
             name='Resource 1'
             )
-        resource_2 = factories.Resource(
-            package_id=dataset['id'],
-            name='Resource 2'
-            )
 
         context = get_context(user)
 
@@ -464,6 +460,11 @@ class TestActivityActions(object):
         assert True == resource_in_activity(context, {
             'activity_id': expected_activity_id,
             'resource_id': resource['id']}
+            )
+
+        resource_2 = factories.Resource(
+            package_id=dataset['id'],
+            name='Resource 2'
             )
 
         assert False == resource_in_activity(context, {
