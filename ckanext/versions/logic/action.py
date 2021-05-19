@@ -306,8 +306,18 @@ def resource_in_activity(context, data_dict):
     :returns: True if the resource exist in the activity
     :rtype: boolean
     '''
+    user = context.get('user')
+    if not user:
+        site_user = toolkit.get_action('get_site_user')({'ignore_auth': True},{})
+        user = site_user['name']
+
+    activity_show_context = {
+        'model': core_model,
+        'user': user
+    }
+
     try:
-        activity_resource_show(context, data_dict)
+        activity_resource_show(activity_show_context, data_dict)
     except toolkit.ObjectNotFound:
         return False
     return True
