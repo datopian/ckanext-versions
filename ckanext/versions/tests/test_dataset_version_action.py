@@ -26,7 +26,7 @@ class TestDatasetVersion(object):
                   'name': version_name,
                   'creator_user_id': org_admin['id']}
 
-        self._assert_version(version, checks)
+        _assert_version(version, checks)
 
     @pytest.mark.parametrize("user_role, can_create_version", [
         ('admin', True),
@@ -37,27 +37,27 @@ class TestDatasetVersion(object):
         for user in test_organization['users']:
             if user['capacity'] == user_role:
                 if can_create_version:
-                    self._create_version(test_dataset['id'], user)
+                    _create_version(test_dataset['id'], user)
                 else:
                     with pytest.raises(toolkit.NotAuthorized):
-                        self._create_version(test_dataset['id'], user)
+                        _create_version(test_dataset['id'], user)
         pytest.fail("Couldn't find user with required role %s", user_role)
 
     def test_should_not_create_data_version_with_same_name(self, test_dataset, org_editor):
         version_name = "Not unique name"
-        self._create_version(test_dataset['id'], org_editor, version_name=version_name)
+        _create_version(test_dataset['id'], org_editor, version_name=version_name)
         with pytest.raises(toolkit.ValidationError):
-            self._create_version(test_dataset['id'], org_editor, version_name=version_name)
+            _create_version(test_dataset['id'], org_editor, version_name=version_name)
 
     def test_should_fail_if_dataset_not_exists(self, org_editor):
         with pytest.raises(toolkit.ObjectNotFound) as e:
-            self._create_version('fake_dataset_id', org_editor)
+            _create_version('fake_dataset_id', org_editor)
             assert e.msg == "Dataset not found"
 
     def test_version_has_valid_activity_id(self, test_organization, org_editor):
         old_name = "Initial name"
         dataset = factories.Dataset(name=old_name, owner_org=test_organization['id'])
-        version = self._create_version(dataset['id'], org_editor)
+        version = _create_version(dataset['id'], org_editor)
         context = get_context(org_editor)
         toolkit.get_action('package_patch')(
             context,
@@ -85,26 +85,26 @@ class TestDatasetVersion(object):
 
     def test_dataset_has_versions_after_one_created(self, test_dataset, org_editor):
         context = get_context(org_editor)
-        self._create_version(test_dataset['id'], org_editor)
+        _create_version(test_dataset['id'], org_editor)
         assert True == dataset_has_versions(
             context,
             {'id': test_dataset['id']}
         )
 
 
-    def _create_version(self, dataset_id, user, version_name="Default Name"):
-        return dataset_version_create(
-            get_context(user),
-            {
-                "dataset_id": dataset_id,
-                "name": version_name
-            }
-        )
+def _create_version(dataset_id, user, version_name="Default Name"):
+    return dataset_version_create(
+        get_context(user),
+        {
+            "dataset_id": dataset_id,
+            "name": version_name
+        }
+    )
 
-    def _assert_version(self, version, checks):
-        assert version
-        for k, v in checks:
-            assert version[k] == v
+def _assert_version(version, checks):
+    assert version
+    for k, v in checks:
+        assert version[k] == v
 
 
 @pytest.fixture()
