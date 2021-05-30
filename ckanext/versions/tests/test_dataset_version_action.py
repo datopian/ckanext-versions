@@ -173,7 +173,7 @@ class TestDatasetVersion(object):
     def test_activity_dataset_show_returns_correct_dataset(self, test_dataset, org_editor):
         version = _create_version(test_dataset['id'], org_editor)
         context = get_context(org_editor)
-        updated_name = "Updated Name"
+        updated_name = "updated-name"
         new_dataset = toolkit.get_action('package_patch')(
             context,
             {
@@ -193,18 +193,31 @@ class TestDatasetVersion(object):
         assert test_dataset['name'] == old_dataset['name']
         assert new_dataset['id'] == old_dataset['id']
 
-    def test_get_activity_id_from_dataset_version_returns_correct(self, test_dataset, org_editor):
+    def test_activity_dataset_show_fails_if_no_dataset_in_activity(self, test_dataset, org_editor):
         version = _create_version(test_dataset['id'], org_editor)
-        expected_activity_id = version['activity_id']
+        context = get_context(org_editor)
+        with pytest.raises(toolkit.ObjectNotFound) as e:
+            activity_dataset_show(
+                context,
+                {
+                    'dataset_id': 'fake-dataset-id',
+                    'activity_id': version['activity_id']
+                }
+            )
+            assert 'Dataset not found in the activity object.' == e.msg
 
-        version = _create_version(test_dataset['id'], org_editor)
+    def test_get_activity_id_from_dataset_version_returns_correct(self, test_dataset, org_editor):
+        version1 = _create_version(test_dataset['id'], org_editor, version_name="Version1")
+        expected_activity_id = version1['activity_id']
+
+        _create_version(test_dataset['id'], org_editor, version_name="Version2")
 
         context = get_context(org_editor)
         actual_activity_id = get_activity_id_from_dataset_version_name(
             context,
             {
                 'dataset_id': test_dataset['id'],
-                'version': version['name']
+                'version': version1['name']
             }
         )
 

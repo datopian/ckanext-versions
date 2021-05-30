@@ -126,7 +126,18 @@ def activity_dataset_show(context, data_dict):
     :returns: The dataset in the activity
     :rtype: dict
     '''
-    pass
+    activity_id, dataset_id = toolkit.get_or_bust(
+        data_dict,
+        ['activity_id', 'dataset_id']
+    )
+    dataset = toolkit.get_action('activity_data_show')(
+        context,
+        {'id': activity_id, 'object_type': 'package'}
+    )
+    if not dataset or dataset['id'] != dataset_id:
+        raise toolkit.ObjectNotFound('Dataset not found in the activity object.')
+
+    return dataset
 
 
 def get_activity_id_from_dataset_version_name(context, data_dict):
