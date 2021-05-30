@@ -239,7 +239,7 @@ class TestDatasetVersion(object):
         context = get_context(org_editor)
         assert False is dataset_has_versions(
             context,
-            {'id': test_dataset['id']}
+            {'dataset_id': test_dataset['id']}
         )
 
     def test_dataset_has_versions_after_one_created(self, test_dataset, org_editor):
@@ -247,7 +247,7 @@ class TestDatasetVersion(object):
         _create_version(test_dataset['id'], org_editor)
         assert True is dataset_has_versions(
             context,
-            {'id': test_dataset['id']}
+            {'dataset_id': test_dataset['id']}
         )
 
 

@@ -170,4 +170,7 @@ def dataset_has_versions(context, data_dict):
     :returns: True if the dataset has at least 1 version
     :rtype: boolean
     """
-    pass
+    version_list = dataset_version_list(context, data_dict)
+    if not version_list:
+        return False
+    return True
