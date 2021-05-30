@@ -2,8 +2,13 @@ import pytest
 
 from ckan.plugins import toolkit
 from ckan.tests import factories
-from ckanext.versions.logic.dataset_version_action import dataset_version_create, dataset_has_versions, \
-    get_activity_id_from_dataset_version_name, activity_dataset_show
+from ckanext.versions.logic.dataset_version_action import (
+    dataset_version_create,
+    dataset_has_versions,
+    get_activity_id_from_dataset_version_name,
+    activity_dataset_show,
+    dataset_version_latest
+)
 from ckanext.versions.tests import get_context
 
 
@@ -76,14 +81,49 @@ class TestDatasetVersion(object):
         assert old_dataset['name'] == old_name
         assert old_dataset['id'] == dataset['id']
 
-    def test_dataset_version_latest_show_latest_version(self):
-        pass
+    def test_dataset_version_latest_show_latest_version(self, test_dataset, org_editor):
+        context = get_context(org_editor)
+        version1 = _create_version(test_dataset['id'], org_editor, version_name="Version1")
+        toolkit.get_action('package_patch')(
+            context,
+            {
+                "id": test_dataset['id'],
+                "name": "Updated Name"
+            }
+        )
+        version2 = _create_version(test_dataset['id'], org_editor, version_name="Version2")
 
-    def test_dataset_version_latest_raises_when_dataset_not_found(self):
-        pass
+        latest_version = dataset_version_latest(
+            context,
+            {
+                'dataset_id': test_dataset['id']
+            }
+        )
 
-    def test_dataset_version_latest_raises_when_dataset_has_no_versions(self):
-        pass
+        assert version1['id'] != latest_version['id']
+        _assert_version(latest_version, {'id': version2['id'], 'name': version2['name']})
+
+    def test_dataset_version_latest_raises_when_dataset_not_found(self, org_editor):
+        context = get_context(org_editor)
+        with pytest.raises(toolkit.ObjectNotFound) as e:
+            dataset_version_latest(
+                context,
+                {
+                    'dataset_id': 'fake-dataset-id'
+                }
+            )
+            assert "Dataset not found" == e.msg
+
+    def test_dataset_version_latest_raises_when_dataset_has_no_versions(self, test_dataset, org_editor):
+        context = get_context(org_editor)
+        with pytest.raises(toolkit.ObjectNotFound) as e:
+            dataset_version_latest(
+                context,
+                {
+                    'dataset_id': test_dataset['id']
+                }
+            )
+            assert "Versions not found in the dataset" == e.msg
 
     def test_activity_dataset_show_returns_correct_dataset(self, test_dataset, org_editor):
         version = _create_version(test_dataset['id'], org_editor)
