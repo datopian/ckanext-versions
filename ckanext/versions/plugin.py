@@ -6,7 +6,7 @@ import ckan.plugins.toolkit as toolkit
 
 from ckanext.versions import cli, helpers
 from ckanext.versions.blueprints import blueprint
-from ckanext.versions.logic import action, auth
+from ckanext.versions.logic import action, auth, dataset_version_action
 from ckanext.versions.model import tables_exist
 
 log = logging.getLogger(__name__)
@@ -52,6 +52,9 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'version_show': action.version_show,
             'version_delete': action.version_delete,
             'resource_view_list': action.resource_view_list,
+            'dataset_version_create': dataset_version_action.dataset_version_create,
+            'dataset_version_list': dataset_version_action.dataset_version_list,
+            'dataset_version_latest': dataset_version_action.dataset_version_latest
         }
 
     # IAuthFunctions
