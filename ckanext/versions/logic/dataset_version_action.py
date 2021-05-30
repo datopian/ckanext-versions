@@ -85,7 +85,20 @@ def dataset_version_list(context, data_dict):
     :returns: list of versions created for the dataset
     :rtype: list
     """
-    pass
+    model = context.get('model', core_model)
+    dataset_id = toolkit.get_or_bust(data_dict, ['dataset_id'])
+    dataset = model.Package.get(dataset_id)
+    if not dataset:
+        raise toolkit.ObjectNotFound('Dataset not found')
+
+    toolkit.check_access('version_list', context,
+                         {"package_id": dataset_id})
+
+    versions = model.Session.query(Version). \
+        filter(Version.package_id == dataset.id). \
+        order_by(Version.created.desc())
+
+    return [v.as_dict() for v in versions]
 
 
 @toolkit.side_effect_free

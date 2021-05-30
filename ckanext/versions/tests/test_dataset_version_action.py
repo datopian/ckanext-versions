@@ -7,7 +7,7 @@ from ckanext.versions.logic.dataset_version_action import (
     dataset_has_versions,
     get_activity_id_from_dataset_version_name,
     activity_dataset_show,
-    dataset_version_latest
+    dataset_version_latest, dataset_version_list
 )
 from ckanext.versions.tests import get_context
 
@@ -83,6 +83,49 @@ class TestDatasetVersion(object):
         assert old_dataset['name'] == old_name
         assert old_dataset['id'] == dataset['id']
 
+    def test_dataset_version_list_return_all_version(self, test_dataset, org_editor):
+        context = get_context(org_editor)
+        version1 = _create_version(test_dataset['id'], org_editor, version_name="Version1")
+        toolkit.get_action('package_patch')(
+            context,
+            {
+                "id": test_dataset['id'],
+                "name": "updated-name"
+            }
+        )
+        version2 = _create_version(test_dataset['id'], org_editor, version_name="Version2")
+
+        version_list = dataset_version_list(
+            context,
+            {
+                'dataset_id': test_dataset['id']
+            }
+        )
+        version_ids = [v['id'] for v in version_list]
+        assert version1['id'] in version_ids
+        assert version2['id'] in version_ids
+
+    def test_dataset_version_should_fail_if_dataset_not_exists(self, org_editor):
+        context = get_context(org_editor)
+        with pytest.raises(toolkit.ObjectNotFound) as e:
+            dataset_version_list(
+                context,
+                {
+                    'dataset_id': 'fake-dataset-id'
+                }
+            )
+            assert "Dataset not found" == e.msg
+
+    def test_dataset_version_should_return_empty_list_if_dataset_no_versions(self, test_dataset, org_editor):
+        context = get_context(org_editor)
+        versions_list = dataset_version_list(
+            context,
+            {
+                'dataset_id': test_dataset['id']
+            }
+        )
+        assert [] == versions_list
+
     def test_dataset_version_latest_show_latest_version(self, test_dataset, org_editor):
         context = get_context(org_editor)
         version1 = _create_version(test_dataset['id'], org_editor, version_name="Version1")
@@ -90,7 +133,7 @@ class TestDatasetVersion(object):
             context,
             {
                 "id": test_dataset['id'],
-                "name": "Updated Name"
+                "name": "updated-name"
             }
         )
         version2 = _create_version(test_dataset['id'], org_editor, version_name="Version2")
