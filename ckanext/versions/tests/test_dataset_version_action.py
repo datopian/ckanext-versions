@@ -44,9 +44,11 @@ class TestDatasetVersion(object):
             if user['capacity'] == user_role:
                 if can_create_version:
                     _create_version(test_dataset['id'], user)
+                    return
                 else:
                     with pytest.raises(toolkit.NotAuthorized):
                         _create_version(test_dataset['id'], user)
+                    return
         pytest.fail("Couldn't find user with required role %s", user_role)
 
     def test_dataset_version_create_should_not_create_version_with_same_name(self, test_dataset, org_editor):
@@ -61,7 +63,7 @@ class TestDatasetVersion(object):
             assert e.msg == "Dataset not found"
 
     def test_dataset_version_create_returns_valid_activity_id(self, test_organization, org_editor):
-        old_name = "Initial name"
+        old_name = "initial-name"
         dataset = factories.Dataset(name=old_name, owner_org=test_organization['id'])
         version = _create_version(dataset['id'], org_editor)
         context = get_context(org_editor)
@@ -69,7 +71,7 @@ class TestDatasetVersion(object):
             context,
             {
                 "id": dataset['id'],
-                "name": "Updated Name"
+                "name": "updated-name"
             }
         )
 
@@ -205,23 +207,23 @@ def _create_version(dataset_id, user, version_name="Default Name"):
 
 def _assert_version(version, checks):
     assert version
-    for k, v in checks:
+    for k, v in checks.items():
         assert version[k] == v
 
 
 @pytest.fixture()
 def org_admin():
-    return factories.User()
+    return factories.User(name="admin")
 
 
 @pytest.fixture()
 def org_editor():
-    return factories.User()
+    return factories.User(name="editor")
 
 
 @pytest.fixture()
 def org_member():
-    return factories.User()
+    return factories.User(name="member")
 
 
 @pytest.fixture()
