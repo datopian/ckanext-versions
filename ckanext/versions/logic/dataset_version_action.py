@@ -1,5 +1,13 @@
-from ckan.plugins import toolkit
+import logging
 
+from datetime import datetime
+from sqlalchemy.exc import IntegrityError
+
+from ckan import model as core_model
+from ckan.plugins import toolkit
+from ckanext.versions.model import Version
+
+log = logging.getLogger(__name__)
 
 def dataset_version_create(context, data_dict):
     """Create a new version from the current dataset's activity_id
@@ -17,7 +25,55 @@ def dataset_version_create(context, data_dict):
     :returns: the newly created version
     :rtype: dictionary
     """
-    pass
+    model = context.get('model', core_model)
+    dataset_id, name = toolkit.get_or_bust(
+        data_dict, ['dataset_id', 'name'])
+
+    dataset = model.Package.get(dataset_id)
+    if not dataset:
+        raise toolkit.ObjectNotFound("Dataset not found")
+
+    toolkit.check_access('version_create',
+                         context,
+                         {"package_id": dataset_id} )
+    creator_user_id = context['auth_user_obj'].id
+
+    # TODO: add support for specific activity_id in data_dict
+    activity = model.Session.query(model.Activity). \
+        filter_by(object_id=dataset_id). \
+        order_by(model.Activity.timestamp.desc()). \
+        first()
+
+    if not activity:
+        # TODO: Add test for this exception
+        raise toolkit.ObjectNotFound('Activity not found')
+
+    version = Version(
+        package_id=dataset_id,
+        activity_id=activity.id,
+        name=name,
+        notes=data_dict.get('notes', None),
+        created=datetime.utcnow(),
+        creator_user_id=creator_user_id)
+
+    model.Session.add(version)
+    try:
+        model.Session.commit()
+    except IntegrityError as e:
+        #  Name not unique, or foreign key constraint violated
+        model.Session.rollback()
+        log.debug("DB integrity error (version name not unique?): %s", e)
+        raise toolkit.ValidationError(
+            'Version names must be unique per dataset'
+        )
+
+    log.info(
+        'Version "%s" created for dataset %s',
+        name,
+        dataset_id
+    )
+
+    return version.as_dict()
 
 
 @toolkit.side_effect_free
