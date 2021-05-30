@@ -168,7 +168,7 @@ class TestDatasetVersion(object):
                     'dataset_id': test_dataset['id']
                 }
             )
-            assert "Versions not found in the dataset" == e.msg
+            assert "Versions not found for this dataset" == e.msg
 
     def test_activity_dataset_show_returns_correct_dataset(self, test_dataset, org_editor):
         version = _create_version(test_dataset['id'], org_editor)

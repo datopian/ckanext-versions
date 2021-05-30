@@ -110,7 +110,10 @@ def dataset_version_latest(context, data_dict):
     :returns the version dictionary
     :rtype dict
     '''
-    pass
+    version_list = dataset_version_list(context, data_dict)
+    if len(version_list) < 1:
+        raise toolkit.ObjectNotFound("Versions not found for this dataset")
+    return version_list[0]
 
 
 def activity_dataset_show(context, data_dict):
