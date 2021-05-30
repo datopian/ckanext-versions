@@ -23,7 +23,10 @@ class Version(Base):
 
     id = Column(UuidType, primary_key=True, default=UuidType.default)
     package_id = Column(UuidType, ForeignKey('package.id'), nullable=False)
-    resource_id = Column(UuidType, ForeignKey('resource.id'), nullable=True)
+    # TODO: How to make resource_id foreign key and also nullable?
+    # Currenlty throws IntegrityError Key(resource_id)=(None) is not present
+    # resource_id = Column(UuidType, ForeignKey('resource.id'), nullable=True)
+    resource_id = Column(UuidType, nullable=True)
     activity_id = Column(UuidType, ForeignKey('activity.id'), nullable=False)
     name = Column(Unicode, nullable=False)
     notes = Column(Unicode, nullable=True)
