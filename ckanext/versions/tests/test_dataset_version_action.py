@@ -223,7 +223,7 @@ class TestDatasetVersion(object):
 
         assert expected_activity_id == actual_activity_id
 
-    def test_get_activity_id_from_dataset_version_raises_not_found(self, org_editor):
+    def test_get_activity_id_from_dataset_version_raises_not_found(self, test_dataset, org_editor):
         context = get_context(org_editor)
         with pytest.raises(toolkit.ObjectNotFound) as e:
             get_activity_id_from_dataset_version_name(
@@ -233,11 +233,11 @@ class TestDatasetVersion(object):
                     'version': 'Fake version name'
                 }
             )
-            assert "Version not found" == e.msg
+            assert "Version not found in the dataset" == e.msg
 
     def test_new_dataset_has_no_versions(self, test_dataset, org_editor):
         context = get_context(org_editor)
-        assert False == dataset_has_versions(
+        assert False is dataset_has_versions(
             context,
             {'id': test_dataset['id']}
         )
@@ -245,7 +245,7 @@ class TestDatasetVersion(object):
     def test_dataset_has_versions_after_one_created(self, test_dataset, org_editor):
         context = get_context(org_editor)
         _create_version(test_dataset['id'], org_editor)
-        assert True == dataset_has_versions(
+        assert True is dataset_has_versions(
             context,
             {'id': test_dataset['id']}
         )

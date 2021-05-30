@@ -143,15 +143,23 @@ def activity_dataset_show(context, data_dict):
 def get_activity_id_from_dataset_version_name(context, data_dict):
     ''' Returns the activity_id for the dataset version
 
-    :param dataset_id: the id of the resource
+    :param dataset_id: the id of the dataset
     :type dataset_id: string
     :param version: the name or id of the version
     :type version: string
     :returns: The activity_id of the version
     :rtype: string
-
     '''
-    pass
+    version_name, dataset_id = toolkit.get_or_bust(
+        data_dict,
+        ['version', 'dataset_id']
+    )
+    version_list = dataset_version_list(context, data_dict)
+    for version in version_list:
+        if version_name in {version['name'], version['id']}:
+            return version['activity_id']
+
+    raise toolkit.ObjectNotFound('Version not found in the dataset.')
 
 
 def dataset_has_versions(context, data_dict):
