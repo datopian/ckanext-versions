@@ -34,6 +34,56 @@ class TestDatasetVersion(object):
 
         _assert_version(version, checks)
 
+    def test_dataset_create_should_create_version_for_given_activity(self, test_dataset, org_editor):
+        version_name = "V1.0"
+        context = get_context(org_editor)
+        for i in range(2):
+            toolkit.get_action('package_patch')(
+                context,
+                {
+                    "id": test_dataset['id'],
+                    "name": "updated-name%s" % i
+                }
+            )
+        activities = toolkit.get_action('package_activity_list')(
+            context,
+            {
+                'id': test_dataset['id']
+            }
+        )
+        past_activity_id = activities[-1]['id']
+
+        version = dataset_version_create(
+            context,
+            {
+                "dataset_id": test_dataset['id'],
+                "name": version_name,
+                "activity_id": past_activity_id
+            }
+        )
+
+        checks = {'package_id': test_dataset['id'],
+                  'resource_id': None,
+                  'notes': None,
+                  'name': version_name,
+                  'activity_id': past_activity_id,
+                  'creator_user_id': org_editor['id']}
+
+        _assert_version(version, checks)
+
+    def test_dataset_create_should_fail_when_incorrect_activity_id(self, test_dataset, org_editor):
+        context = get_context(org_editor)
+        with pytest.raises(toolkit.ObjectNotFound) as e:
+            dataset_version_create(
+                context,
+                {
+                    "dataset_id": test_dataset['id'],
+                    "name": "V1.0",
+                    "activity_id": "fake-activity-id"
+                }
+            )
+            assert "Activity not found" == e.msg
+
     @pytest.mark.parametrize("user_role, can_create_version", [
         ('admin', True),
         ('editor', True),
@@ -264,7 +314,7 @@ def _create_version(dataset_id, user, version_name="Default Name"):
 def _assert_version(version, checks):
     assert version
     for k, v in checks.items():
-        assert version[k] == v
+        assert version[k] == v, "found incorrect %s of version" % k
 
 
 @pytest.fixture()

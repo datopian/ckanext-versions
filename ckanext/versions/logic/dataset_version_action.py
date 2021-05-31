@@ -28,6 +28,7 @@ def dataset_version_create(context, data_dict):
     model = context.get('model', core_model)
     dataset_id, name = toolkit.get_or_bust(
         data_dict, ['dataset_id', 'name'])
+    activity_id = data_dict.get('activity_id')
 
     dataset = model.Package.get(dataset_id)
     if not dataset:
@@ -38,14 +39,15 @@ def dataset_version_create(context, data_dict):
                          {"package_id": dataset_id} )
     creator_user_id = context['auth_user_obj'].id
 
-    # TODO: add support for specific activity_id in data_dict
-    activity = model.Session.query(model.Activity). \
-        filter_by(object_id=dataset_id). \
-        order_by(model.Activity.timestamp.desc()). \
-        first()
+    if activity_id:
+        activity = model.Activity.get(activity_id)
+    else:
+        activity = model.Session.query(model.Activity). \
+            filter_by(object_id=dataset_id). \
+            order_by(model.Activity.timestamp.desc()). \
+            first()
 
     if not activity:
-        # TODO: Add test for this exception
         raise toolkit.ObjectNotFound('Activity not found')
 
     version = Version(
