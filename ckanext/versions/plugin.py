@@ -50,6 +50,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'resource_version_list': action.resource_version_list,
             'resource_version_current': action.resource_version_current,
             'version_show': action.version_show,
+            'version_update': action.version_update,
             'version_delete': action.version_delete,
             'resource_view_list': action.resource_view_list,
             'dataset_version_create': dataset_version_action.dataset_version_create,
