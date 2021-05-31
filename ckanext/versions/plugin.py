@@ -77,6 +77,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'versions_resource_version_from_activity_id': helpers.resource_version_from_activity_id,
             'versions_resource_current_version': helpers.resource_current_version,
             'versions_download_url': helpers.download_url,
+            'dataset_version_for_activity_id': helpers.dataset_version_for_activity_id,
         }
         return helper_functions
 

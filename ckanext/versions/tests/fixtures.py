@@ -2,6 +2,7 @@ import pytest
 
 from ckan.tests import factories
 from ckanext.versions.model import create_tables, tables_exist
+from ckanext.versions.tests import create_version
 
 
 @pytest.fixture
@@ -41,3 +42,7 @@ def test_dataset(test_organization):
 @pytest.fixture()
 def test_resource(test_dataset):
     return factories.Resource(package_id=test_dataset['id'])
+
+@pytest.fixture()
+def test_version(test_dataset, org_editor):
+    return create_version(test_dataset['id'], org_editor, version_name="Version1")

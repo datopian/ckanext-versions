@@ -1,4 +1,5 @@
 from ckan.plugins import toolkit
+import json
 
 
 def resources_list_with_current_version(resources):
@@ -78,3 +79,25 @@ def download_url(resource_url, version_id):
         )
 
     return url
+
+
+def dataset_version_for_activity_id(dataset_id, activity_id):
+    """Return dataset version created for given activity.
+
+    :param dataset_id: the id or name of the dataset
+    :type dataset_id: string
+    :param activity_id: the id of the activity
+    :type activity_id: string
+    :returns: version, None if no version created for the given activity.
+    :rtype: dictionary
+    """
+    # TODO: Think if instead `IPackageController.after_show` could be
+    # used to include version dict in package_dict
+    context = {'user': toolkit.g.user}
+    versions = toolkit.get_action('dataset_version_list')(
+        context, {'dataset_id': dataset_id}
+    )
+    for version in versions:
+        if version['activity_id'] == activity_id:
+            return version
+    return None
