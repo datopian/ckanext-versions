@@ -30,7 +30,7 @@ def version_update(context, data_dict):
     :rtype: dictionary
     """
     model = context.get('model', core_model)
-    version_id, name = toolkit.get_or_bust(data_dict, ['version', 'name'])
+    version_id, name = toolkit.get_or_bust(data_dict, ['version_id', 'name'])
 
     # I'll create my own session! With Blackjack! And H**kers!
     session = model.meta.create_local_session()
@@ -42,7 +42,7 @@ def version_update(context, data_dict):
     if not version:
         raise toolkit.ObjectNotFound('Version not found')
 
-    toolkit.check_access('dataset_version_create', context, data_dict)
+    toolkit.check_access('version_create', context, data_dict)
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     version.name = name
