@@ -26,14 +26,14 @@ def dataset_version_create(context, data_dict):
     :rtype: dictionary
     """
     model = context.get('model', core_model)
-    dataset_id, name = toolkit.get_or_bust(
+    dataset_name_or_id, name = toolkit.get_or_bust(
         data_dict, ['dataset_id', 'name'])
     activity_id = data_dict.get('activity_id')
 
-    dataset = model.Package.get(dataset_id)
+    dataset = model.Package.get(dataset_name_or_id)
     if not dataset:
         raise toolkit.ObjectNotFound("Dataset not found")
-
+    dataset_id = dataset.id
     toolkit.check_access('version_create',
                          context,
                          {"package_id": dataset_id} )
@@ -46,7 +46,6 @@ def dataset_version_create(context, data_dict):
             filter_by(object_id=dataset_id). \
             order_by(model.Activity.timestamp.desc()). \
             first()
-
     if not activity:
         raise toolkit.ObjectNotFound('Activity not found')
 
