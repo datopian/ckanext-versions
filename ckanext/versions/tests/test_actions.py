@@ -321,6 +321,34 @@ class TestVersionShow(object):
         assert result['notes'] == 'Version notes'
         assert result['creator_user_id'] == user['id']
 
+    def test_version_show_for_version_name(self):
+        dataset = factories.Dataset()
+        resource = factories.Resource(
+            package_id=dataset['id'],
+            name='First name'
+        )
+        user = factories.Sysadmin()
+        context = get_context(user)
+
+        version = resource_version_create(
+            context, {
+                'resource_id': resource['id'],
+                'name': '1',
+                'notes': 'Version notes'
+            }
+        )
+
+        result = version_show(
+            context,
+            {'version_id': version['name'],
+             'dataset_id': dataset['id']}
+        )
+
+        assert result['id'] == version['id']
+        assert result['name'] == '1'
+        assert result['notes'] == 'Version notes'
+        assert result['creator_user_id'] == user['id']
+
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
 class TestVersionDelete(object):

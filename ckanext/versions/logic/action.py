@@ -199,14 +199,26 @@ def version_delete(context, data_dict):
 def version_show(context, data_dict):
     """Show a specific version object
 
-    :param version_id: the id of the version
+    :param version_id: the id or name of the version
     :type version_id: string
+    :param dataset_id: [Optional] the id or name of a dataset. Mandatory
+    if version name provided as version_id
+    :type dataset_id: string
     :returns: the version dictionary
     :rtype: dict
     """
     model = context.get('model', core_model)
-    version_id = toolkit.get_or_bust(data_dict, ['version_id'])
-    version = model.Session.query(Version).get(version_id)
+    version_name_or_id = toolkit.get_or_bust(data_dict, ['version_id'])
+    version = model.Session.query(Version).get(version_name_or_id)
+    if not version:
+        version_name = version_name_or_id
+        dataset_name_or_id = data_dict.get('dataset_id')
+        dataset = model.Package.get(dataset_name_or_id)
+        if dataset:
+            dataset_id = dataset.id
+            version = model.Session.query(Version). \
+                filter(Version.package_id == dataset_id). \
+                filter(Version.name == version_name).one_or_none()
     if not version:
         raise toolkit.ObjectNotFound('Version not found')
 
