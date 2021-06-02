@@ -66,17 +66,20 @@ def version_update(context, data_dict):
 
 
 def resource_version_create(context, data_dict):
-    """Create a new version from the current dataset's revision
+    """Create a new version from the current dataset's activity_id
 
     Currently you must have editor level access on the dataset
-    to create a version.
+    to create a version. If creator_user_id is not present, it will be set as
+    the logged it user.
 
     :param resource_id: the id of the resource
     :type resource_id: string
     :param name: A short name for the version
     :type name: string
-    :param notes: A description for the version
+    :param notes optional: A description for the version
     :type notes: string
+    :param creator_user_id optional: the id of the creator
+    :type creator_user_id: string
     :returns: the newly created version
     :rtype: dictionary
     """
@@ -91,21 +94,34 @@ def resource_version_create(context, data_dict):
 
     toolkit.check_access('version_create', context,
                          {"package_id": resource.package_id})
-    assert context.get('auth_user_obj')  # Should be here after `check_access`
+
+    creator_user_id = data_dict.get('creator_user_id')
+    if creator_user_id:
+        creator_user = model.User.get(creator_user_id)
+        if not creator_user:
+            raise toolkit.ObjectNotFound('Creator user not found')
+    else:
+        creator_user_id = context['auth_user_obj'].id
 
     activity = model.Session.query(model.Activity). \
         filter_by(object_id=resource.package_id). \
-        order_by(model.Activity.timestamp.desc()).\
+        order_by(model.Activity.timestamp.desc()). \
         first()
+
+    if not activity:
+        raise toolkit.ObjectNotFound('Activity not found')
+
+    if not resource_in_activity(context, {'activity_id': activity.id, 'resource_id': resource_id}):
+        raise toolkit.ObjectNotFound('Resource not found in the activity.')
 
     version = Version(
         package_id=resource.package_id,
-        resource_id=data_dict['resource_id'],
+        resource_id=resource_id,
         activity_id=activity.id,
-        name=data_dict.get('name', None),
+        name=name,
         notes=data_dict.get('notes', None),
         created=datetime.utcnow(),
-        creator_user_id=context['auth_user_obj'].id)
+        creator_user_id=creator_user_id)
 
     model.Session.add(version)
 
@@ -233,14 +249,13 @@ def resource_history(context, data_dict):
 
     result = []
     for version in versions_list:
-            resource = activity_resource_show({
-                'user': context['user']
-            },
-            {
-                'activity_id': version['activity_id'],
-                'resource_id': version['resource_id']
-            }
-            )
+            resource = activity_resource_show(
+                {'user': context['user']},
+                {
+                    'activity_id': version['activity_id'],
+                    'resource_id': version['resource_id']
+                }
+                )
             resource['version'] = version
             result.append(resource)
 
@@ -257,7 +272,8 @@ def activity_resource_show(context, data_dict):
     :returns: The resource in the activity
     :rtype: dict
     '''
-    activity_id, resource_id = toolkit.get_or_bust(data_dict,
+    activity_id, resource_id = toolkit.get_or_bust(
+        data_dict,
         ['activity_id', 'resource_id']
         )
 
@@ -265,16 +281,51 @@ def activity_resource_show(context, data_dict):
                 {'model': core_model, 'user': context['user']},
                 {'id': activity_id, 'object_type': 'package'}
                 )
+
+    resources = package.get('resources')
+    if not resources:
+        raise toolkit.ObjectNotFound('Resource not found in the activity object.')
+
     old_resource = None
-    for res in package['resources']:
+    for res in resources:
         if res['id'] == resource_id:
             old_resource = res
             break
 
     if not old_resource:
-        raise toolkit.NotFound('Resource not found in the activity object.')
+        raise toolkit.ObjectNotFound('Resource not found in the activity object.')
 
     return old_resource
+
+
+def resource_in_activity(context, data_dict):
+    ''' Check if the resource exists in the activity object.
+
+    This method can be use as a sanity check to validate that the activity_id
+    assigned to the resource version contains the resource.
+
+    :param activity_id: the id of the activity
+    :type activity_id: string
+    :param resource_id: the id of the resource
+    :type resource_id: string
+    :returns: True if the resource exist in the activity
+    :rtype: boolean
+    '''
+    user = context.get('user')
+    if not user:
+        site_user = toolkit.get_action('get_site_user')({'ignore_auth': True},{})
+        user = site_user['name']
+
+    activity_show_context = {
+        'model': core_model,
+        'user': user
+    }
+
+    try:
+        activity_resource_show(activity_show_context, data_dict)
+    except toolkit.ObjectNotFound:
+        return False
+    return True
 
 
 def _get_resource_in_revision(context, data_dict, revision_id):
@@ -341,6 +392,7 @@ def _generate_diff(obj1, obj2, diff_type):
 
     return diff
 
+
 @toolkit.chained_action
 def resource_view_list(up_func, context, data_dict):
     ''' Overrides core action to always return versions_view as the last view.
@@ -358,3 +410,38 @@ def resource_view_list(up_func, context, data_dict):
     resource_views.extend(versions_views)
 
     return resource_views
+
+
+def get_activity_id_from_resource_version_name(context, data_dict):
+    ''' Returns the activity_id for the resource version
+
+    :param resource_id: the id of the resource
+    :type resource_id: string
+    :param version: the name of the version
+    :type version: string
+    :returns: The activity_id of the version
+    :rtype: string
+
+    '''
+    version_name = data_dict.get('version_name')
+    version_list = resource_version_list(context, data_dict)
+
+    for version in version_list:
+        if version['name'] == version_name:
+            return version['activity_id']
+
+    raise toolkit.ObjectNotFound('Version not found in the resource.')
+
+
+def resource_has_versions(context, data_dict):
+    """Check if the resource has versions.
+
+    :param resource_id: the id the resource
+    :type resource_id: string
+    :returns: True if the resource has at least 1 version
+    :rtype: boolean
+    """
+    version_list = resource_version_list(context, data_dict)
+    if not version_list:
+        return False
+    return True

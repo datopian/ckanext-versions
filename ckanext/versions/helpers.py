@@ -1,5 +1,6 @@
 from ckan.plugins import toolkit
 
+
 def resources_list_with_current_version(resources):
     '''Get the resource list and with name and url of the latest version.
     '''
@@ -9,13 +10,13 @@ def resources_list_with_current_version(resources):
             'resource_id': resource['id']}
             )
         if versions_list:
-           resource['version'] = versions_list[0]['name']
-           resource['version_url'] = toolkit.url_for(
-               'resource.read',
-               id=versions_list[0]['package_id'],
-               resource_id=versions_list[0]['resource_id'],
-               activity_id=versions_list[0]['activity_id']
-               )
+            resource['version'] = versions_list[0]['name']
+            resource['version_url'] = toolkit.url_for(
+                'resource.read',
+                id=versions_list[0]['package_id'],
+                resource_id=versions_list[0]['resource_id'],
+                activity_id=versions_list[0]['activity_id']
+                )
     return resources
 
 
@@ -29,7 +30,7 @@ def resource_version_list(resource):
     return resource_version_list
 
 
-def resource_version_from_activity_id(resource, activity_id ):
+def resource_version_from_activity_id(resource, activity_id):
     '''Get the resource version filtering for the given activity_id.
 
     '''
@@ -51,7 +52,29 @@ def resource_current_version(resource):
             'resource_id': resource['id']}
             )
     if versions_list:
-        current_version = toolkit.get_action('resource_version_current')(context, {
-                'resource_id': resource['id']})
+        current_version = toolkit.get_action('resource_version_current')(
+            context, {'resource_id': resource['id']}
+            )
         return current_version
     return False
+
+
+def download_url(resource_url, version_id):
+    '''Returns a url to download the specific version of the resource.
+
+    This method is to be used in templates, it takes the default download URL
+    and edits it to point to the endpoint for the specific version of the
+    resource.
+    '''
+    site_url = toolkit.config.get("ckan.site_url")
+    if not resource_url.startswith(site_url):
+        return resource_url
+
+    base_resource_url, filename = resource_url.split("/download/")
+    url = "{}/version/{}/download/{}".format(
+        base_resource_url,
+        version_id,
+        filename
+        )
+
+    return url
