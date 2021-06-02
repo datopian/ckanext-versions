@@ -5,6 +5,7 @@ from sqlalchemy.exc import IntegrityError
 
 from ckan import model as core_model
 from ckan.plugins import toolkit
+from ckanext.versions.logic.action import version_show
 from ckanext.versions.model import Version
 
 log = logging.getLogger(__name__)
@@ -88,7 +89,34 @@ def dataset_version_restore(context, data_dict):
     :returns: restored dataset
     :rtype: dict
     """
-    pass
+    model = context.get('model', core_model)
+    dataset_name_or_id, version_name_or_id = toolkit.get_or_bust(
+        data_dict, ['dataset_id', 'version_id'])
+
+    dataset = model.Package.get(dataset_name_or_id)
+    if not dataset:
+        raise toolkit.ObjectNotFound("Dataset not found")
+    dataset_id = dataset.id
+    toolkit.check_access('version_create',
+                         context,
+                         {"package_id": dataset_id})
+
+    version = version_show(context, data_dict)
+    if not version:
+        raise toolkit.ObjectNotFound("Version not found")
+    v_name = "restored_{}".format(version['name'])
+    v_notes = "Restored from version: {}".format(version['name'])
+    old_dataset = activity_dataset_show(
+        context,
+        {
+            'activity_id': version['activity_id'],
+            'dataset_id': dataset_id
+        }
+    )
+    restored_dataset = toolkit.get_action('package_update')(context, old_dataset)
+    dataset_version_create(context, {'dataset_id': dataset.id, 'name': v_name, 'notes': v_notes})
+
+    return restored_dataset
 
 
 @toolkit.side_effect_free

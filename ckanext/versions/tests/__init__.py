@@ -27,7 +27,7 @@ def create_version(dataset_id, user, version_name="Default Name"):
 
 def restore_version(dataset_id, version_id, user):
     context = get_context(user)
-    dataset_version_restore(context, {
+    return dataset_version_restore(context, {
         'dataset_id': dataset_id,
         'version_id': version_id
     })

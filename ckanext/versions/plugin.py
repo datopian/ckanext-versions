@@ -54,6 +54,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'version_delete': action.version_delete,
             'resource_view_list': action.resource_view_list,
             'dataset_version_create': dataset_version_action.dataset_version_create,
+            'dataset_version_restore': dataset_version_action.dataset_version_restore,
             'dataset_version_list': dataset_version_action.dataset_version_list,
             'dataset_version_latest': dataset_version_action.dataset_version_latest
         }

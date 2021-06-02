@@ -170,14 +170,12 @@ class TestDatasetVersion(object):
         assert latest_version.id != test_version['id'], "restore action should create a new version"
 
     def test_dataset_version_restore_fails_if_dataset_not_found(self, test_version, test_dataset, org_editor):
-        with pytest.raises(toolkit.ObjectNotFound) as e:
+        with pytest.raises(toolkit.ObjectNotFound, match="Dataset not found"):
             restore_version('fake-dataset-id', test_version['id'], org_editor)
-        assert "Dataset not found" == e.msg
 
     def test_dataset_version_restore_fails_if_dataset_not_have_version(self, test_version, test_dataset, org_editor):
-        with pytest.raises(toolkit.ObjectNotFound) as e:
+        with pytest.raises(toolkit.ObjectNotFound, match="Version not found"):
             restore_version(test_dataset['id'], 'fake-version-id', org_editor)
-        assert "Version not found" == e.msg
 
     @pytest.mark.parametrize("user_role, can_create_version", [
         ('admin', True),
