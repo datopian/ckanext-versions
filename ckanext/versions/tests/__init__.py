@@ -1,5 +1,5 @@
 from ckan import model
-from ckanext.versions.logic.dataset_version_action import dataset_version_create
+from ckanext.versions.logic.dataset_version_action import dataset_version_create, dataset_version_restore
 
 
 def get_context(user):
@@ -23,3 +23,11 @@ def create_version(dataset_id, user, version_name="Default Name"):
             "name": version_name
         }
     )
+
+
+def restore_version(dataset_id, version_id, user):
+    context = get_context(user)
+    dataset_version_restore(context, {
+        'dataset_id': dataset_id,
+        'version_id': version_id
+    })

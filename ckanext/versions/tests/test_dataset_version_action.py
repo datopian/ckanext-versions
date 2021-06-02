@@ -1,5 +1,6 @@
 import pytest
 
+from ckan import model
 from ckan.plugins import toolkit
 from ckan.tests import factories
 from ckanext.versions.logic.dataset_version_action import (
@@ -9,7 +10,8 @@ from ckanext.versions.logic.dataset_version_action import (
     activity_dataset_show,
     dataset_version_latest, dataset_version_list
 )
-from ckanext.versions.tests import get_context, assert_version, create_version
+from ckanext.versions.model import Version
+from ckanext.versions.tests import get_context, assert_version, create_version, restore_version
 
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
@@ -136,6 +138,63 @@ class TestDatasetVersion(object):
 
         assert old_dataset['name'] == old_name
         assert old_dataset['id'] == dataset['id']
+
+    @pytest.mark.parametrize("object_ref", [
+        "id",
+        "name"
+    ])
+    def test_dataset_version_restore_retrives_dataset(self, test_version, test_dataset, org_editor, object_ref):
+        context = get_context(org_editor)
+        dataset_title = test_dataset['title']
+        dataset_id = test_dataset['id']
+        dataset_ref = test_dataset[object_ref]
+        version_ref = test_version[object_ref]
+        toolkit.get_action('package_patch')(
+            context,
+            {
+                "id": dataset_id,
+                "title": "updated-title"
+            }
+        )
+        restored_dataset = restore_version(dataset_ref, version_ref, org_editor)
+
+        assert dataset_title == restored_dataset['title'], "restored dataset title does not match"
+        assert dataset_id == restored_dataset['id'], "restored dataset has different id"
+
+    def test_dataset_version_restore_creates_new_version_after_restore(self, test_version, test_dataset, org_editor):
+        restore_version(test_dataset['id'], test_version['id'], org_editor)
+        latest_version = model.Session.query(Version). \
+            filter(Version.package_id == test_dataset['id']). \
+            order_by(Version.created.desc()).first()
+
+        assert latest_version.id != test_version['id'], "restore action should create a new version"
+
+    def test_dataset_version_restore_fails_if_dataset_not_found(self, test_version, test_dataset, org_editor):
+        with pytest.raises(toolkit.ObjectNotFound) as e:
+            restore_version('fake-dataset-id', test_version['id'], org_editor)
+        assert "Dataset not found" == e.msg
+
+    def test_dataset_version_restore_fails_if_dataset_not_have_version(self, test_version, test_dataset, org_editor):
+        with pytest.raises(toolkit.ObjectNotFound) as e:
+            restore_version(test_dataset['id'], 'fake-version-id', org_editor)
+        assert "Version not found" == e.msg
+
+    @pytest.mark.parametrize("user_role, can_create_version", [
+        ('admin', True),
+        ('editor', True),
+        ('member', False),
+    ])
+    def test_dataset_version_restore_auth(self, test_version, test_organization, test_dataset, user_role, can_create_version):
+        for user in test_organization['users']:
+            if user['capacity'] == user_role:
+                if can_create_version:
+                    restore_version(test_dataset['id'], test_version['id'], user)
+                    return
+                else:
+                    with pytest.raises(toolkit.NotAuthorized):
+                        restore_version(test_dataset['id'], test_version['id'], user)
+                    return
+        pytest.fail("Couldn't find user with required role %s", user_role)
 
     def test_dataset_version_list_return_all_version(self, test_dataset, org_editor):
         context = get_context(org_editor)

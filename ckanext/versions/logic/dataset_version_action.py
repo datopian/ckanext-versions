@@ -77,6 +77,20 @@ def dataset_version_create(context, data_dict):
     return version.as_dict()
 
 
+def dataset_version_restore(context, data_dict):
+    """Restores dataset version by restoring dataset
+    metadata and creating a new version with it
+
+    :param dataset_id: the id or name of the dataset
+    :type dataset_id: string
+    :param version_id: the id or name of the dataset
+    :type version_id: string
+    :returns: restored dataset
+    :rtype: dict
+    """
+    pass
+
+
 @toolkit.side_effect_free
 def dataset_version_list(context, data_dict):
     """List versions of a given dataset
