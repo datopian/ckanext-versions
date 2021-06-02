@@ -79,7 +79,7 @@ class TestDatasetVersion(object):
 
     def test_dataset_create_should_fail_when_incorrect_activity_id(self, test_dataset, org_editor):
         context = get_context(org_editor)
-        with pytest.raises(toolkit.ObjectNotFound) as e:
+        with pytest.raises(toolkit.ObjectNotFound, match="Activity not found"):
             dataset_version_create(
                 context,
                 {
@@ -88,7 +88,6 @@ class TestDatasetVersion(object):
                     "activity_id": "fake-activity-id"
                 }
             )
-            assert "Activity not found" == e.msg
 
     @pytest.mark.parametrize("user_role, can_create_version", [
         ('admin', True),
@@ -114,9 +113,8 @@ class TestDatasetVersion(object):
             create_version(test_dataset['id'], org_editor, version_name=version_name)
 
     def test_dataset_version_create_should_fail_if_dataset_not_exists(self, org_editor):
-        with pytest.raises(toolkit.ObjectNotFound) as e:
+        with pytest.raises(toolkit.ObjectNotFound, match="Dataset not found"):
             create_version('fake_dataset_id', org_editor)
-            assert e.msg == "Dataset not found"
 
     def test_dataset_version_create_returns_valid_activity_id(self, test_organization, org_editor):
         old_name = "initial-name"
@@ -218,14 +216,13 @@ class TestDatasetVersion(object):
 
     def test_dataset_version_should_fail_if_dataset_not_exists(self, org_editor):
         context = get_context(org_editor)
-        with pytest.raises(toolkit.ObjectNotFound) as e:
+        with pytest.raises(toolkit.ObjectNotFound, match="Dataset not found"):
             dataset_version_list(
                 context,
                 {
                     'dataset_id': 'fake-dataset-id'
                 }
             )
-            assert "Dataset not found" == e.msg
 
     def test_dataset_version_should_return_empty_list_if_dataset_no_versions(self, test_dataset, org_editor):
         context = get_context(org_editor)
@@ -261,25 +258,23 @@ class TestDatasetVersion(object):
 
     def test_dataset_version_latest_raises_when_dataset_not_found(self, org_editor):
         context = get_context(org_editor)
-        with pytest.raises(toolkit.ObjectNotFound) as e:
+        with pytest.raises(toolkit.ObjectNotFound, match="Dataset not found"):
             dataset_version_latest(
                 context,
                 {
                     'dataset_id': 'fake-dataset-id'
                 }
             )
-            assert "Dataset not found" == e.msg
 
     def test_dataset_version_latest_raises_when_dataset_has_no_versions(self, test_dataset, org_editor):
         context = get_context(org_editor)
-        with pytest.raises(toolkit.ObjectNotFound) as e:
+        with pytest.raises(toolkit.ObjectNotFound, match="Versions not found for this dataset"):
             dataset_version_latest(
                 context,
                 {
                     'dataset_id': test_dataset['id']
                 }
             )
-            assert "Versions not found for this dataset" == e.msg
 
     def test_activity_dataset_show_returns_correct_dataset(self, test_dataset, org_editor):
         version = create_version(test_dataset['id'], org_editor)
@@ -307,7 +302,7 @@ class TestDatasetVersion(object):
     def test_activity_dataset_show_fails_if_no_dataset_in_activity(self, test_dataset, org_editor):
         version = create_version(test_dataset['id'], org_editor)
         context = get_context(org_editor)
-        with pytest.raises(toolkit.ObjectNotFound) as e:
+        with pytest.raises(toolkit.ObjectNotFound, match='Dataset not found in the activity object.'):
             activity_dataset_show(
                 context,
                 {
@@ -315,7 +310,6 @@ class TestDatasetVersion(object):
                     'activity_id': version['activity_id']
                 }
             )
-            assert 'Dataset not found in the activity object.' == e.msg
 
     def test_get_activity_id_from_dataset_version_returns_correct(self, test_dataset, org_editor):
         version1 = create_version(test_dataset['id'], org_editor, version_name="Version1")
@@ -336,7 +330,7 @@ class TestDatasetVersion(object):
 
     def test_get_activity_id_from_dataset_version_raises_not_found(self, test_dataset, org_editor):
         context = get_context(org_editor)
-        with pytest.raises(toolkit.ObjectNotFound) as e:
+        with pytest.raises(toolkit.ObjectNotFound, match="Version not found in the dataset"):
             get_activity_id_from_dataset_version_name(
                 context,
                 {
@@ -344,7 +338,6 @@ class TestDatasetVersion(object):
                     'version': 'Fake version name'
                 }
             )
-            assert "Version not found in the dataset" == e.msg
 
     def test_new_dataset_has_no_versions(self, test_dataset, org_editor):
         context = get_context(org_editor)
