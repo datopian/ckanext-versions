@@ -209,7 +209,7 @@ def resource_version_current(context, data_dict):
     :rtype dict
     '''
     version_list = resource_version_list(context, data_dict)
-    return version_list[0]
+    return version_list[0] if version_list else None
 
 
 def resource_history(context, data_dict):
