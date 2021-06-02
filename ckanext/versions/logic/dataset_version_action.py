@@ -36,7 +36,7 @@ def dataset_version_create(context, data_dict):
     dataset_id = dataset.id
     toolkit.check_access('version_create',
                          context,
-                         {"package_id": dataset_id} )
+                         {"package_id": dataset_id})
     creator_user_id = context['auth_user_obj'].id
 
     if activity_id:
