@@ -293,6 +293,12 @@ class TestResourceVersionList(object):
         assert current_version['name'] == '2'
         assert current_version['notes'] == 'Notes for version 2'
 
+    def test_resource_version_current_no_versions(self):
+        resource = factories.Resource(
+            name='First name'
+        )
+        assert helpers.call_action('resource_version_current', {}, resource_id=resource['id']) is None
+
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
 class TestVersionShow(object):
