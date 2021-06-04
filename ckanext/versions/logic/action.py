@@ -101,7 +101,13 @@ def resource_version_create(context, data_dict):
         if not creator_user:
             raise toolkit.ObjectNotFound('Creator user not found')
     else:
-        creator_user_id = context['auth_user_obj'].id
+        if context.get('user'):
+            user = model.User.get(context['user'])
+            if user:
+                creator_user_id = user.id
+        if not creator_user_id:
+            site_id = toolkit.config.get('ckan.site_id', 'ckan_site_user')
+            creator_user_id = model.User.get(site_id).id
 
     activity = model.Session.query(model.Activity). \
         filter_by(object_id=resource.package_id). \
