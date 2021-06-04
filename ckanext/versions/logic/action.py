@@ -178,13 +178,36 @@ def resource_version_list(context, data_dict):
     return [v.as_dict() for v in versions]
 
 
+def resource_version_clear(context, data_dict):
+    """Delete all versions for a given resource
+
+    :param resource_id: the id the resource
+    :type resource_id: string
+    """
+    model = context.get('model', core_model)
+    resource_id = toolkit.get_or_bust(data_dict, ['resource_id'])
+    resource = model.Resource.get(resource_id)
+    if not resource:
+        raise toolkit.ObjectNotFound('Resource not found')
+
+    toolkit.check_access('resource_version_clear', context,
+                         {"package_id": resource.package_id})
+
+    versions = model.Session.query(Version).\
+        filter(Version.resource_id == resource.id).\
+        delete()
+
+    if not versions:
+        raise toolkit.ObjectNotFound('Versions not found for this resource')
+
+    model.Session.commit()
+
+
 def version_delete(context, data_dict):
     """Delete a specific version
 
     :param version_id: the id of the version
     :type version_id: string
-    :returns: The matched version
-    :rtype: dict
     """
     model = context.get('model', core_model)
     version_id = toolkit.get_or_bust(data_dict, ['version_id'])
@@ -222,6 +245,7 @@ def version_show(context, data_dict):
     return version.as_dict()
 
 
+@toolkit.side_effect_free
 def resource_version_current(context, data_dict):
     ''' Show the current version for a resource
 
@@ -234,6 +258,7 @@ def resource_version_current(context, data_dict):
     return version_list[0] if version_list else None
 
 
+@toolkit.side_effect_free
 def resource_history(context, data_dict):
     ''' Get an array with all the versions of the resource.
 
@@ -268,6 +293,7 @@ def resource_history(context, data_dict):
     return result
 
 
+@toolkit.side_effect_free
 def activity_resource_show(context, data_dict):
     ''' Returns a resource from the activity object.
 
@@ -304,6 +330,7 @@ def activity_resource_show(context, data_dict):
     return old_resource
 
 
+@toolkit.side_effect_free
 def resource_in_activity(context, data_dict):
     ''' Check if the resource exists in the activity object.
 
@@ -399,6 +426,7 @@ def _generate_diff(obj1, obj2, diff_type):
     return diff
 
 
+@toolkit.side_effect_free
 @toolkit.chained_action
 def resource_view_list(up_func, context, data_dict):
     ''' Overrides core action to always return versions_view as the last view.
@@ -418,6 +446,7 @@ def resource_view_list(up_func, context, data_dict):
     return resource_views
 
 
+@toolkit.side_effect_free
 def get_activity_id_from_resource_version_name(context, data_dict):
     ''' Returns the activity_id for the resource version
 
@@ -439,6 +468,7 @@ def get_activity_id_from_resource_version_name(context, data_dict):
     raise toolkit.ObjectNotFound('Version not found in the resource.')
 
 
+@toolkit.side_effect_free
 def resource_has_versions(context, data_dict):
     """Check if the resource has versions.
 

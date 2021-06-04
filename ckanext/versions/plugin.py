@@ -49,6 +49,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'resource_version_create': action.resource_version_create,
             'resource_version_list': action.resource_version_list,
             'resource_version_current': action.resource_version_current,
+            'resource_version_clear': action.resource_version_clear,
             'version_show': action.version_show,
             'version_delete': action.version_delete,
             'resource_view_list': action.resource_view_list,
@@ -62,6 +63,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'version_delete': auth.version_delete,
             'version_list': auth.version_list,
             'version_show': auth.version_show,
+            'resource_version_clear': action.resource_version_clear,
         }
 
     # ITemplateHelpers
