@@ -178,13 +178,36 @@ def resource_version_list(context, data_dict):
     return [v.as_dict() for v in versions]
 
 
+def resource_version_clear(context, data_dict):
+    """Delete all versions for a given resource
+
+    :param resource_id: the id the resource
+    :type resource_id: string
+    """
+    model = context.get('model', core_model)
+    resource_id = toolkit.get_or_bust(data_dict, ['resource_id'])
+    resource = model.Resource.get(resource_id)
+    if not resource:
+        raise toolkit.ObjectNotFound('Resource not found')
+
+    toolkit.check_access('resource_version_clear', context,
+                         {"package_id": resource.package_id})
+
+    versions = model.Session.query(Version).\
+        filter(Version.resource_id == resource.id).\
+        delete()
+
+    if not versions:
+        raise toolkit.ObjectNotFound('Versions not found for this resource')
+
+    model.Session.commit()
+
+
 def version_delete(context, data_dict):
     """Delete a specific version
 
     :param version_id: the id of the version
     :type version_id: string
-    :returns: The matched version
-    :rtype: dict
     """
     model = context.get('model', core_model)
     version_id = toolkit.get_or_bust(data_dict, ['version_id'])

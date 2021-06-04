@@ -4,9 +4,11 @@ from ckan.tests import factories, helpers
 
 from ckanext.versions.logic.action import (
     activity_resource_show, get_activity_id_from_resource_version_name,
-    resource_has_versions, resource_has_versions, resource_in_activity,
+    resource_has_versions, resource_in_activity,
     resource_version_create, resource_version_current,
-    resource_version_list, version_delete, version_show)
+    resource_version_list, version_delete, version_show,
+    resource_version_clear
+)
 from ckanext.versions.tests import get_context
 
 
@@ -355,6 +357,27 @@ class TestVersionDelete(object):
         with pytest.raises(toolkit.ObjectNotFound):
             version_show(context, {'version_id': version['id']})
 
+    def test_resource_version_clear(self):
+        resource = factories.Resource(
+            name='First name'
+        )
+        user = factories.Sysadmin()
+        context = get_context(user)
+
+        for i in range(0, 3):
+            resource_version_create(
+                context, {
+                    'resource_id': resource['id'],
+                    'name': '{}.0'.format(i),
+                    'notes': 'Version notes {}'.format(i)
+                }
+            )
+
+        assert len(resource_version_list(context, {'resource_id': resource['id']})) == 3
+
+        resource_version_clear(context, {'resource_id': resource['id']})
+
+        assert len(resource_version_list(context, {'resource_id': resource['id']})) == 0
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
 class TestActivityActions(object):

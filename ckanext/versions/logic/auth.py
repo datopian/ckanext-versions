@@ -21,6 +21,14 @@ def version_delete(context, data_dict):
                          {"id": data_dict['package_id']})
 
 
+def resource_version_clear(context, data_dict):
+    """Check if a user is allowed to delete a version
+
+    This is permitted only to users who are allowed to modify the dataset
+    """
+    return version_delete(context, data_dict)
+
+
 @toolkit.auth_allow_anonymous_access
 def version_list(context, data_dict):
     """Check if a user is allowed to list dataset versions
