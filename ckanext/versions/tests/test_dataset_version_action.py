@@ -94,7 +94,6 @@ class TestDatasetVersion(object):
         with pytest.raises(toolkit.ValidationError, match="Version already exists for this activity"):
             create_version(test_dataset['id'], org_editor, version_name="Version2")
 
-
     @pytest.mark.parametrize("user_role, can_create_version", [
         ('admin', True),
         ('editor', True),

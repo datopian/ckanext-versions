@@ -1,5 +1,4 @@
 from ckan.plugins import toolkit
-import json
 
 
 def resources_list_with_current_version(resources):

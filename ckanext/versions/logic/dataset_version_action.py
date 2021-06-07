@@ -10,6 +10,7 @@ from ckanext.versions.model import Version
 
 log = logging.getLogger(__name__)
 
+
 def dataset_version_create(context, data_dict):
     """Create a new version from the current dataset's activity_id
 

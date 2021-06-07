@@ -10,6 +10,7 @@ def versions_setup():
     if not tables_exist():
         create_tables()
 
+
 @pytest.fixture()
 def org_admin():
     return factories.User(name="admin")
@@ -42,6 +43,7 @@ def test_dataset(test_organization):
 @pytest.fixture()
 def test_resource(test_dataset):
     return factories.Resource(package_id=test_dataset['id'])
+
 
 @pytest.fixture()
 def test_version(test_dataset, org_editor):
