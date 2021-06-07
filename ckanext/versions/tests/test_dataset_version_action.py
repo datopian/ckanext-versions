@@ -217,8 +217,30 @@ class TestDatasetVersion(object):
             }
         )
         version_ids = [v['id'] for v in version_list]
+        assert 2 == len(version_ids), "only 2 versions created for dataset"
         assert version1['id'] in version_ids
         assert version2['id'] in version_ids
+
+    def test_dataset_version_list_return_version_in_create_time_desc_order(self, test_dataset, org_editor):
+        context = get_context(org_editor)
+        version1 = create_version(test_dataset['id'], org_editor, version_name="Version1")
+        toolkit.get_action('package_patch')(
+            context,
+            {
+                "id": test_dataset['id'],
+                "title": "New Title"
+            }
+        )
+        version2 = create_version(test_dataset['id'], org_editor, version_name="Version2")
+
+        version_list = dataset_version_list(
+            context,
+            {
+                'dataset_id': test_dataset['id']
+            }
+        )
+        assert version2['id'] == version_list[0]['id'], "version2 should be first as newest"
+        assert version1['id'] == version_list[-1]['id'], "version1 should be last as oldest"
 
     def test_dataset_version_should_fail_if_dataset_not_exists(self, org_editor):
         context = get_context(org_editor)
