@@ -50,6 +50,12 @@ def dataset_version_create(context, data_dict):
     if not activity:
         raise toolkit.ObjectNotFound('Activity not found')
 
+    version_for_activity = model.Session.query(Version). \
+        filter_by(activity_id=activity.id). \
+        first()
+    if version_for_activity:
+        raise toolkit.ValidationError("Version already exists for this activity")
+
     version = Version(
         package_id=dataset_id,
         activity_id=activity.id,

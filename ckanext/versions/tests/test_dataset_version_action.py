@@ -89,6 +89,12 @@ class TestDatasetVersion(object):
                 }
             )
 
+    def test_dataset_version_create_fails_if_version_for_activity_exists(self, test_dataset, org_editor):
+        create_version(test_dataset['id'], org_editor, version_name="Version1")
+        with pytest.raises(toolkit.ValidationError, match="Version already exists for this activity"):
+            create_version(test_dataset['id'], org_editor, version_name="Version2")
+
+
     @pytest.mark.parametrize("user_role, can_create_version", [
         ('admin', True),
         ('editor', True),
@@ -314,8 +320,6 @@ class TestDatasetVersion(object):
     def test_get_activity_id_from_dataset_version_returns_correct(self, test_dataset, org_editor):
         version1 = create_version(test_dataset['id'], org_editor, version_name="Version1")
         expected_activity_id = version1['activity_id']
-
-        create_version(test_dataset['id'], org_editor, version_name="Version2")
 
         context = get_context(org_editor)
         actual_activity_id = get_activity_id_from_dataset_version_name(
