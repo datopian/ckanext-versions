@@ -303,6 +303,26 @@ class TestResourceVersionList(object):
 
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
+class TestVersionUpdate(object):
+
+    def test_version_update(self, test_version, org_editor):
+        context = get_context(org_editor)
+        updated_version = toolkit.get_action('version_update')(
+            context,
+            {
+                'version_id': test_version['id'],
+                'package_id': test_version['package_id'],
+                'name': "updated-name",
+                'notes': "updated-notes"
+            }
+        )
+
+        assert test_version['id'] == updated_version['id']
+        assert "updated-name" == updated_version['name']
+        assert "updated-notes" == updated_version['notes']
+
+
+@pytest.mark.usefixtures('clean_db', 'versions_setup')
 class TestVersionShow(object):
 
     def test_version_show(self):

@@ -18,8 +18,6 @@ log = logging.getLogger(__name__)
 def version_update(context, data_dict):
     """Update a version from the current dataset.
 
-    :param package_id: the id the dataset
-    :type package_id: string
     :param version_id: the id of the version
     :type version_id: string
     :param name: A short name for the version
@@ -46,7 +44,7 @@ def version_update(context, data_dict):
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     version.name = name
-    version.description = data_dict.get('description', None)
+    version.notes = data_dict.get('notes', None)
 
     session.add(version)
 
