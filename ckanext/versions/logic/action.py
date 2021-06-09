@@ -18,8 +18,6 @@ log = logging.getLogger(__name__)
 def version_update(context, data_dict):
     """Update a version from the current dataset.
 
-    :param package_id: the id the dataset
-    :type package_id: string
     :param version_id: the id of the version
     :type version_id: string
     :param name: A short name for the version
@@ -30,7 +28,7 @@ def version_update(context, data_dict):
     :rtype: dictionary
     """
     model = context.get('model', core_model)
-    version_id, name = toolkit.get_or_bust(data_dict, ['version', 'name'])
+    version_id, name = toolkit.get_or_bust(data_dict, ['version_id', 'name'])
 
     # I'll create my own session! With Blackjack! And H**kers!
     session = model.meta.create_local_session()
@@ -42,11 +40,11 @@ def version_update(context, data_dict):
     if not version:
         raise toolkit.ObjectNotFound('Version not found')
 
-    toolkit.check_access('dataset_version_create', context, data_dict)
+    toolkit.check_access('version_create', context, data_dict)
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     version.name = name
-    version.description = data_dict.get('description', None)
+    version.notes = data_dict.get('notes', None)
 
     session.add(version)
 
@@ -228,14 +226,26 @@ def version_delete(context, data_dict):
 def version_show(context, data_dict):
     """Show a specific version object
 
-    :param version_id: the id of the version
+    :param version_id: the id or name of the version
     :type version_id: string
+    :param dataset_id: [Optional] the id or name of a dataset. Mandatory
+    if version name provided as version_id
+    :type dataset_id: string
     :returns: the version dictionary
     :rtype: dict
     """
     model = context.get('model', core_model)
-    version_id = toolkit.get_or_bust(data_dict, ['version_id'])
-    version = model.Session.query(Version).get(version_id)
+    version_name_or_id = toolkit.get_or_bust(data_dict, ['version_id'])
+    version = model.Session.query(Version).get(version_name_or_id)
+    if not version:
+        version_name = version_name_or_id
+        dataset_name_or_id = data_dict.get('dataset_id')
+        dataset = model.Package.get(dataset_name_or_id)
+        if dataset:
+            dataset_id = dataset.id
+            version = model.Session.query(Version). \
+                filter(Version.package_id == dataset_id). \
+                filter(Version.name == version_name).one_or_none()
     if not version:
         raise toolkit.ObjectNotFound('Version not found')
 
