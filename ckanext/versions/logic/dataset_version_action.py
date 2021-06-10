@@ -30,6 +30,8 @@ def dataset_version_create(context, data_dict):
     model = context.get('model', core_model)
     dataset_name_or_id, name = toolkit.get_or_bust(
         data_dict, ['dataset_id', 'name'])
+    if not name:
+        raise toolkit.ValidationError("Version name can't be an empty string")
     activity_id = data_dict.get('activity_id')
 
     dataset = model.Package.get(dataset_name_or_id)

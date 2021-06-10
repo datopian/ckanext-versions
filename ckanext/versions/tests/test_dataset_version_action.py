@@ -40,6 +40,10 @@ class TestDatasetVersion(object):
         version = create_version(test_dataset['name'], org_editor)
         assert test_dataset['id'] == version['package_id']
 
+    def test_dataset_create_version_not_accepts_empty_name(self, test_dataset, org_editor):
+        with pytest.raises(toolkit.ValidationError, match="Version name can't be an empty string"):
+            create_version(test_dataset['id'], org_editor, version_name='')
+
     def test_dataset_create_should_create_version_for_given_activity(self, test_dataset, org_editor):
         version_name = "V1.0"
         context = get_context(org_editor)
