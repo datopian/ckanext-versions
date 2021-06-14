@@ -1,5 +1,11 @@
 from ckan import model
 from ckanext.versions.logic.dataset_version_action import dataset_version_create, dataset_version_restore
+from ckanext.versions.model import create_tables, tables_exist
+
+
+def versions_db_setup():
+    if not tables_exist():
+        create_tables()
 
 
 def get_context(user):
