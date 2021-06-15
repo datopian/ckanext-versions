@@ -435,6 +435,39 @@ class TestActivityActions(object):
         assert activity_resource_2
         assert activity_resource_2['name'] == 'Second name'
 
+    def test_activity_resource_shows_works_on_non_editors(self):
+        user = factories.User()
+        owner_org = factories.Organization(
+            users=[{'name': user['name'], 'capacity': 'editor'}]
+        )
+        dataset = factories.Dataset(owner_org=owner_org['id'])
+        resource = factories.Resource(
+            package_id=dataset['id'],
+            name='First name'
+        )
+
+        context = get_context(user)
+
+        version = resource_version_create(
+            context, {
+                'resource_id': resource['id'],
+                'name': '1',
+                'notes': 'Version notes'
+            }
+        )
+
+        user2 = factories.User()
+
+        activity_resource = activity_resource_show(
+            {'user': user2['name']}, {
+                'activity_id': version['activity_id'],
+                'resource_id': resource['id']
+            }
+        )
+
+        assert activity_resource
+        assert activity_resource['name'] == 'First name'
+
     def test_get_activity_id_from_resource_version_name(self):
         user = factories.User()
         owner_org = factories.Organization(
