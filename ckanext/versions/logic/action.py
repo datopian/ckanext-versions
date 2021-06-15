@@ -307,12 +307,15 @@ def activity_resource_show(context, data_dict):
     activity_id, resource_id = toolkit.get_or_bust(
         data_dict,
         ['activity_id', 'resource_id']
-        )
+    )
+
+    # Ensure we are not leaking info to unauthorized users
+    toolkit.check_access('resource_show', context, {'id': resource_id})
 
     package = toolkit.get_action('activity_data_show')(
-                {'model': core_model, 'user': context['user']},
-                {'id': activity_id, 'object_type': 'package'}
-                )
+        {'user': toolkit.get_action('get_site_user')({'ignore_auth': True})['name']},
+        {'id': activity_id, 'object_type': 'package'}
+    )
 
     resources = package.get('resources')
     if not resources:
