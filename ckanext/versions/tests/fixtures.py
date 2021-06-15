@@ -1,14 +1,12 @@
 import pytest
 
 from ckan.tests import factories
-from ckanext.versions.model import create_tables, tables_exist
-from ckanext.versions.tests import create_version
+from ckanext.versions.tests import create_version, versions_db_setup
 
 
 @pytest.fixture
 def versions_setup():
-    if not tables_exist():
-        create_tables()
+    versions_db_setup()
 
 
 @pytest.fixture()
