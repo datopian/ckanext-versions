@@ -307,7 +307,11 @@ class TestDatasetVersion(object):
                 }
             )
 
-    def test_activity_dataset_show_returns_correct_dataset(self, test_dataset, org_editor):
+    @pytest.mark.parametrize("object_ref", [
+        "id",
+        "name"
+    ])
+    def test_activity_dataset_show_returns_correct_dataset(self, test_dataset, org_editor, object_ref):
         version = create_version(test_dataset['id'], org_editor)
         context = get_context(org_editor)
         updated_name = "updated-name"
@@ -322,7 +326,7 @@ class TestDatasetVersion(object):
         old_dataset = activity_dataset_show(
             context,
             {
-                'dataset_id': new_dataset['id'],
+                'dataset_id': new_dataset[object_ref],
                 'activity_id': version['activity_id']
             }
         )
