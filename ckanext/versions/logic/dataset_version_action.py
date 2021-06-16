@@ -173,12 +173,12 @@ def activity_dataset_show(context, data_dict):
 
     :param activity_id: the id of the activity
     :type activity_id: string
-    :param dataset_id: the id of the resource
+    :param dataset_id: the name or id of the dataset
     :type dataset_id: string
     :returns: The dataset in the activity
     :rtype: dict
     '''
-    activity_id, dataset_id = toolkit.get_or_bust(
+    activity_id, dataset_name_or_id = toolkit.get_or_bust(
         data_dict,
         ['activity_id', 'dataset_id']
     )
@@ -186,7 +186,7 @@ def activity_dataset_show(context, data_dict):
         context,
         {'id': activity_id, 'object_type': 'package'}
     )
-    if not dataset or dataset['id'] != dataset_id:
+    if not dataset or dataset_name_or_id not in (dataset['id'], dataset['name']):
         raise toolkit.ObjectNotFound('Dataset not found in the activity object.')
 
     return dataset
