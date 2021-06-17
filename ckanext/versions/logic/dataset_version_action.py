@@ -24,6 +24,9 @@ def dataset_version_create(context, data_dict):
     :type name: string
     :param notes optional: Notes about the version
     :type notes: string
+    :param activity_id optional: create version for specific activity id,
+    if empty the latest activity_id of dataset is used
+    :type notes: string
     :returns: the newly created version
     :rtype: dictionary
     """
