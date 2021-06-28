@@ -87,7 +87,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     def info(self):
         return {'name': 'versions_view',
                 'title': 'Version history',
-                'icon': 'table',
+                'icon': 'history',
                 'default_title': plugins.toolkit._('Version history'),
                 'iframed': False}
 
