@@ -176,6 +176,21 @@ class TestDatasetVersion(object):
 
         assert latest_version.id != test_version['id'], "restore action should create a new version"
 
+    def test_dataset_version_restore_naming_for_multiple_restores(self, test_version, test_dataset, org_editor):
+        number_of_restores = 5
+        prefix = "restored"
+        for counter in range(number_of_restores):
+            restore_version(test_dataset['id'], test_version['id'], org_editor)
+            new_name = model.Session.query(Version). \
+                filter(Version.package_id == test_dataset['id']). \
+                order_by(Version.created.desc()).first().name
+            if counter:
+                assert new_name == "{}_{}_{}".format(prefix, counter, test_version['name']), \
+                    "restored version did not have the exected name"
+            else:
+                assert new_name == "{}_{}".format(prefix, test_version['name']), \
+                    "restored version did not have the exected name"
+
     def test_dataset_version_restore_fails_if_dataset_not_found(self, test_version, test_dataset, org_editor):
         with pytest.raises(toolkit.ObjectNotFound, match="Dataset not found"):
             restore_version('fake-dataset-id', test_version['id'], org_editor)
