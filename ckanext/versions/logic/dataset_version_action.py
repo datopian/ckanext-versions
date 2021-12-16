@@ -4,6 +4,7 @@ from datetime import datetime
 from sqlalchemy.exc import IntegrityError
 
 from ckan import model as core_model
+from ckan.common import _
 from ckan.plugins import toolkit
 from ckanext.versions.logic.action import version_show
 from ckanext.versions.model import Version
@@ -116,8 +117,18 @@ def dataset_version_restore(context, data_dict):
     version = version_show(context, data_dict)
     if not version:
         raise toolkit.ObjectNotFound("Version not found")
-    v_name = "restored_{}".format(version['name'])
-    v_notes = "Restored from version: {}".format(version['name'])
+
+    v_name_prefix = _("restored")
+    v_name = "{}_{}".format(v_name_prefix, version['name'])
+    v_notes = _("Restored from version: {}").format(version['name'])
+
+    releases = dataset_version_list(context, {'dataset_id': dataset_name_or_id})
+    release_names = [v['name'] for v in releases]
+    counter = 1
+    while v_name in release_names:
+        v_name = "{}_{}_{}".format(v_name_prefix, counter, version['name'])
+        counter += 1
+
     old_dataset = activity_dataset_show(
         context,
         {
