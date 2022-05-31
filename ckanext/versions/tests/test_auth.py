@@ -4,7 +4,7 @@ from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
 
 
-@pytest.mark.usefixtures("clean_db", "versions_setup")
+@pytest.mark.usefixtures("clean_db", "versions_setup", "load_activity_plugin")
 class TestVersionsAuth(object):
 
     def _get_context(self, user):
