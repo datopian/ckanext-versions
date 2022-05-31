@@ -149,7 +149,8 @@ To install ckanext-versions:
 
 3. Add ``versions`` to the ``ckan.plugins`` setting in your CKAN
    config file (by default the config file is located at
-   ``/etc/ckan/default/production.ini``).
+   ``/etc/ckan/default/production.ini``). **Note**: If using CKAN 2.10 or above you will also
+   need to add the ``activity`` plugin.
 
 4. Initialize the database tables required for this extension by running::
 
