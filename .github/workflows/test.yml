@@ -15,15 +15,20 @@ jobs:
 
   test:
     needs: lint
-    name: CKAN 2.9
+    strategy:
+      matrix:
+        ckan-version: [2.9, "2.10"]
+      fail-fast: false
+
+    name: CKAN ${{ matrix.ckan-version }}
     runs-on: ubuntu-latest
     container:
-      image: openknowledge/ckan-dev:2.9
+      image: openknowledge/ckan-dev:${{ matrix.ckan-version }}
     services:
       solr:
-        image: ckan/ckan-solr-dev:2.9
+        image: ckan/ckan-solr-dev:${{ matrix.ckan-version }}
       postgres:
-        image: ckan/ckan-postgres-dev:2.9
+        image: ckan/ckan-postgres-dev:${{ matrix.ckan-version }}
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
