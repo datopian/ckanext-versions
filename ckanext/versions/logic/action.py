@@ -8,7 +8,14 @@ from datetime import datetime
 from ckan import model as core_model
 from ckan.logic.action.get import resource_show as core_resource_show
 from ckan.plugins import toolkit
+
+try:
+    from ckanext.activity.model import Activity
+except ImportError:
+    from ckan.model import Activity
+
 from sqlalchemy.exc import IntegrityError
+
 
 from ckanext.versions.model import Version
 
@@ -109,9 +116,9 @@ def resource_version_create(context, data_dict):
             site_id = toolkit.config.get('ckan.site_id', 'ckan_site_user')
             creator_user_id = model.User.get(site_id).id
 
-    activity = model.Session.query(model.Activity). \
+    activity = model.Session.query(Activity). \
         filter_by(object_id=resource.package_id). \
-        order_by(model.Activity.timestamp.desc()). \
+        order_by(Activity.timestamp.desc()). \
         first()
 
     if not activity:
