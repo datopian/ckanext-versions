@@ -1,4 +1,5 @@
 import pytest
+from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
 
 from ckanext.versions.logic.action import (
