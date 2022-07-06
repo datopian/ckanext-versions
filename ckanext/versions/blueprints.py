@@ -26,22 +26,26 @@ def version_download(id, resource_id, version_id):
     try:
         version = action.version_show(
             context, {'resource_id': resource_id, 'version_id': version_id}
-            )
+        )
         activity_id = version['activity_id']
     except toolkit.ObjectNotFound:
-        toolkit.abort(404, toolkit._(u'Version not found'))
+        return toolkit.abort(404, toolkit._(u'Version not found'))
+
+    # Preserve any existing URL params
+    params = {k: v for k, v in toolkit.request.params.items() if k != "activity_id"}
 
     download_url = toolkit.url_for(
         'resource.download',
         id=id,
         resource_id=resource_id,
         activity_id=activity_id,
-        qualified=True
-        )
+        _external=True,
+        **params
+    )
     return toolkit.redirect_to(download_url)
 
 
 blueprint.add_url_rule(
     u'/dataset/<id>/resource/<resource_id>/version/<version_id>/download',
     view_func=version_download
-    )
+)
