@@ -44,19 +44,14 @@ def resource_version_from_activity_id(resource, activity_id):
     return []
 
 
-def resource_current_version(resource):
+def resource_version_current(resource):
     '''Get the resource current version
     '''
     context = {'user': toolkit.c.user}
-    versions_list = toolkit.get_action('resource_version_list')(context, {
-            'resource_id': resource['id']}
-            )
-    if versions_list:
-        current_version = toolkit.get_action('resource_version_current')(
-            context, {'resource_id': resource['id']}
-            )
-        return current_version
-    return False
+    version = toolkit.get_action('resource_version_current')(
+        context, {'resource_id': resource['id']}
+        )
+    return version
 
 
 def download_url(resource_url, version_id):
