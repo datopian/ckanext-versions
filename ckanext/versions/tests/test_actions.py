@@ -7,7 +7,7 @@ from ckanext.versions.logic.action import (
     resource_has_versions, resource_in_activity,
     resource_version_create, resource_version_current,
     resource_version_list, version_delete, version_show,
-    resource_version_clear
+    resource_version_clear, resource_version_update
 )
 from ckanext.versions.tests import get_context
 
@@ -209,6 +209,75 @@ class TestCreateResourceVersion(object):
         assert version['notes'] == 'Version notes'
         assert version['name'] == '1'
         assert version['creator_user_id'] == user_creator['id']
+
+
+@pytest.mark.usefixtures('clean_db', 'versions_setup')
+class TestResourceVersionUpdate(object):
+    def test_resource_version_update(self):
+        resource = factories.Resource()
+        user = factories.Sysadmin()
+        context = get_context(user)
+        version = resource_version_create(
+            context, {
+                'resource_id': resource['id'],
+                'name': '1.0',
+                'notes': 'Initial notes.'
+            }
+        )
+        resource_version_update(
+            context, {
+                'version_id': version['id'],
+                'name': '2.0',
+                'notes': 'Updated notes.'
+            }
+        )
+        version = version_show(
+            context, {'version_id': version['id']}
+        )
+
+        assert version['name'] == '2.0'
+        assert version['notes'] == 'Updated notes.'
+
+    def test_fields_not_updated_if_not_provided(self):
+        resource = factories.Resource()
+        user = factories.Sysadmin()
+        context = get_context(user)
+        version = resource_version_create(
+            context, {
+                'resource_id': resource['id'],
+                'name': '1.0',
+                'notes': 'Initial notes.'
+            }
+        )
+        resource_version_update(
+            context, {
+                'version_id': version['id'],
+                'name': '2.0'
+            }
+        )
+        version = version_show(
+            context, {'version_id': version['id']}
+        )
+
+        assert version['name'] == '2.0'
+        assert version['notes'] == 'Initial notes.'
+
+        resource_version_update(
+            context, {
+                'version_id': version['id'],
+                'notes': 'Updated notes.'
+            }
+        )
+        version = version_show(
+            context, {'version_id': version['id']}
+        )
+
+        assert version['name'] == '2.0'
+        assert version['notes'] == 'Updated notes.'
+
+    def test_version_id_is_mandatory_for_update(self):
+        with pytest.raises(toolkit.ValidationError):
+            resource_version_update({}, {'name': '2.0'})
 
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')

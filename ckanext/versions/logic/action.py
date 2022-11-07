@@ -15,11 +15,9 @@ from ckanext.versions.model import Version
 log = logging.getLogger(__name__)
 
 
-def version_update(context, data_dict):
-    """Update a version from the current dataset.
+def resource_version_update(context, data_dict):
+    """Update a version metadata.
 
-    :param package_id: the id the dataset
-    :type package_id: string
     :param version_id: the id of the version
     :type version_id: string
     :param name: A short name for the version
@@ -30,7 +28,7 @@ def version_update(context, data_dict):
     :rtype: dictionary
     """
     model = context.get('model', core_model)
-    version_id, name = toolkit.get_or_bust(data_dict, ['version', 'name'])
+    version_id = toolkit.get_or_bust(data_dict, ['version_id'])
 
     # I'll create my own session! With Blackjack! And H**kers!
     session = model.meta.create_local_session()
@@ -42,11 +40,16 @@ def version_update(context, data_dict):
     if not version:
         raise toolkit.ObjectNotFound('Version not found')
 
-    toolkit.check_access('dataset_version_create', context, data_dict)
+    toolkit.check_access('version_create', context, data_dict)
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
-    version.name = name
-    version.description = data_dict.get('description', None)
+    name = data_dict.get("name", None)
+    if name:
+        version.name = name
+
+    notes = data_dict.get("notes", None)
+    if notes:
+        version.notes = notes
 
     session.add(version)
 
@@ -60,7 +63,7 @@ def version_update(context, data_dict):
             'Version names must be unique per dataset'
         )
 
-    log.info('Version "%s" with id %s edited correctly', name, version_id)
+    log.info('Version "%s" with id %s edited correctly', version.name, version_id)
 
     return version.as_dict()
 
