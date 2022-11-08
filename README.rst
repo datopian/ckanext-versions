@@ -113,9 +113,9 @@ resource_version_update::
                  -d "version_id=7eab640a-546a-4be1-97bf-9c7aa7a543ed"
                  -d "name=v2.0"
                  -d "notes=New name for this version!"
-                 -k "http://ckan:5000/api/action/version_delete"
+                 -k "http://ckan:5000/api/action/resource_version_update"
     {
-    "help": "http://ckan:5000/api/3/action/help_show?name=version_delete",
+    "help": "http://ckan:5000/api/3/action/help_show?name=resource_version_update",
     "success": true,
     "result": {
         "id": "7eab640a-546a-4be1-97bf-9c7aa7a543ed",
@@ -135,9 +135,9 @@ resource_version_patch::
                  -H "Content-Type: application/json;charset=utf-8"
                  -d "version_id=7eab640a-546a-4be1-97bf-9c7aa7a543ed"
                  -d "notes=Updating only notes!"
-                 -k "http://ckan:5000/api/action/version_delete"
+                 -k "http://ckan:5000/api/action/resource_version_patch"
     {
-    "help": "http://ckan:5000/api/3/action/help_show?name=version_delete",
+    "help": "http://ckan:5000/api/3/action/help_show?name=resource_version_patch",
     "success": true,
     "result": {
         "id": "7eab640a-546a-4be1-97bf-9c7aa7a543ed",
