@@ -15,20 +15,110 @@ from ckanext.versions.model import Version
 log = logging.getLogger(__name__)
 
 
-def resource_version_update(context, data_dict):
-    """Update a version metadata.
+def _get_creator_user_id(data_dict, model, context):
+    """ Returns the id of the user that creates the version.
+
+    If no creator_user_id is provided it will get it
+    from the logged user. If no logged user, it will
+    use the defaul site user id.
+    """
+    creator_user_id = data_dict.get('creator_user_id')
+    if creator_user_id:
+        creator_user = model.User.get(creator_user_id)
+        if not creator_user:
+            raise toolkit.ObjectNotFound('Creator user not found')
+    else:
+        if context.get('user'):
+            user = model.User.get(context['user'])
+            if user:
+                creator_user_id = user.id
+        if not creator_user_id:
+            site_id = toolkit.config.get('ckan.site_id', 'ckan_site_user')
+            creator_user_id = model.User.get(site_id).id
+    return creator_user_id
+
+
+def resource_version_patch(context, data_dict):
+    """Patches a resource version.
+
+    Only name, notes and creator_user_id fields
+    can be patched.
 
     :param version_id: the id of the version
     :type version_id: string
-    :param name: A short name for the version
+    :param name optional: A short name for the version
     :type name: string
-    :param notes: A description for the version
+    :param notes optional: A description for the version
     :type notes: string
+    :param creator_user_id optional: the id of the creator
+    :type creator_user_id: string
     :returns: the edited version
     :rtype: dictionary
     """
     model = context.get('model', core_model)
     version_id = toolkit.get_or_bust(data_dict, ['version_id'])
+    session = model.meta.create_local_session()
+
+    version = session.query(Version).\
+        filter(Version.id == version_id).\
+        one_or_none()
+
+    if not version:
+        raise toolkit.ObjectNotFound('Version not found')
+
+    toolkit.check_access('version_create', context, {
+        "package_id": version.package_id
+    })
+    assert context.get('auth_user_obj')  # Should be here after `check_access`
+
+    version.name = data_dict.get('name') or version.name
+    version.notes = data_dict.get("notes") or version.notes
+    creator_user_id = _get_creator_user_id(data_dict, model, context)
+    if creator_user_id:
+        version.creator_user_id = creator_user_id
+
+    session.add(version)
+
+    try:
+        session.commit()
+    except IntegrityError as e:
+        #  Name not unique, or foreign key constraint violated
+        session.rollback()
+        log.debug("DB integrity error (version name not unique?): %s", e)
+        raise toolkit.ValidationError(
+            'Version names must be unique per resource'
+        )
+
+    log.info('Version "%s" with id %s patched correctly', version.name, version_id)
+
+    return version.as_dict()
+
+
+def resource_version_update(context, data_dict):
+    """Update a version metadata.
+
+    It will follow CKAN's convention to perform a
+    complete override of records (if fields are not
+    included, they are removed). See `resource_version_patch`
+    to edit only one field. Only name, notes and
+    creator_user_id can be updated.
+
+    If not provided, `creator_user_id` will be updated
+    to either the logged user or the default site user.
+
+    :param version_id: the id of the version
+    :type version_id: string
+    :param name: A short name for the version
+    :type name: string
+    :param notes optional: A description for the version
+    :type notes: string
+    :param creator_user_id optional: the id of the creator
+    :type creator_user_id: string
+    :returns: the edited version
+    :rtype: dictionary
+    """
+    model = context.get('model', core_model)
+    version_id, name = toolkit.get_or_bust(data_dict, ['version_id', 'name'])
 
     # I'll create my own session! With Blackjack! And H**kers!
     session = model.meta.create_local_session()
@@ -40,16 +130,14 @@ def resource_version_update(context, data_dict):
     if not version:
         raise toolkit.ObjectNotFound('Version not found')
 
-    toolkit.check_access('version_create', context, data_dict)
+    toolkit.check_access('version_create', context, {
+        "package_id": version.package_id
+    })
     assert context.get('auth_user_obj')  # Should be here after `check_access`
 
-    name = data_dict.get("name", None)
-    if name:
-        version.name = name
-
-    notes = data_dict.get("notes", None)
-    if notes:
-        version.notes = notes
+    version.name = name
+    version.notes = data_dict.get("notes", None)
+    version.creator_user_id = _get_creator_user_id(data_dict, model, context)
 
     session.add(version)
 
@@ -60,10 +148,10 @@ def resource_version_update(context, data_dict):
         session.rollback()
         log.debug("DB integrity error (version name not unique?): %s", e)
         raise toolkit.ValidationError(
-            'Version names must be unique per dataset'
+            'Version names must be unique per resource'
         )
 
-    log.info('Version "%s" with id %s edited correctly', version.name, version_id)
+    log.info('Version "%s" with id %s updated correctly', version.name, version_id)
 
     return version.as_dict()
 
@@ -98,19 +186,7 @@ def resource_version_create(context, data_dict):
     toolkit.check_access('version_create', context,
                          {"package_id": resource.package_id})
 
-    creator_user_id = data_dict.get('creator_user_id')
-    if creator_user_id:
-        creator_user = model.User.get(creator_user_id)
-        if not creator_user:
-            raise toolkit.ObjectNotFound('Creator user not found')
-    else:
-        if context.get('user'):
-            user = model.User.get(context['user'])
-            if user:
-                creator_user_id = user.id
-        if not creator_user_id:
-            site_id = toolkit.config.get('ckan.site_id', 'ckan_site_user')
-            creator_user_id = model.User.get(site_id).id
+    creator_user_id = _get_creator_user_id(data_dict, model, context)
 
     activity = model.Session.query(model.Activity). \
         filter_by(object_id=resource.package_id). \
