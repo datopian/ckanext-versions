@@ -3,7 +3,7 @@ ckanext-versions
 =============
 
 This CKAN extension adds an ability to create and manage named resources
-versions in CKAN. Currently under development so there are no stable versions of it.
+versions in CKAN.
 
 Internally, this extension will use CKAN's 2.9 activities to preserve
 old revisions of metadata, and ensure uploaded data resources are unique
@@ -13,7 +13,7 @@ This extension is designed to be used with
 `ckanext-blob-storage <https://github.com/datopian/ckanext-blob-storage>`_
 
 As interface, this extension exposes a few new API actions described below. (no
-UI work yet)
+UI work)
 
 ------------
 API Endpoints
@@ -106,6 +106,50 @@ version_delete::
     "result": null
     }
 
+resource_version_update::
+
+    curl -X POST -H "Authorization: $API_KEY"
+                 -H "Content-Type: application/json;charset=utf-8"
+                 -d "version_id=7eab640a-546a-4be1-97bf-9c7aa7a543ed"
+                 -d "name=v2.0"
+                 -d "notes=New name for this version!"
+                 -k "http://ckan:5000/api/action/resource_version_update"
+    {
+    "help": "http://ckan:5000/api/3/action/help_show?name=resource_version_update",
+    "success": true,
+    "result": {
+        "id": "7eab640a-546a-4be1-97bf-9c7aa7a543ed",
+        "package_id": "9a2ca5e4-1018-479d-8365-9e2f54c69d26",
+        "resource_id": "9509ca60-a113-4d3b-8afa-83172b87368a",
+        "activity_id": "2efbf349-5c66-4d4a-8c22-8dc31db7453a",
+        "name": "v2.0",
+        "notes": "New name for this version!",
+        "creator_user_id": "62f05721-fb2f-453f-9816-702f9c9f76c6",
+        "created": "2021-05-15 21:01:30.980231"
+      }
+    }
+
+resource_version_patch::
+
+    curl -X POST -H "Authorization: $API_KEY"
+                 -H "Content-Type: application/json;charset=utf-8"
+                 -d "version_id=7eab640a-546a-4be1-97bf-9c7aa7a543ed"
+                 -d "notes=Updating only notes!"
+                 -k "http://ckan:5000/api/action/resource_version_patch"
+    {
+    "help": "http://ckan:5000/api/3/action/help_show?name=resource_version_patch",
+    "success": true,
+    "result": {
+        "id": "7eab640a-546a-4be1-97bf-9c7aa7a543ed",
+        "package_id": "9a2ca5e4-1018-479d-8365-9e2f54c69d26",
+        "resource_id": "9509ca60-a113-4d3b-8afa-83172b87368a",
+        "activity_id": "2efbf349-5c66-4d4a-8c22-8dc31db7453a",
+        "name": "v2.0",
+        "notes": "Updating only notes!",
+        "creator_user_id": "62f05721-fb2f-453f-9816-702f9c9f76c6",
+        "created": "2021-05-15 21:01:30.980231"
+      }
+    }
 
 ------------
 Download Endpoint

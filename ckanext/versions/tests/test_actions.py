@@ -1,4 +1,5 @@
 import pytest
+
 from ckan.plugins import toolkit
 from ckan.tests import factories, helpers
 
@@ -209,6 +210,170 @@ class TestCreateResourceVersion(object):
         assert version['notes'] == 'Version notes'
         assert version['name'] == '1'
         assert version['creator_user_id'] == user_creator['id']
+
+
+@pytest.mark.usefixtures('clean_db', 'versions_setup')
+class TestResourceVersionUpdate(object):
+    def test_resource_version_update(self):
+        resource = factories.Resource()
+        user = factories.Sysadmin()
+        context = get_context(user)
+        version = helpers.call_action(
+            'resource_version_create',
+            context,
+            resource_id=resource['id'],
+            name='1.0',
+            notes='Initial notes.'
+        )
+
+        new_creator = factories.User()
+        helpers.call_action(
+            'resource_version_update',
+            context,
+            version_id=version['id'],
+            name='2.0',
+            notes='Updated notes.',
+            creator_user_id=new_creator['id']
+        )
+        version = version_show(
+            context, {'version_id': version['id']}
+        )
+
+        assert version['name'] == '2.0'
+        assert version['notes'] == 'Updated notes.'
+        assert version['creator_user_id'] == new_creator['id']
+
+    def test_resource_version_update_overrides_if_not_provided(self):
+        resource = factories.Resource()
+        user = factories.Sysadmin()
+        context = get_context(user)
+        version = helpers.call_action(
+            'resource_version_create',
+            context,
+            resource_id=resource['id'],
+            name='1.0',
+            notes='Initial notes.'
+        )
+
+        new_creator = factories.User()
+        context = get_context(new_creator)
+        helpers.call_action(
+            'resource_version_update',
+            context,
+            version_id=version['id'],
+            name='2.0',
+        )
+        version = helpers.call_action(
+            'version_show',
+            context,
+            version_id=version['id']
+        )
+
+        assert version['name'] == '2.0'
+        assert version['notes'] == None
+        assert version['creator_user_id'] == new_creator['id']
+
+    def test_name_must_be_unique(self):
+        resource = factories.Resource()
+        user = factories.Sysadmin()
+        context = get_context(user)
+        helpers.call_action(
+            'resource_version_create',
+            context,
+            resource_id=resource['id'],
+            name='1.0',
+            notes='Initial notes.'
+        )
+
+        with pytest.raises(toolkit.ValidationError):
+            helpers.call_action(
+                'resource_version_create',
+                context,
+                resource_id=resource['id'],
+                name='1.0',
+                notes='Another version 1.0'
+        )
+
+    def test_version_id_is_mandatory_for_update(self):
+        with pytest.raises(toolkit.ValidationError) as e:
+            helpers.call_action('resource_version_update', {}, name='2.0')
+        assert 'Missing value' in str(e)
+        assert 'version_id' in str(e)
+
+    def test_version_name_is_mandatory_for_update(self):
+        with pytest.raises(toolkit.ValidationError) as e:
+            helpers.call_action('resource_version_update', {}, version_id='fake-id')
+        assert 'Missing value' in str(e)
+        assert 'name' in str(e)
+
+
+@pytest.mark.usefixtures('clean_db', 'versions_setup')
+class TestResourceVersionPatch(object):
+    def test_fields_not_updated_if_not_provided(self):
+        resource = factories.Resource()
+        user = factories.Sysadmin()
+        context = get_context(user)
+        version = helpers.call_action(
+            'resource_version_create',
+            context,
+            resource_id=resource['id'],
+            name='1.0',
+            notes='Initial notes.'
+        )
+        helpers.call_action(
+            'resource_version_patch',
+            context,
+            version_id=version['id'],
+            name='2.0'
+        )
+        version = helpers.call_action(
+            'version_show', context, version_id=version['id']
+        )
+
+        assert version['name'] == '2.0'
+        assert version['notes'] == 'Initial notes.'
+
+        helpers.call_action(
+            'resource_version_patch',
+            context,
+            version_id=version['id'],
+            notes='Updated notes.'
+        )
+        version = helpers.call_action(
+            'version_show',
+            context,
+            version_id=version['id']
+        )
+
+        assert version['name'] == '2.0'
+        assert version['notes'] == 'Updated notes.'
+
+    def test_name_must_be_unique(self):
+        resource = factories.Resource()
+        user = factories.Sysadmin()
+        context = get_context(user)
+        helpers.call_action(
+            'resource_version_create',
+            context,
+            resource_id=resource['id'],
+            name='1.0',
+            notes='Initial notes.'
+        )
+
+        with pytest.raises(toolkit.ValidationError):
+            helpers.call_action(
+                'resource_version_create',
+                context,
+                resource_id=resource['id'],
+                name='1.0'
+        )
+
+    def test_version_id_is_mandatory_for_patch(self):
+        with pytest.raises(toolkit.ValidationError) as e:
+            helpers.call_action('resource_version_patch', {}, name='2.0')
+
+        assert "Missing value" in str(e)
+        assert "version_id" in str(e)
 
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
