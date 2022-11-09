@@ -69,7 +69,6 @@ def resource_version_patch(context, data_dict):
     toolkit.check_access('version_create', context, {
         "package_id": version.package_id
     })
-    assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     version.name = data_dict.get('name') or version.name
     version.notes = data_dict.get("notes") or version.notes
@@ -133,7 +132,6 @@ def resource_version_update(context, data_dict):
     toolkit.check_access('version_create', context, {
         "package_id": version.package_id
     })
-    assert context.get('auth_user_obj')  # Should be here after `check_access`
 
     version.name = name
     version.notes = data_dict.get("notes", None)
