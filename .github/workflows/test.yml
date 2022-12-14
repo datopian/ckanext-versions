@@ -4,8 +4,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
       - name: Install requirements
         run: pip install flake8 pycodestyle
       - name: Check syntax
@@ -13,7 +13,7 @@ jobs:
 
   test:
     needs: lint
-    name: CKAN 2.9
+    name: ckanext-versions tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -47,7 +47,7 @@ jobs:
       CKAN_REDIS_URL: redis://redis:6379/1
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install requirements
       run: |
         pip install -r requirements.txt
