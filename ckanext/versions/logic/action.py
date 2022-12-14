@@ -363,15 +363,15 @@ def resource_history(context, data_dict):
 
     result = []
     for version in versions_list:
-            resource = activity_resource_show(
-                {'user': context['user']},
-                {
-                    'activity_id': version['activity_id'],
-                    'resource_id': version['resource_id']
-                }
-                )
-            resource['version'] = version
-            result.append(resource)
+        resource = activity_resource_show(
+            {'user': context['user']},
+            {
+                'activity_id': version['activity_id'],
+                'resource_id': version['resource_id']
+            }
+            )
+        resource['version'] = version
+        result.append(resource)
 
     return result
 
@@ -432,7 +432,9 @@ def resource_in_activity(context, data_dict):
     '''
     user = context.get('user')
     if not user:
-        site_user = toolkit.get_action('get_site_user')({'ignore_auth': True},{})
+        site_user = toolkit.get_action('get_site_user')(
+            {'ignore_auth': True}, {}
+            )
         user = site_user['name']
 
     activity_show_context = {
