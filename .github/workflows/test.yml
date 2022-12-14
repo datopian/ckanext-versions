@@ -6,8 +6,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
-        with:
-          python-version: '3.6'
       - name: Install requirements
         run: pip install flake8 pycodestyle
       - name: Check syntax
@@ -17,13 +15,23 @@ jobs:
     needs: lint
     name: CKAN 2.9
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - ckan-version: "2.10"
+            solr-image: "2.10"
+          - ckan-version: 2.9
+            solr-image: 2.9
+          - ckan-version: 2.9
+            solr-image: 2.9-solr8
+      fail-fast: false
     container:
-      image: openknowledge/ckan-dev:2.9
+      image: openknowledge/ckan-dev:${{ matrix.ckan-version }}
     services:
       solr:
-        image: ckan/ckan-solr-dev:2.9
+        image: ckan/ckan-solr:${{ matrix.solr-image }}
       postgres:
-        image: ckan/ckan-postgres-dev:2.9
+        image: ckan/ckan-postgres-dev:${{ matrix.ckan-version }}
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -47,6 +55,10 @@ jobs:
         pip install -e .
         # Replace default path to CKAN core config file with the one on the container
         sed -i -e 's/use = config:.*/use = config:\/srv\/app\/src\/ckan\/test-core.ini/' test.ini
+    - name: Remove activity plugin (CKAN 2.9)
+      if: {{ matrix.ckan-version == '2.9'}}
+      run: |
+        ckan config-tool test.ini "ckan.plugins=versions image_view"
     - name: Setup extension
       run: |
         ckan -c test.ini db init
