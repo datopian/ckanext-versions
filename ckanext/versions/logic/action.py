@@ -10,6 +10,12 @@ from ckan.logic.action.get import resource_show as core_resource_show
 from ckan.plugins import toolkit
 from sqlalchemy.exc import IntegrityError
 
+try:
+    from ckanext.activity.model import Activity
+except ImportError:
+    # Remove when dropping support for 2.9.x
+    from ckan.model import Activity
+
 from ckanext.versions.model import Version
 
 log = logging.getLogger(__name__)
@@ -186,9 +192,9 @@ def resource_version_create(context, data_dict):
 
     creator_user_id = _get_creator_user_id(data_dict, model, context)
 
-    activity = model.Session.query(model.Activity). \
+    activity = model.Session.query(Activity). \
         filter_by(object_id=resource.package_id). \
-        order_by(model.Activity.timestamp.desc()). \
+        order_by(Activity.timestamp.desc()). \
         first()
 
     if not activity:

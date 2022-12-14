@@ -297,14 +297,14 @@ class TestResourceVersionUpdate(object):
     def test_version_id_is_mandatory_for_update(self):
         with pytest.raises(toolkit.ValidationError) as e:
             helpers.call_action('resource_version_update', {}, name='2.0')
-        assert 'Missing value' in str(e)
-        assert 'version_id' in str(e)
+        assert 'Missing value' in str(e.value)
+        assert 'version_id' in str(e.value)
 
     def test_version_name_is_mandatory_for_update(self):
         with pytest.raises(toolkit.ValidationError) as e:
             helpers.call_action('resource_version_update', {}, version_id='fake-id')
-        assert 'Missing value' in str(e)
-        assert 'name' in str(e)
+        assert 'Missing value' in str(e.value)
+        assert 'name' in str(e.value)
 
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
@@ -372,8 +372,8 @@ class TestResourceVersionPatch(object):
         with pytest.raises(toolkit.ValidationError) as e:
             helpers.call_action('resource_version_patch', {}, name='2.0')
 
-        assert "Missing value" in str(e)
-        assert "version_id" in str(e)
+        assert "Missing value" in str(e.value)
+        assert "version_id" in str(e.value)
 
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
