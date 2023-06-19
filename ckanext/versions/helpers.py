@@ -73,3 +73,16 @@ def download_url(resource_url, version_id):
         )
 
     return url
+
+
+@toolkit.side_effect_free
+def get_resource_from_activity(activity_id, resource_id):
+    """Get the resource dict from the activity object.
+    """
+    context = {"user": toolkit.g.user}
+    resource = toolkit.get_action("activity_resource_show")(
+        context, {
+        "activity_id": activity_id,
+        "resource_id": resource_id
+        })
+    return resource
