@@ -170,9 +170,9 @@ class TestCreateResourceVersion(object):
         user = factories.Sysadmin()
         context = get_context(user)
 
-        assert False == resource_has_versions(
+        assert resource_has_versions(
             context, {'resource_id': resource['id']}
-            )
+            ) is False
 
         resource_version_create(
             context, {
@@ -182,9 +182,9 @@ class TestCreateResourceVersion(object):
             }
         )
 
-        assert True == resource_has_versions(
+        assert resource_has_versions(
             context, {'resource_id': resource['id']}
-            )
+            ) is True
 
     def test_resource_version_create_creator_user_id_parameter(self):
         user = factories.User()
@@ -270,7 +270,7 @@ class TestResourceVersionUpdate(object):
         )
 
         assert version['name'] == '2.0'
-        assert version['notes'] == None
+        assert version['notes'] is None
         assert version['creator_user_id'] == new_creator['id']
 
     def test_name_must_be_unique(self):
@@ -292,19 +292,21 @@ class TestResourceVersionUpdate(object):
                 resource_id=resource['id'],
                 name='1.0',
                 notes='Another version 1.0'
-        )
+            )
 
     def test_version_id_is_mandatory_for_update(self):
         with pytest.raises(toolkit.ValidationError) as e:
             helpers.call_action('resource_version_update', {}, name='2.0')
-        assert 'Missing value' in str(e)
-        assert 'version_id' in str(e)
+        assert 'Missing value' in str(e.value)
+        assert 'version_id' in str(e.value)
 
     def test_version_name_is_mandatory_for_update(self):
         with pytest.raises(toolkit.ValidationError) as e:
-            helpers.call_action('resource_version_update', {}, version_id='fake-id')
-        assert 'Missing value' in str(e)
-        assert 'name' in str(e)
+            helpers.call_action(
+                'resource_version_update', {}, version_id='fake-id'
+                )
+        assert 'Missing value' in str(e.value)
+        assert 'name' in str(e.value)
 
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
@@ -366,14 +368,14 @@ class TestResourceVersionPatch(object):
                 context,
                 resource_id=resource['id'],
                 name='1.0'
-        )
+            )
 
     def test_version_id_is_mandatory_for_patch(self):
         with pytest.raises(toolkit.ValidationError) as e:
             helpers.call_action('resource_version_patch', {}, name='2.0')
 
-        assert "Missing value" in str(e)
-        assert "version_id" in str(e)
+        assert "Missing value" in str(e.value)
+        assert "version_id" in str(e.value)
 
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
@@ -544,6 +546,7 @@ class TestVersionDelete(object):
 
         assert len(resource_version_list(context, {'resource_id': resource['id']})) == 0
 
+
 @pytest.mark.usefixtures('clean_db', 'versions_setup')
 class TestActivityActions(object):
 
@@ -684,20 +687,20 @@ class TestActivityActions(object):
         )
         expected_activity_id = version['activity_id']
 
-        assert True == resource_in_activity(context, {
+        assert resource_in_activity(context, {
             'activity_id': expected_activity_id,
             'resource_id': resource['id']}
-            )
+            ) is True
 
         resource_2 = factories.Resource(
             package_id=dataset['id'],
             name='Resource 2'
             )
 
-        assert False == resource_in_activity(context, {
+        assert resource_in_activity(context, {
             'activity_id': expected_activity_id,
             'resource_id': resource_2['id']}
-            )
+            ) is False
 
 
 @pytest.mark.usefixtures('clean_db', 'versions_setup')

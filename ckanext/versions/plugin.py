@@ -55,6 +55,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'version_show': action.version_show,
             'version_delete': action.version_delete,
             'resource_view_list': action.resource_view_list,
+            'activity_resource_show': action.activity_resource_show
         }
 
     # IAuthFunctions
@@ -77,6 +78,7 @@ class VersionsPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
             'versions_resource_version_from_activity_id': helpers.resource_version_from_activity_id,
             'versions_resource_version_current': helpers.resource_version_current,
             'versions_download_url': helpers.download_url,
+            'versions_get_resource_from_activity': helpers.get_resource_from_activity,
         }
         return helper_functions
 
