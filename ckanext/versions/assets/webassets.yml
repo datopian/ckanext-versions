@@ -1,0 +1,14 @@
+# versions-js:
+#   filter: rjsmin
+#   output: ckanext-versions/%(version)s-versions.js
+#   contents:
+#     - js/versions.js
+#   extra:
+#     preload:
+#       - base/main
+
+# versions-css:
+#   filter: cssrewrite
+#   output: ckanext-versions/%(version)s-versions.css
+#   contents:
+#     - css/versions.css
