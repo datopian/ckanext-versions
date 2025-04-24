@@ -193,3 +193,24 @@ def _version_create_or_update(context, data_dict):
                     "message": ["Error creating version"],
                 }
             )
+
+
+@tk.side_effect_free
+def package_version_exists(context, data_dict):
+    """
+    Check if a specific version of a dataset exists.
+    :param context: The context dictionary
+    :param data_dict: The data dictionary containing the version details
+    :return: True if the version exists, False otherwise
+    """
+    if not data_dict.get("name") or not data_dict.get("package_id"):
+        raise tk.ValidationError("Version name and package ID are required.")
+
+    tk.check_access("package_version_list", context, data_dict)
+    version = DatasetVersion.get(
+        name=data_dict["name"], package_id=data_dict["package_id"]
+    )
+    if not version:
+        return {"exists": False}
+    return {"exists": True}
+

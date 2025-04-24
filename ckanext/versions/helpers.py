@@ -1,5 +1,6 @@
-
 from ckan.plugins import toolkit as tk
+from ckanext.versions.model import DatasetVersion
+
 
 def get_package_version_list(package_id):
     """
@@ -8,11 +9,14 @@ def get_package_version_list(package_id):
     :return: The package version as a string
     """
     context = {
-       "ignore_auth": True,
+        "ignore_auth": True,
     }
-    version_list = tk.get_action("package_version_list")(context, {
-        "package_id": package_id,
-    })
+    version_list = tk.get_action("package_version_list")(
+        context,
+        {
+            "package_id": package_id,
+        },
+    )
     return version_list
 
-   
+

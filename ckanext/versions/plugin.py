@@ -29,6 +29,8 @@ class VersionsPlugin(plugins.SingletonPlugin):
             "package_update": action.package_update,
             "package_version_list": action.package_version_list,
             "package_version_delete": action.package_version_delete,
+            "package_version_exists": action.package_version_exists,
+
         }
 
     # IAuthFunctions
