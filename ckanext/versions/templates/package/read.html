@@ -1,0 +1,11 @@
+{% ckan_extends %}
+
+{% block primary_content_inner %}
+    {{ super() }}
+
+{% block package_version_info %}
+    {% snippet "package/snippets/version_info.html", pkg=pkg  %}
+{% endblock %}
+
+
+{% endblock %}

@@ -2,6 +2,7 @@ import os
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckanext.versions.logic import auth, action, validators
+from ckanext.versions import helpers, views
 
 
 class VersionsPlugin(plugins.SingletonPlugin):
@@ -9,6 +10,8 @@ class VersionsPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IActions, inherit=True)
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(plugins.IValidators, inherit=True)
+    plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.IBlueprint)
 
     # IConfigurer
     def update_config(self, config_):
@@ -43,5 +46,16 @@ class VersionsPlugin(plugins.SingletonPlugin):
         return {
             "package_version": validators.package_version,
         }
+    
+    # ITemplateHelpers
+    def get_helpers(self):
+        return {
+            "get_package_version_list": helpers.get_package_version_list,
+        }   
 
+
+    # IBlueprints
+    def get_blueprint(self):
+        return [views.dataset_version]
+    
 

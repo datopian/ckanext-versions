@@ -75,7 +75,7 @@ class DatasetVersion(DomainObject.DomainObject, tk.BaseModel):
         query = meta.Session.query(cls)
         for key, value in kwargs.items():
             query = query.filter(getattr(cls, key) == value)
-        return query.all()
+        return query.order_by(cls.created.desc()).all()
 
     @classmethod
     def create(cls, **kwargs):

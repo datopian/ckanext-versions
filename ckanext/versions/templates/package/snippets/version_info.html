@@ -1,0 +1,33 @@
+{% set versions = h.get_package_version_list(pkg.id) %}
+{% if versions|length > 0 %}
+<h3>Versions</h3>
+
+<table class="table table-striped table-bordered table-condensed">
+    <thead>
+        <tr>
+            <th scope="col">Version</th>
+            <th scope="col">Description</th>
+            <th scope="col">Published</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for version in h.get_package_version_list(pkg.id) %}
+        <tr>
+
+            <td>
+                {% if pkg.version == version.name %}
+                    {{ version.name }} 
+                {% else %}
+                <a href="{{ url_for('dataset_version.view_dataset', id=pkg.id,  version_id=version.id) }}">
+                    {{ version.name }}
+                </a>
+                {% endif %}
+            </td>
+            <td>{{ version.description or "" }}</td>
+            <td>{{ version.created }}</td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+</table>
+{% endif %}

@@ -1,0 +1,15 @@
+{% ckan_extends %}
+
+{% block resource_list_inner %}
+  {% for resource in resources %}
+    {% if is_versioned %}
+      {% set url = h.url_for("dataset_version.view_resource", id=pkg.id, resource_id=resource.id, version_id=request.view_args.version_id) %}
+    {% endif %}
+    {% snippet 'package/snippets/resource_item.html', pkg=pkg, res=resource, can_edit=false if is_versioned else can_edit, is_versioned=is_versioned, url=url %}
+  {% endfor %}
+{% endblock %}
+
+
+{% block resource_list_empty %}
+  <p class="empty">{{ _('This dataset has no data') }}</p>
+{% endblock %}
