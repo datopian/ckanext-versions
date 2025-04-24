@@ -66,6 +66,16 @@ class DatasetVersion(DomainObject.DomainObject, tk.BaseModel):
         for key, value in kwargs.items():
             query = query.filter(getattr(cls, key) == value)
         return query.first()
+    
+    @classmethod
+    def get_all(cls, **kwargs):
+        """
+        Get all dataset versions by their attributes.
+        """
+        query = meta.Session.query(cls)
+        for key, value in kwargs.items():
+            query = query.filter(getattr(cls, key) == value)
+        return query.all()
 
     @classmethod
     def create(cls, **kwargs):

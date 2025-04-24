@@ -84,12 +84,39 @@ def package_version_show(context, data_dict):
     return data_dict
 
 
+@tk.side_effect_free
 def package_version_list(context, data_dict):
-    pass
+    tk.check_access("package_version_list", context, data_dict)
+    package_id = data_dict.get("package_id")
+    if not package_id:
+        raise tk.ValidationError("Dataset ID is required.")
+    versions = DatasetVersion.get_all(package_id=package_id)
+    return [version.as_dict() for version in versions]
 
 
 def package_version_delete(context, data_dict):
-    pass
+    """
+    Delete a specific version of a dataset.
+    :param context: The context dictionary
+    :param data_dict: The data dictionary containing the version details
+    :return: None
+    """
+    tk.check_access("package_version_delete", context, data_dict)
+    if not data_dict.get("id"):
+        raise tk.ValidationError("Version ID is required.")
+
+    version = DatasetVersion.get(id=data_dict["id"])
+    if not version:
+        raise tk.ObjectNotFound(
+            f"Dataset version with ID '{data_dict['id']}' not found."
+        )
+    version.delete()
+    log.info(
+        'Version "%s" deleted for dataset %s',
+        version.name,
+        version.package_id,
+    )
+    return {"success": True}
 
 
 @tk.chained_action
