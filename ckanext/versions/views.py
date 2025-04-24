@@ -54,7 +54,7 @@ def view_dataset(id, version_id):
             "dataset_type": package_type,
             "pkg_dict": pkg_dict,
             "pkg": pkg,
-            "current_version": version_id,
+            "is_versioned": True,
         },
     )
 

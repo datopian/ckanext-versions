@@ -3,9 +3,12 @@
 {% block primary_content_inner %}
     {{ super() }}
 
-{% block package_version_info %}
-    {% snippet "package/snippets/version_info.html", pkg=pkg  %}
-{% endblock %}
+{% if not is_versioned %}
+    {% block package_version_info %}
+        {% snippet "package/snippets/version_info.html", pkg=pkg %}
+    {% endblock %}
+{% endif %}
+
 
 
 {% endblock %}
