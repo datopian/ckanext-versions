@@ -19,7 +19,7 @@
                     {{ version.name }} <span class="badge bg-success pull-right">Latest</span>
                 {% else %}
                     <a href="{{ url_for('dataset_version.view_dataset', id=pkg.id,  version_id=version.id) }}">
-                        {{ version.name }}
+                        {{ version.name }} 
                     </a>
                 {% endif %}
             </td>

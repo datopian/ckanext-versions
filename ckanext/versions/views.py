@@ -40,17 +40,6 @@ def view_dataset(id, version_id):
 
     pkg_dict.setdefault("resources", [])
 
-    # can the resources be previewed?
-    for resource in pkg_dict["resources"]:
-        try:
-            resource_views = tk.get_action("resource_view_list")(
-                context, {"id": resource["id"]}
-            )
-            resource["has_views"] = len(resource_views) > 0
-        except tk.ObjectNotFound:
-            # Resource has been deleted since this version
-            resource["has_views"] = False
-
     package_type = pkg_dict["type"] or "dataset"
     _setup_template_variables(context, {"id": id}, package_type=package_type)
 
@@ -98,27 +87,7 @@ def view_resource(id, resource_id, version_id):
     except KeyError:
         package["isopen"] = False
 
-    try:
-        resource_views = tk.get_action("resource_view_list")(
-            context, {"id": resource["id"]}
-        )
-        resource["has_views"] = len(resource_views) > 0
-    except tk.ObjectNotFound:
-        # Resource has been deleted since this version
-        resource_views = []
-        resource["has_views"] = False
-
     current_resource_view = None
-    view_id = tk.request.args.get("view_id")
-    if resource["has_views"]:
-        if view_id:
-            current_resource_view = [rv for rv in resource_views if rv["id"] == view_id]
-            if len(current_resource_view) == 1:
-                current_resource_view = current_resource_view[0]
-            else:
-                return tk.abort(404, tk._("Resource view not found"))
-        else:
-            current_resource_view = resource_views[0]
 
     # required for nav menu
     pkg = context["package"]
@@ -131,7 +100,7 @@ def view_resource(id, resource_id, version_id):
     tk.g.pkg_dict = package
 
     extra_vars = {
-        "resource_views": resource_views,
+        "resource_views": [],
         "current_resource_view": current_resource_view,
         "dataset_type": dataset_type,
         "pkg_dict": package,
@@ -143,20 +112,6 @@ def view_resource(id, resource_id, version_id):
     }
 
     return tk.render("package/resource_version.html", extra_vars)
-
-
-dataset_version.add_url_rule(
-    "/dataset/<id>/version/<version_id>",
-    view_func=view_dataset,
-    methods=["GET"],
-)
-
-
-dataset_version.add_url_rule(
-    "/dataset/<id>/resource/<resource_id>/version/<version_id>",
-    view_func=view_resource,
-    methods=["GET"],
-)
 
 
 def resource_version_download(package_type, id, resource_id, timestamp, filename):
@@ -180,6 +135,21 @@ def resource_version_download(package_type, id, resource_id, timestamp, filename
             resource_id=resource_id,
             filename=filename,
         )
+
+
+
+dataset_version.add_url_rule(
+    "/dataset/<id>/version/<version_id>",
+    view_func=view_dataset,
+    methods=["GET"],
+)
+
+
+dataset_version.add_url_rule(
+    "/dataset/<id>/resource/<resource_id>/version/<version_id>",
+    view_func=view_resource,
+    methods=["GET"],
+)
 
 
 dataset_version.add_url_rule(

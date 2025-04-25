@@ -7,20 +7,21 @@
 {% block resource_content %}
   {% block package_archive_notice %}
     <div id="activity-archive-notice" class="alert alert-warning">
+      <span class="fa fa-info-circle"></span>
       {% trans url=h.url_for(pkg.type ~ '.read', id=pkg.id) %}
-      You're currently viewing an old version of this dataset.
-      Data files may not match the old version of the metadata.
-      <a href="{{ url }}">View the latest version</a>.
-                {% endtrans %}
+      You're currently viewing an older version of this dataset. 
+      You can still download the resource and view it locally.
+      To see the most recent data, <a href="{{ url }}">View the latest version</a>.
+      {% endtrans %}
     </div>
   {% endblock %}
   {{ super() }}
 {% endblock %}
 
 {% block data_preview %}
+
 {% endblock %}
 
 
 {% block resources_list %}
-  {% snippet "package/snippets/resources.html", pkg=pkg, active=res.id, action='read'%}
 {% endblock %}

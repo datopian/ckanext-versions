@@ -76,8 +76,10 @@ def package_version_show(context, data_dict):
         raise tk.ObjectNotFound(
             f"Dataset version with ID '{data_dict['id']}' not found."
         )
-
-    tk.check_access("package_version_show", context, {"id": dataset_version.package_id})
+    try:
+        tk.check_access("package_version_show", context, {"id": dataset_version.package_id})
+    except  Exception as e:
+        print(e)
     data_dict = dataset_version.as_dict().get("data", {})
     data_dict["version_id"] = dataset_version.id
     data_dict["version_description"] = dataset_version.description
