@@ -4,6 +4,12 @@ import ckan.model as model
 
 import ckan.plugins.toolkit as tk
 from ckan.views.dataset import _setup_template_variables
+from ckan.views.resource import download as downloader
+
+try:
+    from ckanext.s3filestore.views.resource import resource_download as s3_downloader
+except ImportError:
+    from ckan.views.resource import download as downloader
 
 log = logging.getLogger(__name__)
 dataset_version = Blueprint("dataset_version", __name__)
@@ -149,5 +155,36 @@ dataset_version.add_url_rule(
 dataset_version.add_url_rule(
     "/dataset/<id>/resource/<resource_id>/version/<version_id>",
     view_func=view_resource,
+    methods=["GET"],
+)
+
+
+def resource_version_download(package_type, id, resource_id, timestamp, filename):
+    """
+    Download a specific version of a resource by timestamp.
+    """
+    # This  use same resource_download function, but includes a timestamp argument
+    # to find the correct version of the resource in get_path method.
+    if "s3filestore" in tk.config.get("ckan.plugins", ""):
+
+        return s3_downloader(
+            package_type=package_type,
+            id=id,
+            resource_id=resource_id,
+            filename=filename,
+        )
+    else:
+        return downloader(
+            package_type=package_type,
+            id=id,
+            resource_id=resource_id,
+            filename=filename,
+        )
+
+
+dataset_version.add_url_rule(
+    "/dataset/<id>/resource/<resource_id>/download/<timestamp>/<filename>",
+    view_func=resource_version_download,
+    defaults={"package_type": "dataset"},
     methods=["GET"],
 )
