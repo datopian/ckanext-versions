@@ -36,6 +36,7 @@ class VersionsPlugin(plugins.SingletonPlugin):
             "package_version_list": action.package_version_list,
             "package_version_delete": action.package_version_delete,
             "package_version_exists": action.package_version_exists,
+            "package_version_diff": action.package_version_diff,
         }
 
     # IAuthFunctions
@@ -46,6 +47,7 @@ class VersionsPlugin(plugins.SingletonPlugin):
             "package_version_update": auth.package_version_update,
             "package_version_list": auth.package_version_list,
             "package_version_delete": auth.package_version_delete,
+            "package_version_diff": auth.package_version_diff,
         }
 
     # IValidators

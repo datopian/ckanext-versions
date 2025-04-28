@@ -43,3 +43,11 @@ def package_version_delete(context, data_dict):
     """
     return is_authorized('package_delete', context,
                          {"id": data_dict['package_id']})
+
+def package_version_diff(context, data_dict):
+    """Check if a user is allowed to view the diff of a version
+
+    This is permitted only to users who are allowed to view the dataset
+    """
+    return is_authorized('package_show', context,
+                         {"id": data_dict['package_id']})

@@ -1,4 +1,6 @@
 import logging
+import json
+import difflib
 from ckan.plugins import toolkit as tk
 from ckanext.versions.logic.schema import package_version_create, package_version_update
 from ckanext.versions.model import DatasetVersion
@@ -219,3 +221,81 @@ def package_version_exists(context, data_dict):
         return {"exists": False}
     return {"exists": True}
 
+
+
+
+
+@tk.side_effect_free
+def package_version_diff(context, data_dict):
+    """Returns a diff of the version, compared to the previous version of the
+    object
+
+    :param id: the id of the version
+    :type id: string
+    :param diff_type: 'unified', 'context', 'html'
+    :type diff_type: string
+    """
+
+    model = context["model"]
+    version_id = tk.get_or_bust(data_dict, "id")
+    diff_type = data_dict.get("diff_type", "unified")
+
+    tk.check_access("package_version_diff", context, data_dict)
+
+    version = DatasetVersion.get(id=version_id)
+    if version is None:
+        raise tk.ObjectNotFound()
+    prev_version = (
+        model.Session.query(DatasetVersion)
+        .filter(DatasetVersion.package_id == version.package_id)  # Filter by package_id
+        .filter(DatasetVersion.created < version.created)  # Ensure it's an earlier version
+        .order_by(DatasetVersion.created.desc())  # Order by creation date descending
+        .first()
+    )
+    print("latest", version)
+    print("preiv", prev_version)
+
+    if prev_version is None:
+        raise tk.ObjectNotFound("Previous version for this object not found")
+    
+    version_list = [prev_version, version]
+
+    try:
+        version_list = [
+            vers.data for vers in version_list
+        ]
+    except KeyError:
+        raise tk.ObjectNotFound("Could not find object in the version data")
+    # convert each object dict to 'pprint'-style
+    # and split into lines to suit difflib
+    obj_lines = [
+        json.dumps(ver, indent=2, sort_keys=True).split("\n") for ver in version_list
+    ]
+
+    # do the diff
+    if diff_type == "unified":
+        # type_ignore_reason: typechecker can't predict number of items
+        diff_generator = difflib.unified_diff(*obj_lines)  # type: ignore
+        diff = "\n".join(line for line in diff_generator)
+    elif diff_type == "context":
+        # type_ignore_reason: typechecker can't predict number of items
+        diff_generator = difflib.context_diff(*obj_lines)  # type: ignore
+        diff = "\n".join(line for line in diff_generator)
+    elif diff_type == "html":
+        # word-wrap lines. Otherwise you get scroll bars for most datasets.
+        import re
+
+        for obj_index in (0, 1):
+            wrapped_obj_lines = []
+            for line in obj_lines[obj_index]:
+                wrapped_obj_lines.extend(re.findall(r".{1,70}(?:\s+|$)", line))
+            obj_lines[obj_index] = wrapped_obj_lines
+        # type_ignore_reason: typechecker can't predict number of items
+        diff = difflib.HtmlDiff().make_table(*obj_lines)  # type: ignore
+    else:
+        raise tk.ValidationError({"message": "diff_type not recognized"})
+
+
+    return {
+        "diff": diff,
+    }
