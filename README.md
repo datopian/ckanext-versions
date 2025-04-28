@@ -1,4 +1,3 @@
-[![Tests](https://github.com//ckanext-versions/workflows/Tests/badge.svg?branch=main)](https://github.com//ckanext-versions/actions)
 
 # ckanext-versions
 This CKAN extension allows users to create and manage versions of datasets. It provides a versioning system that tracks changes made to datasets over time and also allows user to view and download previous versions.
@@ -65,8 +64,7 @@ flowchart TD
   need_new_version -->|No| edit_current[Edit Current Version]
   edit_current --> update_files[Improve dataset]
   update_files --> save_changes[Save Changes - No New Version]
-
-
+```
 
 ## API Documentation
 
