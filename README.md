@@ -1,40 +1,9 @@
 [![Tests](https://github.com//ckanext-versions/workflows/Tests/badge.svg?branch=main)](https://github.com//ckanext-versions/actions)
 
 # ckanext-versions
-
-**TODO:** Put a description of your extension here:  What does it do? What features does it have? Consider including some screenshots or embedding a video!
-
-
-## Requirements
-
-**TODO:** For example, you might want to mention here which versions of CKAN this
-extension works with.
-
-If your extension works across different versions you can add the following table:
-
-Compatibility with core CKAN versions:
-
-| CKAN version    | Compatible?   |
-| --------------- | ------------- |
-| 2.6 and earlier | not tested    |
-| 2.7             | not tested    |
-| 2.8             | not tested    |
-| 2.9             | not tested    |
-
-Suggested values:
-
-* "yes"
-* "not tested" - I can't think of a reason why it wouldn't work
-* "not yet" - there is an intention to get it working
-* "no"
-
+This CKAN extension allows users to create and manage versions of datasets. It provides a versioning system that tracks changes made to datasets over time and also allows user to view and download previous versions.
 
 ## Installation
-
-**TODO:** Add any additional install steps to the list below.
-   For example installing any non-Python dependencies or adding any required
-   config settings.
-
 To install ckanext-versions:
 
 1. Activate your CKAN virtual environment, for example:
@@ -56,68 +25,102 @@ To install ckanext-versions:
 
      sudo service apache2 reload
 
+##  Working with Versions
 
-## Config settings
-
-None at present
-
-**TODO:** Document any optional config settings here. For example:
-
-	# The minimum number of hours to wait before re-checking a resource
-	# (optional, default: 24).
-	ckanext.versions.some_setting = some_default_value
+### 1. Create the First Version
+- **Set the Version**: In the dataset metadata, enter `Version: v1`.
+- **Add Resources**: Upload your initial files.
+- **Publish**: Save the dataset — this becomes **Version 1.0**.
 
 
-## Developer installation
-
-To install ckanext-versions for development, activate your CKAN virtualenv and
-do:
-
-    git clone https://github.com//ckanext-versions.git
-    cd ckanext-versions
-    pip install -e .
-    pip install -r dev-requirements.txt
+### 2. Publish a New Version
+- **Update the Version**: Edit the dataset metadata and change the version number to `v2` (or the next number).
+- **Update/Add Resources**: Upload new files or update existing ones as needed.
+- **Save**: Your changes are saved as **Version 2.0**.  
+  *(Don't worry — previous versions stay accessible!)*
 
 
-## Tests
+### 3. Edit Without Creating a New Version
+- If you **edit** resources or metadata **without changing the version number**,  
+  your updates will **overwrite** the current (latest) version.  
+  *(No new version will be created.)*
 
-To run the tests, do:
 
-    pytest --ckan-ini=test.ini
+```mermaid
+flowchart TD
+  start([Start])
+
+  start --> create_v1[Create First Version]
+  create_v1 --> set_v1[Set Version to v1]
+  set_v1 --> upload_initial[Upload Initial Files]
+  upload_initial --> publish_v1[Publish as Version 1.0]
+
+  publish_v1 --> need_new_version{Is this a Major Update?}
+
+  need_new_version -->|Yes| new_version[Create New Version]
+  new_version --> change_version[Update Version Number to v2 or higher]
+  change_version --> upload_new[Upload New or Updated Files]
+  upload_new --> publish_new[Publish as New Version]
+
+  need_new_version -->|No| edit_current[Edit Current Version]
+  edit_current --> update_files[Improve dataset]
+  update_files --> save_changes[Save Changes - No New Version]
 
 
-## Releasing a new version of ckanext-versions
 
-If ckanext-versions should be available on PyPI you can follow these steps to publish a new version:
+## API Documentation
 
-1. Update the version number in the `pyproject.toml` file. See [PEP 440](http://legacy.python.org/dev/peps/pep-0440/#public-version-identifiers) for how to choose version numbers.
+### `package_version_create`
+**Description**: Creates a new version of a dataset.
 
-2. Make sure you have the latest version of necessary packages:
+**Parameters**:
+- `package_id` (str): The ID of the dataset.
+- `name` (str): The name of the version.
+- `description` (str, optional): The description of the version.
+- `creator_user_id` (str, optional): The ID of the user creating the version.
 
-    pip install --upgrade setuptools wheel twine
+**Returns**: A dictionary representing the created version.
 
-3. Create a source and binary distributions of the new version:
 
-       python -m build && twine check dist/*
+### `package_version_update`
+**Description**: Updates an existing dataset version.
 
-   Fix any errors you get.
+**Parameters**:
+- `data_dict` (dict): Contains the version details to update.
 
-4. Upload the source distribution to PyPI:
+**Returns**: A dictionary representing the updated version.
 
-       twine upload dist/*
 
-5. Commit any outstanding changes:
+### `package_version_show`
+**Description**: Retrieves details of a specific dataset version.
 
-       git commit -a
-       git push
+**Parameters**:
+- `id` (str): The ID of the version.
 
-6. Tag the new release of the project on GitHub with the version number from
-   the `setup.py` file. For example if the version number in `setup.py` is
-   0.0.1 then do:
+**Returns**: A dictionary representing the version.
 
-       git tag 0.0.1
-       git push --tags
+### `package_version_list`
+**Description**: Lists all versions of a dataset.
 
-## License
+**Parameters**:
+- `package_id` (str): The ID of the dataset.
 
-[AGPL](https://www.gnu.org/licenses/agpl-3.0.en.html)
+**Returns**: A list of dictionaries representing the versions.
+
+### `package_version_delete`
+**Description**: Deletes a specific dataset version.
+
+**Parameters**:
+- `id` (str): The ID of the version to delete.
+
+**Returns**: A dictionary indicating success.
+
+
+### `package_version_diff`
+**Description**: Returns a diff of the current version compared to the previous version.
+
+**Parameters**:
+- `id` (str): The ID of the version.
+- `diff_type` (str, optional): The type of diff (`unified`, `context`, or `html`).
+
+**Returns**: A dictionary containing the diff.
