@@ -16,7 +16,7 @@ def package_version_create(
     return {
         "name": [not_empty, unicode_only],
         "package_id": [not_empty, unicode_only, package_id_exists],
-        "description": [ignore_missing],
+        "notes": [ignore_missing],
         "created": [ignore_missing, isodate],
         "creator_user_id": [ignore_missing, user_id_or_name_exists],
     }
@@ -37,7 +37,7 @@ def package_version_update(
         "id": [ignore_missing, unicode_only],
         "name": [ignore_missing, unicode_only],
         "package_id": [ignore_missing, unicode_only, package_id_exists],
-        "description": [ignore_missing],
+        "notes": [ignore_missing],
         "data": [ignore_missing],
         "created": [ignore_missing, isodate],
         "creator_user_id": [ignore_missing, user_id_or_name_exists],

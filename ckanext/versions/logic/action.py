@@ -27,7 +27,7 @@ def package_version_create(context, data_dict):
     )
 
     # Check if the version already exists
-    existing_version = DatasetVersion.get(name=data_dict["name"])
+    existing_version = DatasetVersion.get(name=data_dict["name"], package_id=data_dict["package_id"])
     if existing_version:
         raise tk.ValidationError(
             f"Version with name '{data_dict['name']}' already exists."
@@ -36,7 +36,7 @@ def package_version_create(context, data_dict):
     version = DatasetVersion.create(
         package_id=data_dict["package_id"],
         name=data_dict["name"],
-        description=data_dict.get("description"),
+        notes=data_dict.get("notes"),
         data=package_dict,
         creator_user_id=package_dict.get("creator_user_id"),
     )
@@ -82,7 +82,7 @@ def package_version_show(context, data_dict):
         print(e)
     data_dict = dataset_version.as_dict().get("data", {})
     data_dict["version_id"] = dataset_version.id
-    data_dict["version_description"] = dataset_version.description
+    data_dict["version_notes"] = dataset_version.notes
     return data_dict
 
 
@@ -142,15 +142,19 @@ def _version_create_or_update(context, data_dict):
     :param data_dict: The data dictionary containing version details
     """
     current_version = data_dict.get("version")
+    notes = data_dict.get("version_notes")
+    package_id = data_dict.get("id")
+    existing_version = DatasetVersion.get(name=current_version, package_id=package_id)
+    print(notes)
 
-    if getattr(tk.g, "update_version", False):
-
+    if existing_version:
         try:
             tk.get_action("package_version_update")(
                 context,
                 {
                     "name": current_version,
                     "data": data_dict,
+                    "notes": notes,
                 },
             )
             log.info(
@@ -165,7 +169,6 @@ def _version_create_or_update(context, data_dict):
                     "error": [f"Version with name '{current_version}' already exists."],
                 }
             )
-
     else:
         try:
             tk.get_action("package_version_create")(
@@ -173,7 +176,7 @@ def _version_create_or_update(context, data_dict):
                 {
                     "package_id": data_dict.get("id"),
                     "name": current_version,
-                    "description": data_dict.get("description"),
+                    "notes": notes,
                     "creator_user_id": data_dict.get("creator_user_id"),
                 },
             )

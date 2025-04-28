@@ -30,7 +30,7 @@ class DatasetVersion(DomainObject.DomainObject, tk.BaseModel):
     id = Column(UuidType, primary_key=True, default=UuidType.default)
     package_id = Column(UuidType, ForeignKey("package.id"), nullable=False)
     name = Column(Unicode, nullable=False)
-    description = Column(Unicode, nullable=True)
+    notes = Column(Unicode, nullable=True)
     data = Column(JSONB, nullable=False)
     creator_user_id = Column(UuidType, ForeignKey("user.id"), nullable=True)
     created = Column(DateTime, default=datetime.datetime.utcnow)

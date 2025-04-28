@@ -27,7 +27,7 @@ def upgrade():
         sa.Column("id", UuidType, primary_key=True),
         sa.Column("package_id", UuidType, sa.ForeignKey("package.id"), nullable=False),
         sa.Column("name", sa.Unicode, nullable=False),
-        sa.Column("description", sa.Unicode, nullable=True),
+        sa.Column("notes", sa.Unicode, nullable=True),
         sa.Column("data", JSONB, nullable=False),
         sa.Column("creator_user_id", UuidType, sa.ForeignKey("user.id"), nullable=True),
         sa.Column("created", sa.DateTime, server_default=sa.func.current_timestamp()),

@@ -19,7 +19,6 @@ def package_version(key, data, errors, context):
     
     previous_version = DatasetVersion.recent_versions(pkg.id)
     if previous_version and current_version == previous_version.name:
-        tk.g.update_version = True # Even if the version is the same, we want to update it
         return data.get(key)
 
     existing_version = DatasetVersion.get(name=current_version, package_id=pkg.id)

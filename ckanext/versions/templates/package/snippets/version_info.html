@@ -7,7 +7,7 @@
     <thead>
         <tr>
             <th scope="col">Version</th>
-            <th scope="col">Description</th>
+            <th scope="col">Notes</th>
             <th scope="col">Published</th>
         </tr>
     </thead>
@@ -23,7 +23,7 @@
                     </a>
                 {% endif %}
             </td>
-            <td>{{ version.description or "" }}</td>
+            <td>{{ version.notes or "" }}</td>
             <td>{{ version.created }}</td>
         </tr>
         {% endfor %}
