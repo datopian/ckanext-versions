@@ -28,7 +28,7 @@ class DatasetVersion(DomainObject.DomainObject, tk.BaseModel):
         Index("idx_package_version_name", "name", "created"),
     )
     id = Column(UuidType, primary_key=True, default=UuidType.default)
-    package_id = Column(UuidType, ForeignKey("package.id"), nullable=False)
+    package_id = Column(UuidType, ForeignKey("package.id", ondelete="CASCADE"), nullable=False)
     name = Column(Unicode, nullable=False)
     notes = Column(Unicode, nullable=True)
     data = Column(JSONB, nullable=False)

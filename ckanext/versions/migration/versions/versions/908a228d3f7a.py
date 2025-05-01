@@ -25,7 +25,7 @@ def upgrade():
     op.create_table(
         "package_version",
         sa.Column("id", UuidType, primary_key=True),
-        sa.Column("package_id", UuidType, sa.ForeignKey("package.id"), nullable=False),
+        sa.Column("package_id", UuidType, sa.ForeignKey("package.id", ondelete="CASCADE"), nullable=False),
         sa.Column("name", sa.Unicode, nullable=False),
         sa.Column("notes", sa.Unicode, nullable=True),
         sa.Column("data", JSONB, nullable=False),
