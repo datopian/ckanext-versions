@@ -1,6 +1,8 @@
 import os
 import datetime
 import ckan.plugins.toolkit as toolkit
+from flask import has_request_context
+
 from ckan.lib.uploader import ResourceUpload as DefaultResourceUpload
 
 
@@ -27,13 +29,18 @@ try:
             self.resource = resource
 
         def get_path(self, id, filename):
-            last_modified_str = _get_stringified_date(
-                self.resource.get("last_modified")
-            )
-            request_timestamp = toolkit.request.view_args.get("timestamp")
-            last_modified_str = request_timestamp or last_modified_str
-            base_directory = self.get_directory(id, self.storage_path)
-            directory = os.path.join(base_directory, last_modified_str)
+            if self.resource and self.resource.get("last_modified", None):
+                last_modified_str = _get_stringified_date(
+                    self.resource.get("last_modified")
+                )
+                if has_request_context():
+                    request_timestamp = toolkit.request.view_args.get("timestamp")
+                else:
+                    request_timestamp = None
+
+                last_modified_str = request_timestamp or last_modified_str
+                base_directory = self.get_directory(id, self.storage_path)
+                directory = os.path.join(base_directory, last_modified_str)
             return os.path.join(directory, filename)
 
 except ImportError:
@@ -50,7 +57,10 @@ class LocalResourceUpload(DefaultResourceUpload):
     def get_path(self, id, filename=None):
         filepath = super(LocalResourceUpload, self).get_path(id)
         if self.resource and self.resource.get("last_modified", None):
-            request_timestamp = toolkit.request.view_args.get("timestamp")
+            if has_request_context():
+                request_timestamp = toolkit.request.view_args.get("timestamp")
+            else:
+                request_timestamp = None
             last_modified_str = _get_stringified_date(self.resource["last_modified"])
             last_modified_str = request_timestamp or last_modified_str
             filepath = "-".join([filepath, last_modified_str])
