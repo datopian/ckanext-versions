@@ -147,7 +147,6 @@ def _version_create_or_update(context, data_dict):
     notes = data_dict.get("version_notes")
     package_id = data_dict.get("id")
     existing_version = DatasetVersion.get(name=current_version, package_id=package_id)
-    print(notes)
 
     if existing_version:
         try:
