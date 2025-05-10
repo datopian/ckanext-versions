@@ -11,7 +11,6 @@
       {% endtrans %}
     </div>
   {% endblock %}
-
   {{ super() }}
 {% endblock package_description %}
 
@@ -20,4 +19,14 @@
 {% endblock %}
 
 {% block content_action %}
+{% endblock %}
+
+{% block package_additional_info %}
+  {% if h.scheming_plugin_enabled() %}
+    {%- set schema = h.scheming_get_dataset_schema(dataset_type) -%}
+    {% snippet "scheming/package/snippets/additional_info.html",
+    pkg_dict=pkg, dataset_type=dataset_type, schema=schema %}
+  {% else %}
+    {{ block.super }} {# Use block.super to call the parent block in Jinja2 #}
+  {% endif %}
 {% endblock %}
