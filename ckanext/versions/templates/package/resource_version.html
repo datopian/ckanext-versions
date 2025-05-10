@@ -1,5 +1,25 @@
 {% extends "package/resource_read.html" %}
 
+
+{% block resource_actions_inner %}
+<li>
+  <div class="btn-group">
+  <a class="btn btn-primary resource-url-analytics" href="{{ res.url }}">
+    {% if res.resource_type in ('listing', 'service') %}
+      <i class="fa fa-eye"></i> {{ _('View') }}
+    {% elif  res.resource_type == 'api' %}
+      <i class="fa fa-key"></i> {{ _('API Endpoint') }}
+    {% elif not res.has_views and not res.url_type == 'upload' %}
+      <i class="fa fa-external-link"></i> {{ _('Go to resource') }}
+    {% else %}
+      <i class="fa fa-arrow-circle-down"></i> {{ _('Download') }}
+    {% endif %}
+  </a>
+  {% block download_resource_button %}{% endblock download_resource_button %}
+  </div>
+</li>
+{% endblock %}
+
 {% block action_manage %}
 {% endblock action_manage %}
 
@@ -19,7 +39,6 @@
 {% endblock %}
 
 {% block data_preview %}
-
 {% endblock %}
 
 
