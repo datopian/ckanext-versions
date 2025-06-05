@@ -20,3 +20,11 @@ def get_package_version_list(package_id):
     return version_list
 
 
+def scheming_plugin_enabled():
+    """
+    Check if the scheming plugin is enabled.
+    :return: True if the scheming plugin is enabled, False otherwise
+    """
+    if 'scheming_datasets' in tk.config.get('ckan.plugins', ' '):
+        return True
+    return False
