@@ -60,6 +60,7 @@ class VersionsPlugin(plugins.SingletonPlugin):
     def get_helpers(self):
         return {
             "get_package_version_list": helpers.get_package_version_list,
+            "scheming_plugin_enabled": helpers.scheming_plugin_enabled,
         }
 
     # IBlueprints
