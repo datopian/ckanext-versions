@@ -102,8 +102,7 @@ class DatasetVersion(DomainObject.DomainObject, tk.BaseModel):
         version = None
         if kwargs.get("id"):
             version = cls.get(id=kwargs.get("id"))
-        elif kwargs.get("name"):
-            version = cls.get(name=kwargs.get("name"))
+            
         if not version:
             raise tk.ValidationError("Version not found")
 

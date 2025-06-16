@@ -153,6 +153,7 @@ def _version_create_or_update(context, data_dict):
             tk.get_action("package_version_update")(
                 context,
                 {
+                    "id": existing_version.id,
                     "name": current_version,
                     "data": data_dict,
                     "notes": notes,
@@ -164,7 +165,6 @@ def _version_create_or_update(context, data_dict):
                 data_dict.get("id"),
             )
         except tk.ValidationError as e:
-            print(e)
             raise tk.ValidationError(
                 {
                     "error": [f"Version with name '{current_version}' already exists."],
@@ -193,7 +193,6 @@ def _version_create_or_update(context, data_dict):
                 }
             )
         except Exception as e:
-            print(e)
             raise tk.ValidationError(
                 {
                     "message": ["Error creating version"],
@@ -219,9 +218,6 @@ def package_version_exists(context, data_dict):
     if not version:
         return {"exists": False}
     return {"exists": True}
-
-
-
 
 
 @tk.side_effect_free
